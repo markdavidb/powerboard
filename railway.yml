@@ -1,0 +1,120 @@
+services:
+  user:
+    build:
+      context: ./backend
+      dockerfile: services/user_service/Dockerfile
+    env_file: ./backend/.env
+    ports:
+      - "8001:8001"
+
+  project:
+    build:
+      context: ./backend
+      dockerfile: services/project_service/Dockerfile
+    env_file: ./backend/.env
+    environment:
+      GATEWAY_URL: "http://realtime-gateway:9000"
+      GATEWAY_INTERNAL_SECRET: "${GATEWAY_INTERNAL_SECRET}"
+    depends_on:
+      - user
+      - realtime-gateway
+    ports:
+      - "8002:8002"
+
+  analytics:
+    build:
+      context: ./backend
+      dockerfile: services/analytics_service/Dockerfile
+    env_file: ./backend/.env
+    environment:
+      GATEWAY_URL: "http://realtime-gateway:9000"
+      GATEWAY_INTERNAL_SECRET: "${GATEWAY_INTERNAL_SECRET}"
+    depends_on:
+      - user
+      - project
+      - realtime-gateway
+    ports:
+      - "8003:8003"
+
+  notification:
+    build:
+      context: ./backend
+      dockerfile: services/notification_service/Dockerfile
+    env_file: ./backend/.env
+    environment:
+      GATEWAY_URL: "http://realtime-gateway:9000"
+      GATEWAY_INTERNAL_SECRET: "${GATEWAY_INTERNAL_SECRET}"
+    depends_on:
+      - project
+      - realtime-gateway
+    ports:
+      - "8004:8004"
+
+  scheduler:
+    build:
+      context: ./backend
+      dockerfile: services/scheduler_service/Dockerfile
+    env_file: ./backend/.env
+    environment:
+      GATEWAY_URL: "http://realtime-gateway:9000"
+      GATEWAY_INTERNAL_SECRET: "${GATEWAY_INTERNAL_SECRET}"
+    depends_on:
+      - realtime-gateway
+    ports:
+      - "8005:8005"
+
+  realtime-gateway:
+    build:
+      context: ./backend
+      dockerfile: services/realtime_gateway/Dockerfile
+    env_file: ./backend/.env
+    depends_on:
+      - user
+    ports:
+      - "9000:9000"
+
+  ai:
+    build:
+      context: ./backend
+      dockerfile: services/ai_service/Dockerfile
+    env_file: ./backend/.env
+    depends_on:
+      - user
+    ports:
+      - "8006:8006"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_AUTH0_DOMAIN: ${VITE_AUTH0_DOMAIN}
+        VITE_AUTH0_CLIENT_ID: ${VITE_AUTH0_CLIENT_ID}
+        VITE_AUTH0_SCOPE: ${VITE_AUTH0_SCOPE}
+        VITE_AUTH0_AUDIENCE: ${VITE_AUTH0_AUDIENCE}
+        VITE_USER_API: ${VITE_USER_API}
+        VITE_PROJECT_API: ${VITE_PROJECT_API}
+        VITE_ANALYTICS_API: ${VITE_ANALYTICS_API}
+        VITE_NOTIFICATION_API: ${VITE_NOTIFICATION_API}
+        VITE_AI_API: ${VITE_AI_API}
+    env_file:
+      - .env    # for runtime only
+    ports:
+      - "3000:80"
+    depends_on:
+      - user
+      - project
+      - analytics
+      - notification
+      - scheduler
+      - realtime-gateway
+      - ai
+  nginx:
+    image: nginx:1.27-alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./backend/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - realtime-gateway
+      - project
