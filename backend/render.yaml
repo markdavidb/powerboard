@@ -1,0 +1,87 @@
+# render.yaml
+
+services:
+  - name: nginx
+    type: web
+    env: docker
+    plan: free
+    dockerContext: .
+    dockerfilePath: nginx/Dockerfile
+    envVars:
+      - key: PORT
+        value: "80"
+      - key: PROJECT_URL
+        value: "project-5qjx.onrender.com"
+      - key: GATEWAY_URL
+        value: "realtime-gateway.onrender.com"
+
+
+  - name: realtime-gateway
+    type: web
+    env: docker
+    plan: free
+    dockerContext: .
+    dockerfilePath: services/realtime_gateway/Dockerfile
+    envVars:
+      - key: PORT
+        value: "9000"
+
+  - name: user
+    type: web
+    env: docker
+    plan: free
+    dockerContext: .
+    dockerfilePath: services/user_service/Dockerfile
+    envVars:
+      - key: PORT
+        value: "8001"
+
+  - name: project
+    type: web
+    env: docker
+    plan: free
+    dockerContext: .
+    dockerfilePath: services/project_service/Dockerfile
+    envVars:
+      - key: PORT
+        value: "8002"
+
+  - name: analytics
+    type: web
+    env: docker
+    plan: free
+    dockerContext: .
+    dockerfilePath: services/analytics_service/Dockerfile
+    envVars:
+      - key: PORT
+        value: "8003"
+
+  - name: ai
+    type: web
+    env: docker
+    plan: free
+    dockerContext: .
+    dockerfilePath: services/ai_service/Dockerfile
+    envVars:
+      - key: PORT
+        value: "8006"
+
+  - name: notification-worker
+    type: web
+    env: docker
+    plan: free
+    dockerContext: .
+    dockerfilePath: services/notification_service/Dockerfile
+    envVars:
+      - key: PORT
+        value: "8004"
+
+  - name: scheduler-worker
+    type: web
+    env: docker
+    plan: free
+    dockerContext: .
+    dockerfilePath: services/scheduler_service/Dockerfile
+    envVars:
+      - key: PORT
+        value: "8005"

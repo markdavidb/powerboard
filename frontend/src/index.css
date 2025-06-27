@@ -1,0 +1,64 @@
+/* index.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: 'Roboto', sans-serif;
+
+}
+
+/* Links */
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+a:hover {
+  color: #535bf2;
+}
+
+/* Hide focus outlines in Recharts */
+.recharts-surface *:focus {
+  outline: none !important;
+}
+
+/* Full‑height layout */
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden; /* prevent unwanted scroll */
+}
+
+/* Custom scrollbar (WebKit) */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  background-color: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: transparent;
+  border-radius: 4px;
+}
+/* Firefox */
+.custom-scrollbar {
+  scrollbar-width: none;
+}
+body {
+  font-family: 'Poppins', sans-serif;
+}
+/* And make any .custom-scrollbar wrappers match the new background */
+.custom-scrollbar {
+  background-color: #181926; /* or #c0392b, or whatever red you want */
+}
+
+.full-screen-center {
+  display: flex;
+  justify-content: center;  /* horizontal centering */
+  align-items: center;      /* vertical centering */
+  height: 100vh;            /* fill the viewport */
+  width: 100vw;             /* optional, but guarantees full width */
+}

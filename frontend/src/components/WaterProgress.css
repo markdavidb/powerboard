@@ -1,0 +1,19 @@
+/* src/components/WaterProgress.css */
+.water-progress {
+    width: 200px;
+    height: 200px;
+    margin: auto;
+}
+
+.wave {
+    animation: wave-animation 2s infinite linear;
+}
+
+@keyframes wave-animation {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-200px);
+    }
+}

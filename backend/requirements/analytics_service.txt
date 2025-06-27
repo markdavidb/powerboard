@@ -1,0 +1,4 @@
+-r common.txt
+pandas==2.2.3
+xlsxwriter==3.1.0
+

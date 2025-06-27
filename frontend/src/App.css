@@ -1,0 +1,20 @@
+/* App.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #181926; /* or #c0392b, or whatever red you want */
+}
+
+/* Make sure your root container also fills the screen */
+html, body, #root {
+  width: 100%;
+  height: 100%;
+}
+
+
+.recharts-surface *:focus {
+  outline: none !important;
+}
