@@ -133,9 +133,9 @@ export default function ChartBar({ data, title, subtitle }) {
             {/* footer with trend */}
             <CardActions sx={{ flexDirection:'column', alignItems:'flex-start', px:2, pb:2 }}>
                 <Box sx={{ display:'flex', alignItems:'center', gap:0.5 }}>
-                    <Typography variant="body2" sx={{ fontWeight:500 }}>
-                        Trending {change>0?'up':'down'} by {Math.abs(change)}% this period
-                    </Typography>
+                    {/*<Typography variant="body2" sx={{ fontWeight:500 }}>*/}
+                    {/*    Trending {change>0?'up':'down'} by {Math.abs(change)}% this period*/}
+                    {/*</Typography>*/}
                     <TrendingUp
                         size={16}
                         color={change>0 ? theme.palette.success.main : theme.palette.error.main}
