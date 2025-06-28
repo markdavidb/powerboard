@@ -84,7 +84,7 @@ export default function BigTasksPage() {
         API.project.get(`/projects/${projectId}`)
             .then(r => setProject(r.data))
             .catch(console.error);
-        API.project.get('/projects/big_tasks/big_tasks', {params: {project_id: projectId, mine_only: true}})
+        API.project.get('/projects/big_tasks/big_tasks/', {params: {project_id: projectId, mine_only: true}})
             .then(r => setBigTasks(r.data))
             .catch(console.error)
             .finally(() => setLoading(false));
