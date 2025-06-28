@@ -14,7 +14,7 @@ export default function useCalendarData(projectId) {
             // Fetch project, epics, and tasks in parallel
             const [projRes, epicsRes, tasksRes] = await Promise.all([
                 API.project.get(`/projects/${projectId}`),
-                API.project.get('/projects/big_tasks/big_tasks', {params: {project_id: projectId}}),
+                API.project.get('/projects/big_tasks/big_tasks/', {params: {project_id: projectId}}),
                 API.project.get('/projects/tasks/', {params: {project_id: projectId}}),
             ]);
 
