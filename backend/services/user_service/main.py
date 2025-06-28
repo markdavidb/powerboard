@@ -10,6 +10,8 @@ wire_auth0_docs(app, port=8001)                   # ← add
 # CORS (adjust for your frontend)
 origins = [
     "http://localhost:5173",   # Vite dev
+    "http://localhost:3000",  # Vite dev
+
     "http://localhost:4174",   # Vite preview build
     "http://64.225.111.50",    # Public IP
     "https://powerboard.up.railway.app",

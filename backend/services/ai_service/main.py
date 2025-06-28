@@ -14,6 +14,7 @@ load_dotenv()
 app = FastAPI(title="AI Service (OpenAI)")
 origins = [
     "http://localhost:5173",   # Vite dev
+    "http://localhost:3000",   # Vite dev
     "http://localhost:4174",   # Vite preview build
     "http://64.225.111.50",    # Public IP
     "https://powerboard.up.railway.app",

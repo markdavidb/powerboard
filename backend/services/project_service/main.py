@@ -19,6 +19,8 @@ wire_auth0_docs(app, port=8002)
 # ─────────────── CORS ───────────────
 origins = [
     "http://localhost:5173",
+    "http://localhost:3000",  # Vite dev
+
     "http://localhost:4174",
     "http://64.225.111.50",
     "https://powerboard.up.railway.app",
