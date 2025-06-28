@@ -1,33 +1,49 @@
 # common/database.py
+# ──────────────────────────────────────────────────────────────────────────────
+# Central SQLAlchemy engine + session factory.
+# Designed for Supabase Nano:
+#   • Default pool size = 2 sockets per process (override with DB_POOL_SIZE)
+#   • No overflow, so we never exceed the hard 200-connection limit.
+#   • Pre-ping and recycle keep long-lived services healthy.
+# ──────────────────────────────────────────────────────────────────────────────
 
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from common.config import settings
 
-DATABASE_URL = settings.DATABASE_URL
+# -----------------------------------------------------------------------------
+# Connection string (set this in Railway / .env)
+# -----------------------------------------------------------------------------
+DATABASE_URL: str = settings.DATABASE_URL
 
-# —————————————————————————————————————————————————————————————————————————
-# Engine: cap the pool so we never exceed Supabase's pool of 15
-# —————————————————————————————————————————————————————————————————————————
+# -----------------------------------------------------------------------------
+# Pool configuration
+# -----------------------------------------------------------------------------
+POOL_SIZE       = int(getattr(settings, "DB_POOL_SIZE", 2))   # sockets / process
+MAX_OVERFLOW    = 0        # never go beyond POOL_SIZE
+POOL_TIMEOUT    = 30       # seconds to wait before raising
+POOL_RECYCLE    = 1_800    # drop idle sockets after 30 min
+POOL_PRE_PING   = True     # heal TCP half-opens automatically
+
 engine = create_engine(
     DATABASE_URL,
-    pool_size=5,         # at most  5 persistent connections
-    max_overflow=0,      # no extra “overflow” sockets
-    pool_timeout=30,     # fail fast if you hit all 5
-    pool_pre_ping=True   # auto‐ recycle dropped connections
+    pool_size     = POOL_SIZE,
+    max_overflow  = MAX_OVERFLOW,
+    pool_timeout  = POOL_TIMEOUT,
+    pool_recycle  = POOL_RECYCLE,
+    pool_pre_ping = POOL_PRE_PING,
 )
 
-SessionLocal = sessionmaker(
-    autocommit=False,
-    autoflush=False,
-    bind=engine
-)
+# -----------------------------------------------------------------------------
+# Session factory and base model
+# -----------------------------------------------------------------------------
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
-# —————————————————————————————————————————————————————————————————————————
-# Dependency‐helper to ensure sessions always get closed
-# —————————————————————————————————————————————————————————————————————————
+# -----------------------------------------------------------------------------
+# FastAPI dependency – makes sure every DB session is returned to the pool
+# -----------------------------------------------------------------------------
 def get_db():
     db = SessionLocal()
     try:
@@ -35,9 +51,10 @@ def get_db():
     finally:
         db.close()
 
-# —————————————————————————————————————————————————————————————————————————
-# (DEV‐only) import all your models so metadata.create_all() sees them
-# —————————————————————————————————————————————————————————————————————————
+# -----------------------------------------------------------------------------
+# (Development only) import all models so `metadata.create_all()` sees them.
+# Remove the import block if you run your migrations with Alembic.
+# -----------------------------------------------------------------------------
 import common.models.user
 import common.models.project
 import common.models.project_member
