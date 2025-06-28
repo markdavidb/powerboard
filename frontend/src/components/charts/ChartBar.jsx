@@ -9,7 +9,7 @@ import {
     Box,
     useTheme
 } from '@mui/material';
-import { TrendingUp } from 'lucide-react';
+import {TrendingUp} from 'lucide-react';
 import {
     ResponsiveContainer,
     BarChart,
@@ -21,29 +21,39 @@ import {
 
 // full month names and abbreviations
 const monthNames = [
-    'January','February','March','April','May','June',
-    'July','August','September','October','November','December'
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
 ];
-const monthAbbr = monthNames.map(m => m.slice(0,3));
+const monthAbbr = monthNames.map(m => m.slice(0, 3));
 
 /**
  * Props:
  * • data = [{ month: "2025-01", open: 120, closed: 80 }, …]
  * • title, subtitle = strings
  */
-export default function ChartBar({ data, title, subtitle }) {
+export default function ChartBar({data, title, subtitle}) {
     const theme = useTheme();
 
     // month-over-month total change %
     const lastIdx = data.length - 1;
     const prevIdx = data.length - 2;
     const lastSum = data[lastIdx]
-        ? (data[lastIdx].open||0) + (data[lastIdx].closed||0)
+        ? (data[lastIdx].open || 0) + (data[lastIdx].closed || 0)
         : 0;
     const prevSum = data[prevIdx]
-        ? (data[prevIdx].open||0) + (data[prevIdx].closed||0)
-        : 1;
-    const change = (((lastSum - prevSum) / prevSum) * 100).toFixed(1);
+        ? (data[prevIdx].open || 0) + (data[prevIdx].closed || 0)
+        : 0;
+
+    let changeText;
+    let changeValue = null;
+
+    if (data.length < 2 || prevSum === 0) {
+        changeText = 'N/A';
+    } else {
+        changeValue = ((lastSum - prevSum) / prevSum) * 100;
+        changeText = `${changeValue > 0 ? 'up' : 'down'} by ${Math.abs(changeValue).toFixed(1)}% this period`;
+    }
+
 
     return (
         <Card
@@ -62,7 +72,7 @@ export default function ChartBar({ data, title, subtitle }) {
                     <Typography
                         variant="body2"
                         color="text.secondary"
-                        sx={{ fontWeight:600, textTransform:'uppercase', letterSpacing:1 }}
+                        sx={{fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1}}
                     >
                         {title}
                     </Typography>
@@ -71,20 +81,20 @@ export default function ChartBar({ data, title, subtitle }) {
                     <Typography
                         variant="body2"
                         color="text.secondary"
-                        sx={{ fontSize:13, mt:0.5 }}
+                        sx={{fontSize: 13, mt: 0.5}}
                     >
                         {subtitle}
                     </Typography>
                 }
-                sx={{ px:2, pt:2, '& .MuiCardHeader-content':{ mt:0 } }}
+                sx={{px: 2, pt: 2, '& .MuiCardHeader-content': {mt: 0}}}
             />
 
             {/* the chart */}
-            <CardContent sx={{ height:170, px:1 }}>
+            <CardContent sx={{height: 170, px: 1}}>
                 <ResponsiveContainer width="100%" height="100%">
                     <BarChart
                         data={data}
-                        margin={{ top:10, right:0, bottom:30, left:0 }}
+                        margin={{top: 10, right: 0, bottom: 30, left: 0}}
                         barCategoryGap="25%"
                         barGap={6}
                     >
@@ -92,9 +102,9 @@ export default function ChartBar({ data, title, subtitle }) {
                             dataKey="month"
                             axisLine={false}
                             tickLine={false}
-                            tick={({ x, y, payload }) => {
+                            tick={({x, y, payload}) => {
                                 const [year, m] = payload.value.split('-');
-                                const idx = parseInt(m,10) - 1;
+                                const idx = parseInt(m, 10) - 1;
                                 return (
                                     <text
                                         x={x}
@@ -113,33 +123,35 @@ export default function ChartBar({ data, title, subtitle }) {
                         <Tooltip
                             contentStyle={{
                                 background: '#1e1e2f',
-                                border:'none',
-                                borderRadius:6,
-                                padding:'8px 12px'
+                                border: 'none',
+                                borderRadius: 6,
+                                padding: '8px 12px'
                             }}
-                            itemStyle={{ color:'#fff' }}
-                            cursor={{ fill:'rgba(255,255,255,0.05)' }}
+                            itemStyle={{color: '#fff'}}
+                            cursor={{fill: 'rgba(255,255,255,0.05)'}}
                             labelFormatter={() => ''}
                         />
 
-                        <ReferenceLine stroke="rgba(255,255,255,0.15)" ifOverflow="visible" />
+                        <ReferenceLine stroke="rgba(255,255,255,0.15)" ifOverflow="visible"/>
 
-                        <Bar dataKey="open"   fill={theme.palette.info.main}   radius={[4,4,0,0]} />
-                        <Bar dataKey="closed" fill={theme.palette.success.main} radius={[4,4,0,0]} />
+                        <Bar dataKey="open" fill={theme.palette.info.main} radius={[4, 4, 0, 0]}/>
+                        <Bar dataKey="closed" fill={theme.palette.success.main} radius={[4, 4, 0, 0]}/>
                     </BarChart>
                 </ResponsiveContainer>
             </CardContent>
 
             {/* footer with trend */}
-            <CardActions sx={{ flexDirection:'column', alignItems:'flex-start', px:2, pb:2 }}>
-                <Box sx={{ display:'flex', alignItems:'center', gap:0.5 }}>
-                    {/*<Typography variant="body2" sx={{ fontWeight:500 }}>*/}
-                    {/*    Trending {change>0?'up':'down'} by {Math.abs(change)}% this period*/}
-                    {/*</Typography>*/}
-                    <TrendingUp
-                        size={16}
-                        color={change>0 ? theme.palette.success.main : theme.palette.error.main}
-                    />
+            <CardActions sx={{flexDirection: 'column', alignItems: 'flex-start', px: 2, pb: 2}}>
+                <Box sx={{display: 'flex', alignItems: 'center', gap: 0.5}}>
+                    <Typography variant="body2" sx={{fontWeight: 500}}>
+                        Trending {changeValue === null ? changeText : changeText}
+                    </Typography>
+                    {changeValue !== null &&
+                        <TrendingUp
+                            size={16}
+                            color={changeValue > 0 ? theme.palette.success.main : theme.palette.error.main}
+                        />
+                    }
                 </Box>
                 <Typography variant="caption" color="text.secondary">
                     Showing the last {data.length} months
