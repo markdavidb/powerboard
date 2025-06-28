@@ -3,7 +3,7 @@
 FROM node:20 AS builder
 WORKDIR /app
 
-# 1) Accept all required VITE_ build args (Railway will inject them if defined as build args in the service)
+# 1) Accept build‐time VITE_ vars
 ARG VITE_AUTH0_DOMAIN
 ARG VITE_AUTH0_CLIENT_ID
 ARG VITE_AUTH0_SCOPE
@@ -14,31 +14,21 @@ ARG VITE_ANALYTICS_API
 ARG VITE_NOTIFICATION_API
 ARG VITE_AI_API
 
-# 2) Dynamically create .env file with all required VITE_ variables
-RUN echo "VITE_AUTH0_DOMAIN=$VITE_AUTH0_DOMAIN" > .env \
- && echo "VITE_AUTH0_CLIENT_ID=$VITE_AUTH0_CLIENT_ID" >> .env \
- && echo "VITE_AUTH0_SCOPE=$VITE_AUTH0_SCOPE" >> .env \
- && echo "VITE_AUTH0_AUDIENCE=$VITE_AUTH0_AUDIENCE" >> .env \
- && echo "VITE_USER_API=$VITE_USER_API" >> .env \
- && echo "VITE_PROJECT_API=$VITE_PROJECT_API" >> .env \
- && echo "VITE_ANALYTICS_API=$VITE_ANALYTICS_API" >> .env \
- && echo "VITE_NOTIFICATION_API=$VITE_NOTIFICATION_API" >> .env \
- && echo "VITE_AI_API=$VITE_AI_API" >> .env
+# 2) Create .env dynamically
+RUN printf "VITE_AUTH0_DOMAIN=%s\nVITE_AUTH0_CLIENT_ID=%s\nVITE_AUTH0_SCOPE=%s\nVITE_AUTH0_AUDIENCE=%s\nVITE_USER_API=%s\nVITE_PROJECT_API=%s\nVITE_ANALYTICS_API=%s\nVITE_NOTIFICATION_API=%s\nVITE_AI_API=%s\n" \
+  "$VITE_AUTH0_DOMAIN" "$VITE_AUTH0_CLIENT_ID" "$VITE_AUTH0_SCOPE" "$VITE_AUTH0_AUDIENCE" \
+  "$VITE_USER_API" "$VITE_PROJECT_API" "$VITE_ANALYTICS_API" "$VITE_NOTIFICATION_API" "$VITE_AI_API" \
+  > .env
 
-# 3) Install dependencies
+# 3) Install deps
 COPY package*.json ./
 RUN npm install
 
-# 4) Copy the rest of the frontend source code
+# 4) Copy source & build
 COPY . .
-
-# 5) Optional: show what will be used
-RUN cat .env
-
-# 6) Build the app for production
 RUN npm run build
 
-# 7) Stage 2: Nginx to serve static assets
+# 5) Serve with nginx
 FROM nginx:alpine
 COPY --from=builder /app/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
