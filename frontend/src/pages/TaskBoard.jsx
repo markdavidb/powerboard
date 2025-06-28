@@ -88,7 +88,7 @@ export default function TaskBoard() {
     useEffect(() => {
         (async () => {
             try {
-                const {data: p} = await API.project.get(`/projects/${projectId}/`);
+                const {data: p} = await API.project.get(`/projects/${projectId}`);
                 setProject(p);
                 if (epicId) {
                     const {data: e} = await API.project.get(`/projects/big_tasks/big_tasks/${epicId}/`);
