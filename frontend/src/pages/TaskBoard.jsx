@@ -91,7 +91,7 @@ export default function TaskBoard() {
                 const {data: p} = await API.project.get(`/projects/${projectId}`);
                 setProject(p);
                 if (epicId) {
-                    const {data: e} = await API.project.get(`/projects/big_tasks/big_tasks/${epicId}/`);
+                    const {data: e} = await API.project.get(`/projects/big_tasks/big_tasks/${epicId}`);
                     setEpic(e);
                 }
                 const params = {project_id: projectId};
