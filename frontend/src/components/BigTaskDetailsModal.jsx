@@ -1,5 +1,3 @@
-// src/components/BigTaskDetailsModal.jsx
-
 import React, { useState, useEffect } from 'react';
 import {
     Modal,
@@ -32,16 +30,16 @@ const statusOptions = ['To Do', 'In Progress', 'Done'];
 const priorityOptions = ['Highest', 'High', 'Medium', 'Low', 'Lowest'];
 
 export default function BigTaskDetailsModal({
-                                                open,
-                                                onClose,
-                                                bigTask,
-                                                onUpdated,
-                                                onDeleted,
-                                                container,
-                                            }) {
+    open,
+    onClose,
+    bigTask,
+    onUpdated,
+    onDeleted,
+    container,
+}) {
     const { enqueueSnackbar } = useSnackbar();
 
-    // Local form state
+    // form + UI state
     const [isEditing, setIsEditing] = useState(false);
     const [title, setTitle] = useState('');
     const [titleError, setTitleError] = useState('');
@@ -53,16 +51,15 @@ export default function BigTaskDetailsModal({
     // AI Assist state
     const [aiLoading, setAiLoading] = useState(false);
     const [aiSuggestions, setAiSuggestions] = useState([]);
-
-    // Suggestion add state
     const [addingIdx, setAddingIdx] = useState(null);
     const [added, setAdded] = useState({});
 
-    // Save/Delete state
+    // save/delete loading
     const [saving, setSaving] = useState(false);
     const [deleteOpen, setDeleteOpen] = useState(false);
     const [deleting, setDeleting] = useState(false);
 
+    // initialize when bigTask changes
     useEffect(() => {
         if (!bigTask) return;
         setTitle(bigTask.title || '');
@@ -77,6 +74,7 @@ export default function BigTaskDetailsModal({
         setAddingIdx(null);
     }, [bigTask]);
 
+    // AI assist
     const fetchAISuggestions = async () => {
         if (!description.trim()) {
             enqueueSnackbar('Add a description to get suggestions', { variant: 'info' });
@@ -90,8 +88,7 @@ export default function BigTaskDetailsModal({
                 n: 5,
             });
             setAiSuggestions(data.suggestions || []);
-        } catch (err) {
-            console.error('AI Assist error:', err.response?.data);
+        } catch {
             enqueueSnackbar('AI Assist failed', { variant: 'error' });
         } finally {
             setAiLoading(false);
@@ -102,7 +99,7 @@ export default function BigTaskDetailsModal({
         if (addingIdx !== null || added[idx]) return;
         setAddingIdx(idx);
         try {
-            const payload = {
+            await API.project.post('/projects/tasks/', {
                 title: suggestion,
                 description: '',
                 status: 'To Do',
@@ -110,23 +107,17 @@ export default function BigTaskDetailsModal({
                 issue_type: 'Task',
                 project_id: bigTask.project_id,
                 big_task_id: bigTask.id,
-            };
-            await API.project.post('/projects/tasks/', payload);
+            });
             setAdded(prev => ({ ...prev, [idx]: true }));
             enqueueSnackbar('Task added to board', { variant: 'success' });
-        } catch (err) {
-            console.error(err);
+        } catch {
             enqueueSnackbar('Failed to create task', { variant: 'error' });
         } finally {
             setAddingIdx(null);
         }
     };
 
-    const handleClose = () => {
-        setIsEditing(false);
-        onClose();
-    };
-
+    // saving edits
     const handleSave = async () => {
         if (saving) return;
         if (!title.trim()) {
@@ -135,29 +126,28 @@ export default function BigTaskDetailsModal({
         }
         setSaving(true);
         try {
-            const payload = {
-                title: title.trim(),
-                description,
-                due_date: dueDate ? new Date(dueDate).toISOString() : null,
-                status,
-                priority,
-                project_id: bigTask.project_id,
-            };
             const { data } = await API.project.put(
                 `/projects/big_tasks/big_tasks/${bigTask.id}`,
-                payload
+                {
+                    title: title.trim(),
+                    description,
+                    due_date: dueDate ? new Date(dueDate).toISOString() : null,
+                    status,
+                    priority,
+                    project_id: bigTask.project_id,
+                }
             );
             onUpdated?.(data);
-            setIsEditing(false);
             enqueueSnackbar('Epic updated', { variant: 'success' });
-        } catch (err) {
-            console.error(err);
+            setIsEditing(false);
+        } catch {
             enqueueSnackbar('Failed to update epic', { variant: 'error' });
         } finally {
             setSaving(false);
         }
     };
 
+    // deletion
     const handleDelete = async () => {
         setDeleting(true);
         try {
@@ -177,13 +167,18 @@ export default function BigTaskDetailsModal({
         }
     };
 
+    const closeForm = () => {
+        setIsEditing(false);
+        onClose();
+    };
+
     if (!bigTask) return null;
 
     return (
         <>
             <Modal
                 open={open}
-                onClose={handleClose}
+                onClose={closeForm}
                 container={container}
                 closeAfterTransition
                 BackdropProps={{ sx: { backgroundColor: 'rgba(0,0,0,0)' } }}
@@ -209,41 +204,23 @@ export default function BigTaskDetailsModal({
                         }}
                     >
                         {/* Header */}
-                        <Box
-                            sx={{
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'center',
-                                mb: 2,
-                            }}
-                        >
-                            <Typography variant="h6" color="text.primary">
-                                Epic Details
-                            </Typography>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                            <Typography variant="h6" color="text.primary">Epic Details</Typography>
                             <Box>
                                 {!isEditing && (
                                     <Tooltip title="Edit Epic">
-                                        <IconButton
-                                            onClick={() => setIsEditing(true)}
-                                            sx={{ color: 'rgba(255,255,255,0.7)' }}
-                                        >
+                                        <IconButton onClick={() => setIsEditing(true)} sx={{ color: '#aaa' }}>
                                             <EditIcon size={20} />
                                         </IconButton>
                                     </Tooltip>
                                 )}
                                 <Tooltip title="Delete Epic">
-                                    <IconButton
-                                        onClick={() => setDeleteOpen(true)}
-                                        sx={{ color: '#F25757' }}
-                                    >
+                                    <IconButton onClick={() => setDeleteOpen(true)} sx={{ color: '#F25757' }}>
                                         <TrashIcon size={20} />
                                     </IconButton>
                                 </Tooltip>
                                 <Tooltip title="Close">
-                                    <IconButton
-                                        onClick={handleClose}
-                                        sx={{ color: 'rgba(255,255,255,0.7)' }}
-                                    >
+                                    <IconButton onClick={closeForm} sx={{ color: '#aaa' }}>
                                         <CloseIcon size={20} />
                                     </IconButton>
                                 </Tooltip>
@@ -254,46 +231,40 @@ export default function BigTaskDetailsModal({
 
                         {/* Body */}
                         <Box sx={{ flex: 1, overflowY: 'auto' }}>
-                            {/* AI Assist (hidden when editing) */}
                             {!isEditing && (
                                 <>
                                     <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
                                         <Button
                                             size="small"
-                                            startIcon={
-                                                aiLoading ? <CircularProgress size={14} /> : <Sparkles size={16} />
-                                            }
+                                            startIcon={aiLoading
+                                                ? <CircularProgress size={14} />
+                                                : <Sparkles size={16} />}
                                             variant="outlined"
                                             onClick={fetchAISuggestions}
                                             sx={{
-                                                color: 'rgba(255,255,255,0.8)',
+                                                color: '#ddd',
                                                 borderColor: 'rgba(255,255,255,0.2)',
                                             }}
                                         >
                                             AI Assist
                                         </Button>
-                                        <Tooltip title="Clear Suggestions">
-                                            <IconButton
-                                                size="small"
-                                                onClick={() => setAiSuggestions([])}
-                                                disabled={aiLoading || aiSuggestions.length === 0}
-                                                sx={{ color: 'rgba(255,255,255,0.6)', ml: 1 }}
-                                            >
-                                                <CloseIcon size={16} />
-                                            </IconButton>
-                                        </Tooltip>
+                                        <IconButton
+                                            size="small"
+                                            onClick={() => setAiSuggestions([])}
+                                            disabled={aiLoading || aiSuggestions.length === 0}
+                                            sx={{ color: '#aaa', ml: 1 }}
+                                        >
+                                            <CloseIcon size={16} />
+                                        </IconButton>
                                     </Box>
-
                                     <Stack spacing={1} sx={{ mb: 2 }}>
                                         {aiSuggestions.map((s, i) => (
                                             <Box
                                                 key={i}
                                                 sx={{
-                                                    px: 2,
-                                                    py: 1,
+                                                    px: 2, py: 1,
                                                     borderRadius: 2,
                                                     background: 'rgba(108,99,255,0.1)',
-                                                    color: '#d5cbff',
                                                     display: 'flex',
                                                     alignItems: 'center',
                                                     justifyContent: 'space-between',
@@ -317,27 +288,26 @@ export default function BigTaskDetailsModal({
                                 </>
                             )}
 
-                            {/* Epic Details */}
                             {isEditing ? (
                                 <Stack spacing={2}>
+                                    {/* Title */}
                                     <TextField
                                         fullWidth
                                         label="Title"
                                         value={title}
                                         onChange={e => {
                                             setTitle(e.target.value);
-                                            if (titleError) setTitleError('');
+                                            setTitleError('');
                                         }}
                                         error={!!titleError}
                                         helperText={titleError}
                                         InputProps={{ sx: { color: '#fff' } }}
-                                        InputLabel
-                                        Props={{ sx: { color: '#bbb' } }}
+                                        InputLabelProps={{ sx: { color: '#bbb' } }}
                                     />
+
+                                    {/* Other fields */}
                                     <TextField
-                                        fullWidth
-                                        multiline
-                                        minRows={3}
+                                        fullWidth multiline minRows={3}
                                         label="Description"
                                         value={description}
                                         onChange={e => setDescription(e.target.value)}
@@ -345,8 +315,7 @@ export default function BigTaskDetailsModal({
                                         InputLabelProps={{ sx: { color: '#bbb' } }}
                                     />
                                     <TextField
-                                        fullWidth
-                                        type="date"
+                                        fullWidth type="date"
                                         label="Due Date"
                                         value={dueDate}
                                         onChange={e => setDueDate(e.target.value)}
@@ -354,65 +323,45 @@ export default function BigTaskDetailsModal({
                                         InputLabelProps={{ sx: { color: '#bbb' } }}
                                     />
                                     <TextField
-                                        select
-                                        fullWidth
+                                        select fullWidth
                                         label="Status"
                                         value={status}
                                         onChange={e => setStatus(e.target.value)}
                                         InputProps={{ sx: { color: '#fff' } }}
                                         InputLabelProps={{ sx: { color: '#bbb' } }}
                                     >
-                                        {statusOptions.map(opt => (
-                                            <MenuItem key={opt} value={opt}>
-                                                {opt}
-                                            </MenuItem>
-                                        ))}
+                                        {statusOptions.map(opt => <MenuItem key={opt} value={opt}>{opt}</MenuItem>)}
                                     </TextField>
                                     <TextField
-                                        select
-                                        fullWidth
+                                        select fullWidth
                                         label="Priority"
                                         value={priority}
                                         onChange={e => setPriority(e.target.value)}
                                         InputProps={{ sx: { color: '#fff' } }}
                                         InputLabelProps={{ sx: { color: '#bbb' } }}
                                     >
-                                        {priorityOptions.map(opt => (
-                                            <MenuItem key={opt} value={opt}>
-                                                {opt}
-                                            </MenuItem>
-                                        ))}
+                                        {priorityOptions.map(opt => <MenuItem key={opt} value={opt}>{opt}</MenuItem>)}
                                     </TextField>
                                 </Stack>
                             ) : (
                                 <Stack spacing={1}>
-                                    <Typography variant="body2">
-                                        <strong>Title:</strong> {title}
-                                    </Typography>
-                                    <Typography variant="body2">
-                                        <strong>Description:</strong> {description || '—'}
-                                    </Typography>
-                                    <Typography variant="body2">
-                                        <strong>Due Date:</strong> {dueDate || 'None'}
-                                    </Typography>
-                                    <Typography variant="body2">
-                                        <strong>Status:</strong> {status}
-                                    </Typography>
-                                    <Typography variant="body2">
-                                        <strong>Priority:</strong> {priority}
-                                    </Typography>
+                                    <Typography variant="body2"><strong>Title:</strong> {title}</Typography>
+                                    <Typography variant="body2"><strong>Description:</strong> {description || '—'}</Typography>
+                                    <Typography variant="body2"><strong>Due Date:</strong> {dueDate || 'None'}</Typography>
+                                    <Typography variant="body2"><strong>Status:</strong> {status}</Typography>
+                                    <Typography variant="body2"><strong>Priority:</strong> {priority}</Typography>
                                 </Stack>
                             )}
                         </Box>
 
                         <Divider sx={{ borderColor: 'rgba(255,255,255,0.1)', my: 2 }} />
 
-                        {/* Actions */}
+                        {/* Footer actions */}
                         <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
                             <Button
-                                onClick={handleClose}
+                                onClick={closeForm}
                                 variant="outlined"
-                                sx={{ color: 'rgba(255,255,255,0.8)', borderColor: 'rgba(255,255,255,0.2)' }}
+                                sx={{ color: '#ddd', borderColor: 'rgba(255,255,255,0.3)' }}
                             >
                                 Cancel
                             </Button>
@@ -429,13 +378,14 @@ export default function BigTaskDetailsModal({
                 </Fade>
             </Modal>
 
+            {/* DELETE CONFIRM */}
             <DeleteConfirmModal
                 open={deleteOpen}
                 onClose={() => setDeleteOpen(false)}
-                onConfirm={handleDelete}
-                deleting={deleting}
+                onDelete={handleDelete}        // ← use onDelete, not onConfirm
+                loading={deleting}             // ← use loading prop for spinner
+                title="Delete Epic?"
                 subtitle="You must delete or move all its tasks first."
-                container={container}
             />
         </>
     );

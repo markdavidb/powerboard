@@ -1,40 +1,66 @@
-// src/components/charts/ChartBar.jsx
-import React from 'react';
+import React, { useState } from 'react';
 import {
-    Card,
-    CardHeader,
-    CardContent,
-    CardActions,
-    Typography,
-    Box,
-    useTheme
+    Card, CardHeader, CardContent, CardActions, Typography, Box, useTheme, Stack
 } from '@mui/material';
-import {TrendingUp} from 'lucide-react';
+import { TrendingUp } from 'lucide-react';
 import {
-    ResponsiveContainer,
-    BarChart,
-    Bar,
-    XAxis,
-    Tooltip,
-    ReferenceLine
+    ResponsiveContainer, BarChart, Bar, XAxis, Tooltip, ReferenceLine
 } from 'recharts';
 
-// full month names and abbreviations
 const monthNames = [
     'January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December'
 ];
 const monthAbbr = monthNames.map(m => m.slice(0, 3));
 
-/**
- * Props:
- * • data = [{ month: "2025-01", open: 120, closed: 80 }, …]
- * • title, subtitle = strings
- */
-export default function ChartBar({data, title, subtitle}) {
+// --- Custom Tooltip ---
+function ChartTooltip({ active, payload }) {
     const theme = useTheme();
+    if (!active || !payload || !payload.length) return null;
 
-    // month-over-month total change %
+    const { month, open, closed } = payload[0].payload || {};
+    const monthIdx = month?.split('-')[1] - 1;
+    const label = monthAbbr[monthIdx] || '';
+
+    return (
+        <Box
+            sx={{
+                minWidth: 100,
+                background: '#191927f5',
+                borderRadius: 2,
+                p: 1.25,
+                boxShadow: 'none',
+                border: '1.5px solid rgba(108,99,255,0.10)',
+                backdropFilter: 'blur(6px)',
+            }}
+        >
+            <Typography sx={{ fontWeight: 600, fontSize: 15, color: '#fff', mb: 0.5 }}>
+                {label}
+            </Typography>
+            <Stack spacing={0.2}>
+                <Typography sx={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 0.7 }}>
+                    <Box component="span" sx={{
+                        width: 8, height: 8, borderRadius: '50%',
+                        display: 'inline-block', bgcolor: theme.palette.info.main, mr: 0.7,
+                    }} />
+                    Open: <b style={{ color: theme.palette.info.main }}>{open ?? '-'}</b>
+                </Typography>
+                <Typography sx={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 0.7 }}>
+                    <Box component="span" sx={{
+                        width: 8, height: 8, borderRadius: '50%',
+                        display: 'inline-block', bgcolor: theme.palette.success.main, mr: 0.7,
+                    }} />
+                    Closed: <b style={{ color: theme.palette.success.main }}>{closed ?? '-'}</b>
+                </Typography>
+            </Stack>
+        </Box>
+    );
+}
+
+export default function ChartBar({ data, title, subtitle }) {
+    const theme = useTheme();
+    const [activeIndex, setActiveIndex] = useState(null);
+
     const lastIdx = data.length - 1;
     const prevIdx = data.length - 2;
     const lastSum = data[lastIdx]
@@ -54,6 +80,26 @@ export default function ChartBar({data, title, subtitle}) {
         changeText = `${changeValue > 0 ? 'up' : 'down'} by ${Math.abs(changeValue).toFixed(1)}% this period`;
     }
 
+    // Only highlight border, do NOT modify width/position!
+    const renderBarShape = (props) => {
+        const { x, y, width, height, fill, index } = props;
+        const isActive = index === activeIndex;
+        return (
+            <rect
+                x={x}
+                y={y}
+                width={width}
+                height={height}
+                rx={3}
+                fill={fill}
+                stroke={isActive ? fill : "none"}
+                strokeWidth={isActive ? 2 : 0}
+                style={{
+                    transition: 'all 0.14s cubic-bezier(.4,2,.6,1)',
+                }}
+            />
+        );
+    };
 
     return (
         <Card
@@ -66,13 +112,12 @@ export default function ChartBar({data, title, subtitle}) {
                 borderRadius: 3
             }}
         >
-            {/* title + subtitle */}
             <CardHeader
                 title={
                     <Typography
                         variant="body2"
                         color="text.secondary"
-                        sx={{fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1}}
+                        sx={{ fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1 }}
                     >
                         {title}
                     </Typography>
@@ -81,28 +126,35 @@ export default function ChartBar({data, title, subtitle}) {
                     <Typography
                         variant="body2"
                         color="text.secondary"
-                        sx={{fontSize: 13, mt: 0.5}}
+                        sx={{ fontSize: 13, mt: 0.5 }}
                     >
                         {subtitle}
                     </Typography>
                 }
-                sx={{px: 2, pt: 2, '& .MuiCardHeader-content': {mt: 0}}}
+                sx={{ px: 2, pt: 2, '& .MuiCardHeader-content': { mt: 0 } }}
             />
 
-            {/* the chart */}
-            <CardContent sx={{height: 170, px: 1}}>
+            <CardContent sx={{ height: 170, px: 1 }}>
                 <ResponsiveContainer width="100%" height="100%">
                     <BarChart
                         data={data}
-                        margin={{top: 10, right: 0, bottom: 30, left: 0}}
-                        barCategoryGap="25%"
-                        barGap={6}
+                        margin={{ top: 10, right: 0, bottom: 30, left: 0 }}
+                        barCategoryGap="35%"
+                        barGap={4}
+                        onMouseMove={state => {
+                            if (state.isTooltipActive && typeof state.activeTooltipIndex === 'number') {
+                                setActiveIndex(state.activeTooltipIndex);
+                            } else {
+                                setActiveIndex(null);
+                            }
+                        }}
+                        onMouseLeave={() => setActiveIndex(null)}
                     >
                         <XAxis
                             dataKey="month"
                             axisLine={false}
                             tickLine={false}
-                            tick={({x, y, payload}) => {
+                            tick={({ x, y, payload }) => {
                                 const [year, m] = payload.value.split('-');
                                 const idx = parseInt(m, 10) - 1;
                                 return (
@@ -121,30 +173,34 @@ export default function ChartBar({data, title, subtitle}) {
                         />
 
                         <Tooltip
-                            contentStyle={{
-                                background: '#1e1e2f',
-                                border: 'none',
-                                borderRadius: 6,
-                                padding: '8px 12px'
-                            }}
-                            itemStyle={{color: '#fff'}}
-                            cursor={{fill: 'rgba(255,255,255,0.05)'}}
-                            labelFormatter={() => ''}
+                            content={<ChartTooltip />}
+                            cursor={{ fill: 'transparent' }}
                         />
 
-                        <ReferenceLine stroke="rgba(255,255,255,0.15)" ifOverflow="visible"/>
+                        <ReferenceLine stroke="rgba(255,255,255,0.10)" ifOverflow="visible" />
 
-                        <Bar dataKey="open" fill={theme.palette.info.main} radius={[4, 4, 0, 0]}/>
-                        <Bar dataKey="closed" fill={theme.palette.success.main} radius={[4, 4, 0, 0]}/>
+                        <Bar
+                            dataKey="open"
+                            fill={theme.palette.info.main}
+                            radius={[4, 4, 0, 0]}
+                            shape={renderBarShape}
+                            isAnimationActive={false}
+                        />
+                        <Bar
+                            dataKey="closed"
+                            fill={theme.palette.success.main}
+                            radius={[4, 4, 0, 0]}
+                            shape={renderBarShape}
+                            isAnimationActive={false}
+                        />
                     </BarChart>
                 </ResponsiveContainer>
             </CardContent>
 
-            {/* footer with trend */}
-            <CardActions sx={{flexDirection: 'column', alignItems: 'flex-start', px: 2, pb: 2}}>
-                <Box sx={{display: 'flex', alignItems: 'center', gap: 0.5}}>
-                    <Typography variant="body2" sx={{fontWeight: 500}}>
-                        Trending {changeValue === null ? changeText : changeText}
+            <CardActions sx={{ flexDirection: 'column', alignItems: 'flex-start', px: 2, pb: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                        Trending {changeText}
                     </Typography>
                     {changeValue !== null &&
                         <TrendingUp

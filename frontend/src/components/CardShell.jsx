@@ -37,15 +37,15 @@ export default function CardShell({
                 border: "1.5px solid",
                 borderColor: isOverdue ? "#f44336cc" : "rgba(34,36,51,0.88)",
                 boxShadow: isOverdue
-                    ? "0 0 8px rgba(244,67,54,0.55)"
-                    : "0 4px 28px rgba(20,20,30,0.13)",
+                    ? "0 0 8px rgba(244,67,54,0.7)"
+                    : "0 4px 28px rgba(20,20,30,0.05)",
                 transition: "all .25s ease",
                 cursor: "pointer",
                 "&:hover": {
                     transform: "translateY(-3px) scale(1.03)",
                     boxShadow: isOverdue
                         ? "0 0 12px rgba(244,67,54,0.7)"
-                        : "0 8px 36px rgba(86,85,255,0.16)",
+                        : "0 2px 10px rgba(86,85,255,0.05)",
                 },
             }}
             onClick={onCardClick}

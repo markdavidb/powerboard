@@ -1,4 +1,3 @@
-// src/components/charts/ChartArea.jsx
 import React from 'react';
 import {
     Card,
@@ -7,7 +6,8 @@ import {
     CardActions,
     Typography,
     Box,
-    useTheme
+    useTheme,
+    Stack
 } from '@mui/material';
 import { TrendingUp } from 'lucide-react';
 import {
@@ -24,6 +24,53 @@ const monthNames = [
     'Jan','Feb','Mar','Apr','May','Jun',
     'Jul','Aug','Sep','Oct','Nov','Dec'
 ];
+
+// --- Custom Tooltip for AreaChart ---
+function ChartAreaTooltip({ active, payload }) {
+    const theme = useTheme();
+    if (!active || !payload || !payload.length) return null;
+    const { month } = payload[0]?.payload || {};
+    const monthIdx = month?.split('-')[1] - 1;
+    const label = monthNames[monthIdx] || '';
+
+    // Get values (handles empty data gracefully)
+    const open = payload.find(d => d.dataKey === 'open')?.value ?? '-';
+    const closed = payload.find(d => d.dataKey === 'closed')?.value ?? '-';
+
+    return (
+        <Box
+            sx={{
+                minWidth: 105,
+                background: '#191927f5',
+                borderRadius: 2,
+                p: 1.15,
+                boxShadow: 'none',
+                border: '1.5px solid rgba(108,99,255,0.10)',
+                backdropFilter: 'blur(6px)',
+            }}
+        >
+            <Typography sx={{ fontWeight: 600, fontSize: 15, color: '#fff', mb: 0.5 }}>
+                {label}
+            </Typography>
+            <Stack spacing={0.2}>
+                <Typography sx={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 0.7 }}>
+                    <Box component="span" sx={{
+                        width: 8, height: 8, borderRadius: '50%',
+                        display: 'inline-block', bgcolor: theme.palette.info.main, mr: 0.7,
+                    }} />
+                    Open: <b style={{ color: theme.palette.info.main }}>{open}</b>
+                </Typography>
+                <Typography sx={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 0.7 }}>
+                    <Box component="span" sx={{
+                        width: 8, height: 8, borderRadius: '50%',
+                        display: 'inline-block', bgcolor: theme.palette.success.main, mr: 0.7,
+                    }} />
+                    Closed: <b style={{ color: theme.palette.success.main }}>{closed}</b>
+                </Typography>
+            </Stack>
+        </Box>
+    );
+}
 
 /**
  * Props:
@@ -111,15 +158,8 @@ export default function ChartArea({ data, title, subtitle }) {
                         />
 
                         <Tooltip
-                            contentStyle={{
-                                background: '#1e1e2f',
-                                border: 'none',
-                                borderRadius: 4,
-                                padding: '6px 10px'
-                            }}
-                            itemStyle={{ color: '#fff', fontSize: 12 }}
-                            cursor={{ stroke: 'rgba(255,255,255,0.12)', strokeWidth: 1 }}
-                            labelFormatter={() => ''}
+                            content={<ChartAreaTooltip />}
+                            cursor={{ stroke: 'rgba(255,255,255,0.13)', strokeWidth: 1 }}
                         />
 
                         <Area
@@ -143,7 +183,6 @@ export default function ChartArea({ data, title, subtitle }) {
             </CardContent>
 
             <CardActions sx={{ flexDirection:'column', alignItems:'flex-start', px:2, py:1 }}>
-
                 <Typography variant="caption" color="text.secondary">
                     Last {data.length} months
                 </Typography>

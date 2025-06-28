@@ -1,4 +1,3 @@
-// src/pages/ProjectsPage.jsx
 import React, { useEffect, useState, useMemo, useRef } from "react";
 import {
     Box,
@@ -38,14 +37,15 @@ export default function ProjectsPage() {
 
     /* loading flags */
     const [loadingProjects, setLoadingProjects] = useState(true);
-    const loadingStats = projects.length && Object.keys(btStats).length < projects.length;
-    const loading = loadingProjects || loadingStats;
+    // only true if we have projects and stats are still loading
+    const loadingStats = projects.length > 0 && Object.keys(btStats).length < projects.length;
+    const loading = Boolean(loadingProjects || loadingStats);
 
     /* filters */
-    const [searchTerm, setSearchTerm]   = useState("");
-    const [filterMonth, setFilterMonth] = useState("");
-    const [filterYear, setFilterYear]   = useState("");
-    const [filterStatus, setFilterStatus] = useState("");
+    const [searchTerm, setSearchTerm]       = useState("");
+    const [filterMonth, setFilterMonth]     = useState("");
+    const [filterYear, setFilterYear]       = useState("");
+    const [filterStatus, setFilterStatus]   = useState("");
 
     /* misc UI */
     const [modalOpen, setModalOpen] = useState(false);
@@ -78,7 +78,7 @@ export default function ProjectsPage() {
             .then((responses) => {
                 const stats = {};
                 responses.forEach((r, idx) => {
-                    const list  = r.data;
+                    const list = r.data;
                     stats[projects[idx].id] = {
                         total: list.length,
                         done:  list.filter((bt) => bt.status === "Done").length,
@@ -94,12 +94,12 @@ export default function ProjectsPage() {
     }, [projects]);
 
     /* ── select-list data for filters ─────────────── */
-    const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-    const monthOptions = monthNames.map((l,i)=>({ value:String(i+1), label:l }));
+    const monthNames   = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    const monthOptions = monthNames.map((l, i) => ({ value: String(i + 1), label: l }));
     const currentYear  = new Date().getFullYear();
-    const yearOptions  = Array.from({ length:11 },(_,i)=>currentYear-5+i);
+    const yearOptions  = Array.from({ length: 11 }, (_, i) => currentYear - 5 + i);
     const statusOptions = useMemo(
-        () => Array.from(new Set(projects.map((p)=>p.status))).filter(Boolean),
+        () => Array.from(new Set(projects.map((p) => p.status))).filter(Boolean),
         [projects]
     );
 
@@ -112,7 +112,7 @@ export default function ProjectsPage() {
                 if (!p.due_date) return false;
                 const d = new Date(p.due_date);
                 if (filterYear  && d.getFullYear()   !== Number(filterYear))  return false;
-                if (filterMonth && d.getMonth()+1    !== Number(filterMonth)) return false;
+                if (filterMonth && d.getMonth() + 1 !== Number(filterMonth)) return false;
                 return true;
             })
             .filter((p) => (filterStatus ? p.status === filterStatus : true));
@@ -157,40 +157,62 @@ export default function ProjectsPage() {
 
             {!loading && (
                 <>
-                    <Typography variant="h4" fontWeight={700} mb={4}
-                                sx={{ textShadow:"0 0 10px #6C63FF88" }}>
+                    <Typography
+                        variant="h4"
+                        fontWeight={700}
+                        mb={4}
+                        sx={{ textShadow: "0 0 10px #6C63FF88" }}
+                    >
                         My Projects
                     </Typography>
 
                     {/* filters */}
                     <Box sx={{ display:"flex", flexWrap:"wrap", gap:2, mb:4 }}>
                         <TextField
-                            variant="outlined" size="small" placeholder="Search projects…"
-                            value={searchTerm} onChange={(e)=>setSearchTerm(e.target.value)}
+                            variant="outlined"
+                            size="small"
+                            placeholder="Search projects…"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
                             sx={filterStyle}
                         />
-                        <TextField select label="Month" size="small"
-                                   value={filterMonth} onChange={(e)=>setFilterMonth(e.target.value)}
-                                   sx={filterStyle}>
+                        <TextField
+                            select label="Month" size="small"
+                            value={filterMonth}
+                            onChange={(e) => setFilterMonth(e.target.value)}
+                            sx={filterStyle}
+                        >
                             <MenuItem value="">All</MenuItem>
-                            {monthOptions.map((m)=>(
-                                <MenuItem key={m.value} value={m.value}>{m.label}</MenuItem>
+                            {monthOptions.map((m) => (
+                                <MenuItem key={m.value} value={m.value}>
+                                    {m.label}
+                                </MenuItem>
                             ))}
                         </TextField>
-                        <TextField select label="Year" size="small"
-                                   value={filterYear} onChange={(e)=>setFilterYear(e.target.value)}
-                                   sx={filterStyle}>
+                        <TextField
+                            select label="Year" size="small"
+                            value={filterYear}
+                            onChange={(e) => setFilterYear(e.target.value)}
+                            sx={filterStyle}
+                        >
                             <MenuItem value="">All</MenuItem>
-                            {yearOptions.map((y)=>(
-                                <MenuItem key={y} value={String(y)}>{y}</MenuItem>
+                            {yearOptions.map((y) => (
+                                <MenuItem key={y} value={String(y)}>
+                                    {y}
+                                </MenuItem>
                             ))}
                         </TextField>
-                        <TextField select label="Status" size="small"
-                                   value={filterStatus} onChange={(e)=>setFilterStatus(e.target.value)}
-                                   sx={filterStyle}>
+                        <TextField
+                            select label="Status" size="small"
+                            value={filterStatus}
+                            onChange={(e) => setFilterStatus(e.target.value)}
+                            sx={filterStyle}
+                        >
                             <MenuItem value="">All</MenuItem>
-                            {statusOptions.map((s)=>(
-                                <MenuItem key={s} value={s}>{s}</MenuItem>
+                            {statusOptions.map((s) => (
+                                <MenuItem key={s} value={s}>
+                                    {s}
+                                </MenuItem>
                             ))}
                         </TextField>
                     </Box>
@@ -202,7 +224,8 @@ export default function ProjectsPage() {
                             "&::-webkit-scrollbar": { width:8 },
                             "&::-webkit-scrollbar-thumb": {
                                 backgroundColor:"rgba(108,99,255,0.4)",
-                                borderRadius:8, border:"2px solid transparent",
+                                borderRadius:8,
+                                border:"2px solid transparent",
                                 backgroundClip:"content-box",
                             },
                             "&::-webkit-scrollbar-thumb:hover": {
@@ -211,12 +234,12 @@ export default function ProjectsPage() {
                         }}
                     >
                         <Grid container spacing={3}>
-                            {filtered.map((proj)=>(
+                            {filtered.map((proj) => (
                                 <Grid item xs={12} sm={6} md={4} key={proj.id}>
                                     <ProjectCard
                                         proj={proj}
                                         bigTaskStats={btStats[proj.id] ?? emptyStats}
-                                        onOpen={()=>openProject(proj.id)}
+                                        onOpen={() => openProject(proj.id)}
                                     />
                                 </Grid>
                             ))}
@@ -228,7 +251,7 @@ export default function ProjectsPage() {
             {/* FAB + modal */}
             <Tooltip title="Create Project">
                 <IconButton
-                    onClick={()=>setModalOpen(true)}
+                    onClick={() => setModalOpen(true)}
                     sx={{
                         position:"fixed", bottom:40, right:60,
                         background:"linear-gradient(135deg,#6C63FF,#9B78FF)",
@@ -243,7 +266,7 @@ export default function ProjectsPage() {
 
             <CreateProjectModal
                 open={modalOpen}
-                onClose={()=>setModalOpen(false)}
+                onClose={() => setModalOpen(false)}
                 onProjectCreated={handleProjectCreated}
                 container={containerRef.current}
             />
