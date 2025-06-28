@@ -56,7 +56,7 @@ export default function ProjectsPage() {
     /* ── 1) fetch project list ─────────────────────── */
     useEffect(() => {
         API.project
-            .get("/projects/")
+            .get("/projects")
             .then((r) => setProjects(r.data))
             .catch(console.error)
             .finally(() => setLoadingProjects(false));
