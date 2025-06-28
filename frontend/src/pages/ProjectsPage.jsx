@@ -69,7 +69,7 @@ export default function ProjectsPage() {
         const controller = new AbortController();
         Promise.all(
             projects.map((p) =>
-                API.project.get("/projects/big_tasks/big_tasks", {
+                API.project.get("/projects/big_tasks/big_tasks/", {
                     params: { project_id: p.id, mine_only: false },
                     signal: controller.signal,
                 })
