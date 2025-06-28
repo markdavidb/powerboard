@@ -1,3 +1,3 @@
 FROM nginx:1.27-alpine
-COPY nginx.conf /etc/nginx/nginx.conf
+COPY backend/nginx/nginx.conf /etc/nginx/nginx.conf
 CMD ["nginx", "-g", "daemon off;"]
