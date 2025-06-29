@@ -43,7 +43,7 @@ export default function HelpModal({ open, onClose }) {
             px: 2.7, pt: 2.5, pb: 2.1,
           }}>
             <Typography fontWeight={600} fontSize={19} sx={{ letterSpacing: 0.1 }}>
-              Contact the Developer
+              Contact
             </Typography>
             <IconButton onClick={onClose} size="small" sx={{ color: '#b7b7c8' }}>
               <CloseIcon size={21} />
