@@ -20,7 +20,7 @@ const mainNav = [
     { text: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard size={20} /> },
     { text: 'Projects', path: '/projects', icon: <FolderKanban size={20} /> },
     { text: 'Calendar', path: '/calendar', icon: <Calendar size={20} /> },
-    { text: 'Chat', path: '/chat', icon: <MessageSquare size={20} /> },
+    // { text: 'Chat', path: '/chat', icon: <MessageSquare size={20} /> },
 ];
 // REMOVE 'Help' from extraNav - we'll handle it directly!
 const extraNav = [
