@@ -51,7 +51,7 @@ export default function Header() {
         if (idx >= 0 && /^\d+$/.test(parts[idx + 1])) {
             const id = parts[idx + 1];
             if (!projectTitles[id]) {
-                API.project.get(`/projects/${id}/`)
+                API.project.get(`/projects/${id}`)
                     .then(({ data }) => {
                         setProjectTitles(prev => ({ ...prev, [id]: data.title || `Project ${id}` }));
                     })
