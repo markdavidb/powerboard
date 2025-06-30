@@ -51,7 +51,7 @@ export default function CreateBigTaskModal({ open, onClose, projectId, onCreated
         setSubmitting(true);
 
         API.project
-            .post('/projects/big_tasks/big_tasks', {
+            .post('/projects/big_tasks/big_tasks/', {
                 title: title.trim(),
                 description,
                 due_date: dueDate ? new Date(dueDate).toISOString() : null,
