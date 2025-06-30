@@ -104,7 +104,7 @@ Inspired by tools like Jira and Linear, it includes a modern Kanban board, analy
 
 - **Docker-First Setup** – Simple local development and production deployment using Docker Compose
 - **Modular Architecture** – Clean FastAPI microservices for separation of concerns
-- **Auto-Generated API Docs** – Swagger/OpenAPI documentation available at `/docs`
+- **Auto-Generated API Docs** – Swagger/Open available at `/docs`
 - **Centralized Error Handling** – Unified handling for validation, authentication, and server errors
 - **Modular Codebase** – Well-structured project with clear separation of services and shared logic
 
@@ -548,7 +548,7 @@ Once started, the application is available at:
 
 -----
 
-## 📝 API Documentation
+## API Documentation
 
 ### AI Service
 
