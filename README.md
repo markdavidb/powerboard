@@ -146,6 +146,236 @@ Inspired by tools like Jira and Linear, it includes a modern Kanban board, analy
 - **Prettier & ESLint** – Frontend formatting and linting
 - **Black & Flake8** – Backend code formatting and style enforcement
 
+## Project Structure
+
+```
+PowerBoard/
+├── backend
+│   ├── alembic
+│   │   ├── README
+│   │   ├── env.py
+│   │   ├── script.py.mako
+│   │   └── versions
+│   ├── alembic.ini
+│   ├── common
+│   │   ├── __init__.py
+│   │   ├── auth0_docs.py
+│   │   ├── config.py
+│   │   ├── database.py
+│   │   ├── enums.py
+│   │   ├── models
+│   │   │   ├── __init__.py
+│   │   │   ├── big_task.py
+│   │   │   ├── big_task_member.py
+│   │   │   ├── notification.py
+│   │   │   ├── project.py
+│   │   │   ├── project_member.py
+│   │   │   ├── task.py
+│   │   │   ├── task_comment.py
+│   │   │   └── user.py
+│   │   ├── realtime.py
+│   │   ├── schemas
+│   │   │   ├── __init__.py
+│   │   │   ├── big_task_member_schema.py
+│   │   │   ├── big_task_schema.py
+│   │   │   ├── project_member_schema.py
+│   │   │   ├── project_schema.py
+│   │   │   ├── task_comment_schema.py
+│   │   │   ├── task_schema.py
+│   │   │   └── user_schema.py
+│   │   └── security
+│   │       ├── auth0_bearer.py
+│   │       └── dependencies.py
+│   ├── docker-compose.yml
+│   ├── nginx
+│   │   ├── Dockerfile
+│   │   └── nginx.conf
+│   ├── requirements
+│   │   ├── ai_service.txt
+│   │   ├── analytics_service.txt
+│   │   ├── common.txt
+│   │   ├── notification_service.txt
+│   │   ├── project_service.txt
+│   │   ├── realtime_gateway.txt
+│   │   ├── scheduler_service.txt
+│   │   └── user_service.txt
+│   ├── requirements.txt
+│   ├── run_services.py
+│   ├── services
+│   │   ├── __init__.py
+│   │   ├── ai_service
+│   │   │   ├── Dockerfile
+│   │   │   ├── __init__.py
+│   │   │   ├── main.py
+│   │   │   └── routers
+│   │   │       └── suggestions.py
+│   │   ├── analytics_service
+│   │   │   ├── Dockerfile
+│   │   │   ├── __init__.py
+│   │   │   ├── main.py
+│   │   │   └── routers
+│   │   │       ├── __init__.py
+│   │   │       ├── dashboard.py
+│   │   │       ├── export.py
+│   │   │       └── project_summary.py
+│   │   ├── notification_service
+│   │   │   ├── Dockerfile
+│   │   │   ├── __init__.py
+│   │   │   ├── events.py
+│   │   │   ├── main.py
+│   │   │   └── routers
+│   │   │       ├── __init__.py
+│   │   │       └── notifications.py
+│   │   ├── project_service
+│   │   │   ├── Dockerfile
+│   │   │   ├── __init__.py
+│   │   │   ├── main.py
+│   │   │   └── routers
+│   │   │       ├── admin.py
+│   │   │       ├── big_task_members.py
+│   │   │       ├── big_tasks.py
+│   │   │       ├── project_members.py
+│   │   │       ├── projects.py
+│   │   │       ├── task_comments.py
+│   │   │       └── tasks.py
+│   │   ├── realtime_gateway
+│   │   │   ├── Dockerfile
+│   │   │   ├── __init__.py
+│   │   │   └── main.py
+│   │   ├── scheduler_service
+│   │   │   ├── Dockerfile
+│   │   │   ├── __init__.py
+│   │   │   ├── jobs.py
+│   │   │   └── main.py
+│   │   └── user_service
+│   │       ├── Dockerfile
+│   │       ├── __init__.py
+│   │       ├── main.py
+│   │       └── routers
+│   │           ├── profile.py
+│   │           └── users.py
+│   └── tests
+│       ├── conftest.py
+│       ├── factories.py
+│       ├── integration
+│       │   ├── conftest.py
+│       │   ├── test_ai_suggestions.py
+│       │   ├── test_analytics_dashboard.py
+│       │   ├── test_analytics_export.py
+│       │   ├── test_analytics_project_summary.py
+│       │   ├── test_big_task_members.py
+│       │   ├── test_big_tasks.py
+│       │   ├── test_project_members.py
+│       │   ├── test_projects.py
+│       │   ├── test_task_comments.py
+│       │   ├── test_tasks.py
+│       │   └── test_user_profile.py
+│       └── unit
+│           ├── test_big_tasks_helpers.py
+│           ├── test_effective_assignee_id_extra.py
+│           ├── test_projects_helpers.py
+│           ├── test_suggest_subtasks.py
+│           ├── test_suggest_subtasks_extra.py
+│           └── test_tasks_helpers.py
+├── docker-compose.yml
+└── frontend
+    ├── .env.local
+    ├── .env.production
+    ├── Dockerfile
+    ├── eslint.config.js
+    ├── index.html
+    ├── nginx.conf
+    ├── package-lock.json
+    ├── package.json
+    ├── public
+    │   └── vite.svg
+    ├── src
+    │   ├── App.css
+    │   ├── App.jsx
+    │   ├── api
+    │   │   ├── axios.js
+    │   │   └── useMyId.js
+    │   ├── assets
+    │   │   └── react.svg
+    │   ├── components
+    │   │   ├── AdminRoute.jsx
+    │   │   ├── AssignedProjectsCard.jsx
+    │   │   ├── BigTaskCard.jsx
+    │   │   ├── BigTaskDetailsModal.jsx
+    │   │   ├── BigTaskMembersModal.jsx
+    │   │   ├── BigTaskProgress.jsx
+    │   │   ├── CalendarCommandPanel.jsx
+    │   │   ├── CardShell.jsx
+    │   │   ├── CommentsSection.jsx
+    │   │   ├── CreateBigTaskModal.jsx
+    │   │   ├── CreateProjectModal.jsx
+    │   │   ├── CreateTaskModal.jsx
+    │   │   ├── DashboardExportModal.jsx
+    │   │   ├── DeleteConfirmModal.jsx
+    │   │   ├── DueSoonListCard.jsx
+    │   │   ├── Footer.jsx
+    │   │   ├── Header.jsx
+    │   │   ├── HelpModal.jsx
+    │   │   ├── Hero.jsx
+    │   │   ├── MetricsCard.jsx
+    │   │   ├── MouseGlow.jsx
+    │   │   ├── NotificationProvider.jsx
+    │   │   ├── NotificationsMenu.jsx
+    │   │   ├── ProfileMenu.jsx
+    │   │   ├── ProjectCard.jsx
+    │   │   ├── ProjectLayout.jsx
+    │   │   ├── ProjectMembersModal.jsx
+    │   │   ├── ProjectNavigation.jsx
+    │   │   ├── ProjectSettingsModal.jsx
+    │   │   ├── ProjectSummaryExportModal.jsx
+    │   │   ├── RecentListCard.jsx
+    │   │   ├── Sidebar.jsx
+    │   │   ├── TaskDetailsModal.jsx
+    │   │   ├── WaterProgress.css
+    │   │   ├── WaterProgress.jsx
+    │   │   ├── board
+    │   │   │   ├── JiraTaskBoard.jsx
+    │   │   │   └── TaskCard.jsx
+    │   │   ├── calendar
+    │   │   │   ├── CalendarCell.jsx
+    │   │   │   ├── CalendarGrid.jsx
+    │   │   │   ├── CalendarHeader.jsx
+    │   │   │   ├── CalendarShell.jsx
+    │   │   │   ├── DayDetailsModal.jsx
+    │   │   │   └── calendarUtils.js
+    │   │   └── charts
+    │   │       ├── ChartArea.jsx
+    │   │       ├── ChartBar.jsx
+    │   │       ├── ChartLine.jsx
+    │   │       └── StatsChart.jsx
+    │   ├── hooks
+    │   │   ├── useRealtimeGateway.js
+    │   │   └── useRoles.js
+    │   ├── index.css
+    │   ├── main.jsx
+    │   ├── pages
+    │   │   ├── AdminProjectsPage.jsx
+    │   │   ├── BigTasksPage.jsx
+    │   │   ├── Dashboard.jsx
+    │   │   ├── LoginPage.jsx
+    │   │   ├── MainCalendar
+    │   │   │   ├── index.jsx
+    │   │   │   └── useCalendarData.js
+    │   │   ├── ProfilePage.jsx
+    │   │   ├── ProjectCalendar
+    │   │   │   ├── index.jsx
+    │   │   │   └── useCalendarData.js
+    │   │   ├── ProjectSummary.jsx
+    │   │   ├── ProjectsPage.jsx
+    │   │   └── TaskBoard.jsx
+    │   ├── theme.js
+    │   └── themes
+    │       ├── ColorModeContext.js
+    │       └── filterStyles.js
+    └── vite.config.js
+```
+
+
 ## Getting Started
 
 ### Prerequisites
