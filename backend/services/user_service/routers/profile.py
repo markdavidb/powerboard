@@ -1,4 +1,4 @@
-# user_service/routers/profile.py
+# services/user_service/routers/profile.py
 from fastapi import APIRouter, Depends
 from common.security.dependencies import get_current_user
 from common.models.user import User

@@ -1,4 +1,4 @@
-# app/schemas/project_schema.py
+# common/schemas/project_schema.py
 from pydantic    import BaseModel, Field
 from typing      import List, Optional
 from datetime    import datetime

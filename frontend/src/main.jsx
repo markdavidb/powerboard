@@ -5,8 +5,6 @@ import React, { useMemo, useState, useEffect } from 'react';
 import ReactDOM                                from 'react-dom/client';
 import { BrowserRouter }                       from 'react-router-dom';
 import { Auth0Provider, useAuth0 }             from '@auth0/auth0-react';
-import "./globals.css";          // ⬅️ add this line
-
 import { ThemeProvider, CssBaseline }          from '@mui/material';
 
 import App                     from './App';

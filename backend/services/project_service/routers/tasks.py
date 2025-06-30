@@ -1,16 +1,16 @@
-# app/routers/tasks.py
-from fastapi import APIRouter, Depends, HTTPException
+# services/project_service/routers/tasks.py
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session, joinedload
 from typing import List, Optional
 
-from common.database  import get_db
+from common.database import get_db
 from common.schemas.task_schema import TaskCreate, Task
-from common.models.task     import Task as TaskModel
-from common.models.project  import Project  as ProjectModel
-from common.models.big_task import BigTask  as BigTaskModel
-from common.models.project_member   import ProjectMember
-from common.models.big_task_member  import BigTaskMember
-from common.models.user   import User
+from common.models.task import Task as TaskModel
+from common.models.project import Project as ProjectModel
+from common.models.big_task import BigTask as BigTaskModel
+from common.models.project_member import ProjectMember
+from common.models.big_task_member import BigTaskMember
+from common.models.user import User
 from common.security.dependencies import get_current_user
 from services.notification_service.events import (
     task_assigned,
@@ -20,9 +20,6 @@ from services.notification_service.events import (
 router = APIRouter()
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# HELPERS
-# ─────────────────────────────────────────────────────────────────────────────
 def _effective_assignee_id(task_in: TaskCreate, current_user: User) -> int:
     """
     If the client didn’t send assignee_id ⇒ default to the caller himself.
@@ -30,10 +27,7 @@ def _effective_assignee_id(task_in: TaskCreate, current_user: User) -> int:
     return task_in.assignee_id or current_user.id
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# CREATE
-# ─────────────────────────────────────────────────────────────────────────────
-@router.post("/", response_model=Task)
+@router.post("/", response_model=Task, status_code=status.HTTP_201_CREATED)
 def create_task(
     task_in: TaskCreate,
     db: Session = Depends(get_db),
@@ -44,64 +38,81 @@ def create_task(
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
 
-    if project.owner_id != current_user.id:
-        membership = (
-            db.query(ProjectMember)
-            .filter(
-                ProjectMember.project_id == project.id,
-                ProjectMember.user_id == current_user.id,
-            )
-            .first()
-        )
-        if not membership:
-            raise HTTPException(
-                status_code=403,
-                detail="Not authorized to create tasks in this project",
-            )
-
-    # 2) Determine the final assignee
+    # 2) Determine the final assignee up front
     assignee_id = _effective_assignee_id(task_in, current_user)
 
-    # 3) Ensure the assignee is part of the project
+    # ── 3) If they attached a big_task_id, check epic‐membership *first* ────────────────
+    if task_in.big_task_id is not None:
+        epic = (
+            db.query(BigTaskModel)
+              .filter(BigTaskModel.id == task_in.big_task_id)
+              .first()
+        )
+        if not epic or epic.project_id != project.id:
+            raise HTTPException(status_code=400, detail="big_task_id is invalid for this project")
+
+        # Caller must be on the epic (unless owner)
+        if project.owner_id != current_user.id:
+            btm = (
+                db.query(BigTaskMember)
+                  .filter(
+                    BigTaskMember.big_task_id == epic.id,
+                    BigTaskMember.user_id     == current_user.id
+                  )
+                  .first()
+            )
+            if not btm:
+                raise HTTPException(status_code=403, detail="Not a member of this big task")
+
+        # Assignee must also belong to that epic
+        if assignee_id != project.owner_id:
+            assignee_epic_mem = (
+                db.query(BigTaskMember)
+                  .filter(
+                    BigTaskMember.big_task_id == epic.id,
+                    BigTaskMember.user_id     == assignee_id
+                  )
+                  .first()
+            )
+            if not assignee_epic_mem:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Assignee is not a member of this big task",
+                )
+    # ────────────────────────────────────────────────────────────────────────────────
+
+    # 4) Otherwise (no big_task_id) or after epic checks, enforce project‐level access
+    if task_in.big_task_id is None:
+        # only the owner or a ProjectMember may create plain tasks
+        if project.owner_id != current_user.id:
+            membership = (
+                db.query(ProjectMember)
+                  .filter(
+                    ProjectMember.project_id == project.id,
+                    ProjectMember.user_id    == current_user.id
+                  )
+                  .first()
+            )
+            if not membership:
+                raise HTTPException(
+                    status_code=403,
+                    detail="Not authorized to create tasks in this project",
+                )
+
+    # 5) Ensure the assignee is part of the project
     if assignee_id != project.owner_id:
         assignee_mem = (
             db.query(ProjectMember)
-            .filter(ProjectMember.project_id == project.id, ProjectMember.user_id == assignee_id)
-            .first()
+              .filter(
+                ProjectMember.project_id == project.id,
+                ProjectMember.user_id    == assignee_id
+              )
+              .first()
         )
         if not assignee_mem:
             raise HTTPException(status_code=400, detail="Assignee is not a member of this project")
 
-    # 4) If an epic (big_task_id) was supplied – validate membership there too
-    if task_in.big_task_id is not None:
-        epic = db.query(BigTaskModel).filter(BigTaskModel.id == task_in.big_task_id).first()
-        if not epic or epic.project_id != project.id:
-            raise HTTPException(status_code=400, detail="big_task_id is invalid for this project")
-
-        # Caller must be member of the epic (unless owner)
-        if project.owner_id != current_user.id:
-            epic_mem = (
-                db.query(BigTaskMember)
-                .filter(
-                    BigTaskMember.big_task_id == epic.id,
-                    BigTaskMember.user_id == current_user.id,
-                )
-                .first()
-            )
-            if not epic_mem:
-                raise HTTPException(status_code=403, detail="Not a member of this big task")
-
-        # Assignee must also belong to the epic
-        if assignee_id != project.owner_id:
-            assignee_epic_mem = (
-                db.query(BigTaskMember)
-                .filter(BigTaskMember.big_task_id == epic.id, BigTaskMember.user_id == assignee_id)
-                .first()
-            )
-            if not assignee_epic_mem:
-                raise HTTPException(status_code=400, detail="Assignee is not a member of this big task")
-
-    # 5) Create and persist
+    # 6) Create and persist
     new_task = TaskModel(
         title        = task_in.title,
         description  = task_in.description,
@@ -129,15 +140,15 @@ def list_tasks(
     project_id: Optional[int] = None,
     big_task_id: Optional[int] = None,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
     q = (
         db.query(TaskModel)
-        .options(
-            joinedload(TaskModel.project)  # Task ➜ Project
-            .joinedload(ProjectModel.owner),  # ➜ Owner
-            joinedload(TaskModel.big_task)  # Task ➜ BigTask (Epic)
-        )
+          .options(
+            joinedload(TaskModel.project)
+              .joinedload(ProjectModel.owner),
+            joinedload(TaskModel.big_task),
+          )
     )
 
     # Filter by epic
@@ -148,17 +159,25 @@ def list_tasks(
 
         project = db.query(ProjectModel).filter(ProjectModel.id == epic.project_id).first()
         if project.owner_id != current_user.id:
-            proj_mem = db.query(ProjectMember).filter(
-                ProjectMember.project_id == project.id,
-                ProjectMember.user_id == current_user.id
-            ).first()
+            proj_mem = (
+                db.query(ProjectMember)
+                  .filter(
+                    ProjectMember.project_id == project.id,
+                    ProjectMember.user_id    == current_user.id
+                  )
+                  .first()
+            )
             if not proj_mem:
                 raise HTTPException(status_code=403, detail="Not authorized")
 
-            epic_mem = db.query(BigTaskMember).filter(
-                BigTaskMember.big_task_id == epic.id,
-                BigTaskMember.user_id == current_user.id
-            ).first()
+            epic_mem = (
+                db.query(BigTaskMember)
+                  .filter(
+                    BigTaskMember.big_task_id == epic.id,
+                    BigTaskMember.user_id    == current_user.id
+                  )
+                  .first()
+            )
             if not epic_mem:
                 raise HTTPException(status_code=403, detail="Not a member of this big task")
 
@@ -171,10 +190,14 @@ def list_tasks(
             raise HTTPException(status_code=404, detail="Project not found")
 
         if project.owner_id != current_user.id:
-            proj_mem = db.query(ProjectMember).filter(
-                ProjectMember.project_id == project_id,
-                ProjectMember.user_id == current_user.id
-            ).first()
+            proj_mem = (
+                db.query(ProjectMember)
+                  .filter(
+                    ProjectMember.project_id == project_id,
+                    ProjectMember.user_id    == current_user.id
+                  )
+                  .first()
+            )
             if not proj_mem:
                 raise HTTPException(status_code=403, detail="Not authorized")
 
@@ -192,7 +215,7 @@ def list_tasks(
 def get_task(
     task_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
     task = (
         db.query(TaskModel)
@@ -205,17 +228,25 @@ def get_task(
 
     project = db.query(ProjectModel).filter(ProjectModel.id == task.project_id).first()
     if project.owner_id != current_user.id:
-        proj_mem = db.query(ProjectMember).filter(
-            ProjectMember.project_id == project.id,
-            ProjectMember.user_id == current_user.id
-        ).first()
+        proj_mem = (
+            db.query(ProjectMember)
+              .filter(
+                ProjectMember.project_id == project.id,
+                ProjectMember.user_id    == current_user.id
+              )
+              .first()
+        )
         if not proj_mem:
             raise HTTPException(status_code=403, detail="Not authorized")
         if task.big_task_id:
-            bt_mem = db.query(BigTaskMember).filter(
-                BigTaskMember.big_task_id == task.big_task_id,
-                BigTaskMember.user_id == current_user.id
-            ).first()
+            bt_mem = (
+                db.query(BigTaskMember)
+                  .filter(
+                    BigTaskMember.big_task_id == task.big_task_id,
+                    BigTaskMember.user_id     == current_user.id
+                  )
+                  .first()
+            )
             if not bt_mem:
                 raise HTTPException(status_code=403, detail="Not a member of this big task")
 
@@ -227,7 +258,7 @@ def update_task(
     task_id: int,
     task_in: TaskCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
     task = db.query(TaskModel).filter(TaskModel.id == task_id).first()
     if not task:
@@ -235,10 +266,14 @@ def update_task(
 
     project = db.query(ProjectModel).filter(ProjectModel.id == task.project_id).first()
     if project.owner_id != current_user.id:
-        proj_mem = db.query(ProjectMember).filter(
-            ProjectMember.project_id == project.id,
-            ProjectMember.user_id == current_user.id
-        ).first()
+        proj_mem = (
+            db.query(ProjectMember)
+              .filter(
+                ProjectMember.project_id == project.id,
+                ProjectMember.user_id    == current_user.id
+              )
+              .first()
+        )
         if not proj_mem:
             raise HTTPException(status_code=403, detail="Not authorized")
 
@@ -265,7 +300,7 @@ def update_task(
 def delete_task(
     task_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(get_current_user),
 ):
     task = db.query(TaskModel).filter(TaskModel.id == task_id).first()
     if not task:
@@ -273,17 +308,25 @@ def delete_task(
 
     project = db.query(ProjectModel).filter(ProjectModel.id == task.project_id).first()
     if project.owner_id != current_user.id:
-        proj_mem = db.query(ProjectMember).filter(
-            ProjectMember.project_id == project.id,
-            ProjectMember.user_id == current_user.id
-        ).first()
+        proj_mem = (
+            db.query(ProjectMember)
+              .filter(
+                ProjectMember.project_id == project.id,
+                ProjectMember.user_id    == current_user.id
+              )
+              .first()
+        )
         if not proj_mem:
             raise HTTPException(status_code=403, detail="Not authorized")
         if task.big_task_id:
-            bt_mem = db.query(BigTaskMember).filter(
-                BigTaskMember.big_task_id == task.big_task_id,
-                BigTaskMember.user_id == current_user.id
-            ).first()
+            bt_mem = (
+                db.query(BigTaskMember)
+                  .filter(
+                    BigTaskMember.big_task_id == task.big_task_id,
+                    BigTaskMember.user_id     == current_user.id
+                  )
+                  .first()
+            )
             if not bt_mem:
                 raise HTTPException(status_code=403, detail="Not a member of this big task")
 

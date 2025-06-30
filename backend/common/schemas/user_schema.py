@@ -14,9 +14,11 @@ class UserCreate(UserBase):
     password: str          # used only if you keep a local password
 
 class UserUpdate(BaseModel):
-    display_name: Optional[str]
-    avatar_url:   Optional[HttpUrl]
-    bio:          Optional[str]
+    email: Optional[EmailStr]      = None
+    display_name: Optional[str]    = None
+    avatar_url: Optional[HttpUrl]  = None
+    bio: Optional[str]             = None
+
 
 class User(UserBase):
     id: int

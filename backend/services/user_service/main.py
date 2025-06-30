@@ -1,4 +1,4 @@
-# user_service/main.py
+# services/user_service/main.py
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from common.auth0_docs import wire_auth0_docs      # ← add

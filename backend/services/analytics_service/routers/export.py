@@ -1,4 +1,4 @@
-# analytics_service/routers/export.py
+# services/analytics_service/routers/export.py
 from __future__ import annotations
 
 from datetime import datetime
@@ -18,6 +18,7 @@ from common.models.project_member import ProjectMember
 
 # reuse the existing summaries instead of re-implementing queries
 from services.analytics_service.routers.project_summary import get_project_summary
+from services.analytics_service.routers.dashboard import get_summary
 
 router = APIRouter(prefix="/export", tags=["export"])
 
@@ -88,7 +89,7 @@ def export_analytics(
 
     elif export_type == "dashboard":
         # single aggregate row
-        data = dashboard_summary(db=db, current_user=current_user)
+        data = get_summary(db=db, current_user=current_user)
         df = pd.DataFrame([data])
         filename_base = f"dashboard-{current_user.id}"
 

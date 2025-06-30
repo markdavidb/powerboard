@@ -199,15 +199,7 @@ export default function ChartBar({ data, title, subtitle }) {
 
             <CardActions sx={{ flexDirection: 'column', alignItems: 'flex-start', px: 2, pb: 2 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                    <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                        Trending {changeText}
-                    </Typography>
-                    {changeValue !== null &&
-                        <TrendingUp
-                            size={16}
-                            color={changeValue > 0 ? theme.palette.success.main : theme.palette.error.main}
-                        />
-                    }
+
                 </Box>
                 <Typography variant="caption" color="text.secondary">
                     Showing the last {data.length} months

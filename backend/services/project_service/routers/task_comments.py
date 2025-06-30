@@ -12,11 +12,12 @@ from services.notification_service.events import comment_added
 
 router = APIRouter()
 
+
 @router.post("/", response_model=TaskComment)
 def create_comment(
-    comment_in: TaskCommentCreate,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+        comment_in: TaskCommentCreate,
+        db: Session = Depends(get_db),
+        current_user: User = Depends(get_current_user)
 ):
     task = db.query(Task).filter(Task.id == comment_in.task_id).first()
     if not task:
@@ -35,11 +36,12 @@ def create_comment(
 
     return new_comment
 
+
 @router.get("/task/{task_id}", response_model=List[TaskComment])
 def list_comments(
-    task_id: int,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+        task_id: int,
+        db: Session = Depends(get_db),
+        current_user: User = Depends(get_current_user)
 ):
     task = db.query(Task).filter(Task.id == task_id).first()
     if not task:
@@ -47,19 +49,21 @@ def list_comments(
 
     comments = (
         db.query(TaskCommentModel)
-          .options(joinedload(TaskCommentModel.user))  # ← eager-load user
-          .filter(TaskCommentModel.task_id == task_id)
-          .order_by(TaskCommentModel.created_at.desc())
-          .all()
+        .options(joinedload(TaskCommentModel.user))  # ← eager-load user
+        .filter(TaskCommentModel.task_id == task_id)
+        .order_by(TaskCommentModel.created_at.desc(), TaskCommentModel.id.desc(),
+                  )
+        .all()
     )
     return comments
 
+
 @router.put("/{comment_id}", response_model=TaskComment)
 def update_comment(
-    comment_id: int,
-    comment_in: TaskCommentUpdate,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+        comment_id: int,
+        comment_in: TaskCommentUpdate,
+        db: Session = Depends(get_db),
+        current_user: User = Depends(get_current_user)
 ):
     comment = db.query(TaskCommentModel).filter(TaskCommentModel.id == comment_id).first()
     if not comment:
@@ -71,11 +75,12 @@ def update_comment(
     db.refresh(comment)
     return comment
 
+
 @router.delete("/{comment_id}")
 def delete_comment(
-    comment_id: int,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+        comment_id: int,
+        db: Session = Depends(get_db),
+        current_user: User = Depends(get_current_user)
 ):
     comment = db.query(TaskCommentModel).filter(TaskCommentModel.id == comment_id).first()
     if not comment:

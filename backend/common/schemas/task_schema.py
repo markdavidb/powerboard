@@ -1,4 +1,4 @@
-# app/schemas/task_schema.py
+# common/schemas/task_schema.py
 from pydantic import BaseModel
 from typing   import Optional
 from datetime import datetime

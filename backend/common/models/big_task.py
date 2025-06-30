@@ -1,4 +1,4 @@
-# src/app/models/big_task.py
+# common/models/big_task.py
 
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Enum as SqlEnum, func
 from sqlalchemy.orm import relationship

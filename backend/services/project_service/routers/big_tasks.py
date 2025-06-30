@@ -1,4 +1,4 @@
-# app/routers/big_tasks.py
+# services/project_service/routers/big_tasks.py
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session, joinedload
@@ -16,6 +16,18 @@ from common.models.task import Task                 # ← new import
 
 router = APIRouter(prefix="/big_tasks", tags=["Big Tasks"])
 
+# ─────────────────────────────  NEW PURE-LOGIC HELPER  ─────────────────────────────
+def _assert_can_delete(task_count: int) -> None:
+    """
+    Raise 400 if the big-task still has tasks attached.
+    Pure-logic helper so we can unit-test without the DB.
+    """
+    if task_count:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Cannot delete big-task; it still contains {task_count} task(s). "
+                   "Delete or move them first.",
+        )
 
 # ---------------------------------------------------------------------------
 # CREATE  (now always inserts the creator as a member and refreshes `members`)
@@ -277,15 +289,10 @@ def delete_big_task(
                 status_code=403, detail="Not a member of this big task"
             )
 
-    # ─── NEW GUARD: prevent deletion if tasks still exist ───────────────
+    # ─── guard: deny deletion if tasks still exist ───
     task_count = db.query(Task).filter(Task.big_task_id == big_task_id).count()
-    if task_count:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Cannot delete big-task; it still contains {task_count} task(s). "
-                   "Delete or move them first.",
-        )
-    # ─────────────────────────────────────────────────────────────────────
+    _assert_can_delete(task_count)          # ← now uses the helper
+    # ────────────────────────────────────────────────
 
     db.delete(bt)
     db.commit()

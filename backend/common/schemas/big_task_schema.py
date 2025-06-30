@@ -1,4 +1,4 @@
-# app/schemas/big_task_schema.py
+# common/schemas/schemas/big_task_schema.py
 from pydantic import BaseModel, Field
 from typing import Optional, List
 from datetime import datetime

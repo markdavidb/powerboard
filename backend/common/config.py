@@ -5,7 +5,6 @@ from pydantic_settings import BaseSettings     # ← CHANGE 1
 class Settings(BaseSettings):
     # existing
     SECRET_KEY: str
-    ALGORITHM: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int
     DATABASE_URL: str
     # SPA (used by Auth0Bearer & docs OAuth config)
