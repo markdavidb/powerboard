@@ -42,7 +42,7 @@ Inspired by tools like Jira and Linear, it includes a modern Kanban board, analy
 ```
 ┌─────────────────┐     ┌───────────┐     ┌─────────────────┐     ┌───────────────────┐     ┌─────────────────┐
 │   React Frontend│◄──► │   Auth0   │◄──► │      Nginx      │◄──► │  FastAPI Backend  │◄──► │   PostgreSQL    │
-│   (TypeScript)  │     │ (Identity │     │ (Reverse Proxy) │     │ (Main Gateway)    │     │   (Database)    │
+│           │     │     │ (Identity │     │ (Reverse Proxy) │     │ (Main Gateway)    │     │   (Database)    │
 │                 │     │ Provider) │     │                 │     │                   │     │                 │
 └─────────────────┘     └───────────┘     └─────────────────┘     └───────────────────┘     └─────────────────┘
                                                  │                       │
