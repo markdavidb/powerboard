@@ -140,17 +140,19 @@ export default function ProjectSummary() {
                 display:'flex',
                 justifyContent: { xs: 'center', sm: 'space-between' },
                 alignItems:'center',
-                mb:4,
+                mb: { xs: 3, sm: 4 },
                 flexDirection: { xs: 'column', sm: 'row' },
-                gap: { xs: 3, sm: 2 },
+                gap: { xs: 2, sm: 2 },
                 textAlign: { xs: 'center', sm: 'left' },
             }}>
                 <Typography
                     variant="h4"
                     sx={{
                         fontWeight: 700,
-                        fontSize: { xs: '1.5rem', sm: '2rem', md: '2.125rem' },
+                        fontSize: { xs: '1.25rem', sm: '1.75rem', md: '2.125rem' },
                         textShadow: "0 0 10px #6C63FF88",
+                        wordBreak: 'break-word',
+                        maxWidth: '100%',
                     }}
                 >
                     {summary.project_title}
@@ -159,8 +161,11 @@ export default function ProjectSummary() {
                 <Box sx={{
                     display:'flex',
                     gap: { xs: 1, sm: 2 },
-                    flexDirection: { xs: 'column', xs400: 'row' },
+                    flexDirection: { xs: 'row', sm: 'row' },
+                    flexWrap: 'wrap',
+                    justifyContent: 'center',
                     width: { xs: '100%', sm: 'auto' },
+                    maxWidth: { xs: '100%', sm: 'none' },
                 }}>
                     <Button
                         onClick={()=>setMembersOpen(true)}
@@ -171,9 +176,12 @@ export default function ProjectSummary() {
                             borderRadius:2,
                             textTransform:'none',
                             fontWeight:600,
-                            px: { xs: 3, sm: 2 },
-                            py: { xs: 1.5, sm: 1 },
-                            fontSize: { xs: '0.875rem', sm: '0.875rem' },
+                            px: { xs: 2, sm: 2 },
+                            py: { xs: 1, sm: 1 },
+                            fontSize: { xs: '0.8rem', sm: '0.875rem' },
+                            minWidth: { xs: 100, sm: 120 },
+                            flex: { xs: 1, sm: 'none' },
+                            maxWidth: { xs: 150, sm: 'none' },
                             '&:hover':{ background:'rgba(255,255,255,0.16)' }
                         }}
                     >
@@ -190,9 +198,12 @@ export default function ProjectSummary() {
                                 borderRadius:2,
                                 textTransform:'none',
                                 fontWeight:600,
-                                px: { xs: 3, sm: 2 },
-                                py: { xs: 1.5, sm: 1 },
-                                fontSize: { xs: '0.875rem', sm: '0.875rem' },
+                                px: { xs: 2, sm: 2 },
+                                py: { xs: 1, sm: 1 },
+                                fontSize: { xs: '0.8rem', sm: '0.875rem' },
+                                minWidth: { xs: 100, sm: 120 },
+                                flex: { xs: 1, sm: 'none' },
+                                maxWidth: { xs: 150, sm: 'none' },
                                 '&:hover':{ background:'rgba(255,255,255,0.16)' }
                             }}
                         >
@@ -203,9 +214,9 @@ export default function ProjectSummary() {
             </Box>
 
             {/* ─── metrics ───────────────────────────────────────────────── */}
-            <Grid container spacing={{ xs: 2, md: 3 }} sx={{ mb: 5 }} justifyContent="center">
+            <Grid container spacing={{ xs: 2, sm: 2, md: 3 }} sx={{ mb: { xs: 4, sm: 5 } }} justifyContent="center">
                 {metrics.map(m=>(
-                    <Grid key={m.title} item xs={12} sm={6} md={4} sx={{ display:'flex' }}>
+                    <Grid key={m.title} item xs={12} sm={6} md={4} sx={{ display:'flex', justifyContent: 'center' }}>
                         <MetricsCard title={m.title} total={m.total} done={m.done}/>
                     </Grid>
                 ))}
@@ -215,14 +226,15 @@ export default function ProjectSummary() {
             <Box sx={{
                 display:'flex',
                 flexDirection:{ xs:'column', md:'row' },
-                gap: 3,
+                gap: { xs: 2, sm: 3 },
                 width:'100%',
-                minHeight: { xs: 'auto', md: 450 }
+                minHeight: { xs: 'auto', md: 450 },
+                flex: 1,
             }}>
                 {/* Bar chart */}
                 <Box sx={{
                     width: { xs: '100%', md: '32%' },
-                    minHeight: { xs: 300, md: 'auto' },
+                    minHeight: { xs: 250, sm: 300, md: 'auto' },
                     display: 'flex',
                     flexDirection: 'column'
                 }}>
@@ -236,7 +248,7 @@ export default function ProjectSummary() {
                 {/* Area chart */}
                 <Box sx={{
                     flex: 1,
-                    minHeight: { xs: 300, md: 'auto' },
+                    minHeight: { xs: 250, sm: 300, md: 'auto' },
                     display: 'flex',
                     flexDirection: 'column'
                 }}>

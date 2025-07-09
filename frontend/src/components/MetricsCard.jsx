@@ -18,10 +18,12 @@ export default function MetricsCard({
                 border: '1.5px solid rgba(255,255,255,0.08)',
                 boxShadow: '0 4px 28px rgba(20,20,30,0.13)',
                 borderRadius: 3,
-                height: 150,
-                minWidth: 250,
-                px: 2,
-                py: 2,
+                height: { xs: 140, sm: 150 },
+                minWidth: { xs: 200, sm: 250 },
+                width: '100%',
+                maxWidth: 400,
+                px: { xs: 1.5, sm: 2 },
+                py: { xs: 1.5, sm: 2 },
                 display: 'flex',
                 flexDirection: 'column',
                 gap: 0,
@@ -32,19 +34,38 @@ export default function MetricsCard({
                 <Typography
                     variant="body2"
                     color="text.secondary"
-                    sx={{ fontWeight: 600, textTransform: 'uppercase', letterSpacing: 1 }}
+                    sx={{
+                        fontWeight: 600,
+                        textTransform: 'uppercase',
+                        letterSpacing: 1,
+                        fontSize: { xs: '0.75rem', sm: '0.875rem' }
+                    }}
                 >
                     {title}
                 </Typography>
                 {icon}
             </Box>
 
-            <Typography variant="h3" sx={{ fontWeight: 700, color: '#fff', mb: 0.2, lineHeight: 1 }}>
+            <Typography
+                variant="h3"
+                sx={{
+                    fontWeight: 700,
+                    color: '#fff',
+                    mb: 0.2,
+                    lineHeight: 1,
+                    fontSize: { xs: '2rem', sm: '3rem' }
+                }}
+            >
                 {total}
             </Typography>
 
             <Box sx={{ width: '100%', mt: 0.5, mb: 0.3 }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: '#b1b1b6' }}>
+                <Box sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    fontSize: { xs: 12, sm: 13 },
+                    color: '#b1b1b6'
+                }}>
                     <span>{done}/{total} done</span>
                     <span>{pct}%</span>
                 </Box>
