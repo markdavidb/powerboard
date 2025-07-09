@@ -81,24 +81,7 @@ export default function Dashboard() {
         `${monthNames[+start[1] - 1]} – ${monthNames[+end[1] - 1]} ${end[0]}`;
 
     return (
-        <Box
-            id="main-box"
-            sx={{
-                display: "flex",
-                flexDirection: "column",
-                p: { xs: 1, sm: 2, md: 8 },
-                mt: { xs: 1, md: 3 },
-                mx: "auto",
-                height: "88vh",
-                width: "100%",
-                maxWidth: { xs: "100%", md: "calc(100vw - 240px)", xl: "1600px" },
-                backdropFilter: "blur(18px)",
-                background: theme.palette.background.default,
-                border: "1px solid rgba(255,255,255,0.08)",
-                boxShadow: "0 12px 40px rgba(0,0,0,0.4)",
-                color: "#fff",
-            }}
-        >
+        <Box sx={{ width: '100%' }}>
             {/* Export button */}
             <Tooltip title="Export Dashboard Data">
                 <IconButton
@@ -119,7 +102,7 @@ export default function Dashboard() {
             </Tooltip>
 
             {/* Metrics */}
-            <Grid container spacing={3} sx={{ mb: 5 }} justifyContent="center">
+            <Grid container spacing={{ xs: 2, md: 3 }} sx={{ mb: 5 }} justifyContent="center">
                 {metrics.map(m => (
                     <Grid key={m.title} item xs={12} sm={6} md={4} lg={3} sx={{ display: 'flex' }}>
                         <MetricsCard title={m.title} total={m.total} done={m.done} />
@@ -133,17 +116,15 @@ export default function Dashboard() {
                     display: 'flex',
                     flexDirection: { xs: 'column', md: 'row' },
                     gap: 3,
-                    flex: 1,
-                    minHeight: 0,
                     width: '100%',
+                    minHeight: { xs: 'auto', md: 450 }
                 }}
             >
                 {/* Bar chart */}
                 <Box
                     sx={{
                         width: { xs: '100%', md: '32%' },
-                        minWidth: 0,
-                        height: { xs: 200, md: '100%' },
+                        minHeight: { xs: 300, md: 'auto' },
                         display: 'flex',
                         flexDirection: 'column'
                     }}
@@ -159,8 +140,7 @@ export default function Dashboard() {
                 <Box
                     sx={{
                         flex: 1,
-                        minWidth: 0,
-                        height: { xs: 260, md: '60%' },
+                        minHeight: { xs: 300, md: 'auto' },
                         display: 'flex',
                         flexDirection: 'column'
                     }}

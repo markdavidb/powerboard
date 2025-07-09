@@ -8,7 +8,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth0 } from '@auth0/auth0-react';
 import {
     LayoutDashboard, FolderKanban, Calendar,
-    MessageSquare, Shield, Settings, HelpCircle, LogOut,
+    Shield, Settings, HelpCircle, LogOut,
 } from 'lucide-react';
 import useRoles from '../hooks/useRoles';
 import HelpModal from './HelpModal';   // <--- Import your modal
@@ -28,7 +28,7 @@ const extraNav = [
     // { text: 'Help', path: '/help', icon: <HelpCircle size={20} /> }, // Remove this
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ isMobile, isOpen, onClose }) {
     const navigate = useNavigate();
     const location = useLocation();
     const { logout } = useAuth0();
@@ -56,20 +56,31 @@ export default function Sidebar() {
         '&:focus': { borderRadius: 0 },
     });
 
-    const clickNav = (path) => location.pathname !== path && navigate(path);
+    const clickNav = (path) => {
+        if (location.pathname !== path) navigate(path);
+        if (isMobile) onClose();
+    };
 
     return (
         <>
             <Drawer
-                variant="permanent"
+                variant={isMobile ? 'temporary' : 'persistent'}
+                open={isOpen}
+                onClose={onClose}
                 sx={{
                     width: drawerWidth,
+                    flexShrink: 0,
                     '& .MuiDrawer-paper': {
                         width: drawerWidth,
+                        boxSizing: 'border-box',
                         background: '#181926',
                         color: '#f4f5fa',
                         borderRadius: 0,
+                        borderRight: 'none',
                     },
+                }}
+                ModalProps={{
+                    keepMounted: true, // Better open performance on mobile.
                 }}
             >
                 {/* logo */}

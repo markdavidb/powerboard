@@ -9,9 +9,10 @@ import {
     useTheme,
     Skeleton,
     Badge,
+    useMediaQuery,
 } from '@mui/material';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Bell, ChevronRight } from 'lucide-react';
+import { Bell, ChevronRight, Menu } from 'lucide-react';
 import { useAuth0 } from '@auth0/auth0-react';
 import ColorModeContext from '../themes/ColorModeContext';
 import { API } from '../api/axios';
@@ -29,12 +30,13 @@ const crumbMap = {
     board:     'Project Board',
 };
 
-export default function Header() {
+export default function Header({ onMenuClick }) {
     const navigate             = useNavigate();
     const { pathname: rawPath } = useLocation();
     const theme                = useTheme();
     const { user, logout }     = useAuth0();
     const { toggleColorMode }  = useContext(ColorModeContext);
+    const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
     /* ───────────────────────────── breadcrumbs (unchanged) ─── */
     const pathname = useMemo(() => (
@@ -126,60 +128,71 @@ export default function Header() {
                 zIndex: 1100,
             }}
         >
-            {/* ───────────── left: breadcrumbs ───────────── */}
-            <Box
-                sx={{
-                    display:    { xs: 'none', sm: 'flex' },
-                    alignItems: 'center',
-                    gap: 1,
-                    fontSize:  14,
-                    fontWeight: 500,
-                    color:     '#d1d5db',
-                    overflow:  'hidden',
-                    whiteSpace:'nowrap',
-                }}
-            >
-                <Link to="/dashboard" style={{ color: 'inherit', textDecoration: 'none' }}>
-                    PowerBoard
-                </Link>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <IconButton
+                    color="inherit"
+                    aria-label="open drawer"
+                    edge="start"
+                    onClick={onMenuClick}
+                    sx={{ mr: 1 }}
+                >
+                    <Menu />
+                </IconButton>
+                {/* ───────────── left: breadcrumbs ───────────── */}
+                <Box
+                    sx={{
+                        display:    { xs: 'none', sm: 'flex' },
+                        alignItems: 'center',
+                        gap: 1,
+                        fontSize:  14,
+                        fontWeight: 500,
+                        color:     '#d1d5db',
+                        overflow:  'hidden',
+                        whiteSpace:'nowrap',
+                    }}
+                >
+                    <Link to="/dashboard" style={{ color: 'inherit', textDecoration: 'none' }}>
+                        PowerBoard
+                    </Link>
 
-                {crumbs.map((c, i) => (
-                    <Box key={i} sx={{ display: 'flex', alignItems: 'center' }}>
-                        <ChevronRight
-                            size={16}
-                            style={{ color: '#666', margin: '0 4px' }}
-                        />
-
-                        {c.isProject && c.label === null ? (
-                            <Skeleton
-                                variant="text"
-                                width={80}
-                                height={22}
-                                sx={{ bgcolor: 'rgba(255,255,255,0.2)', marginRight: 1 }}
+                    {crumbs.map((c, i) => (
+                        <Box key={i} sx={{ display: 'flex', alignItems: 'center' }}>
+                            <ChevronRight
+                                size={16}
+                                style={{ color: '#666', margin: '0 4px' }}
                             />
-                        ) : c.isLast ? (
-                            <Typography
-                                sx={{
-                                    color: theme.palette.text.primary,
-                                    textTransform: 'capitalize',
-                                }}
-                            >
-                                {c.label}
-                            </Typography>
-                        ) : (
-                            <Link
-                                to={c.path}
-                                style={{
-                                    color: '#b0b0b0',
-                                    textDecoration: 'none',
-                                    textTransform: 'capitalize',
-                                }}
-                            >
-                                {c.label}
-                            </Link>
-                        )}
-                    </Box>
-                ))}
+
+                            {c.isProject && c.label === null ? (
+                                <Skeleton
+                                    variant="text"
+                                    width={80}
+                                    height={22}
+                                    sx={{ bgcolor: 'rgba(255,255,255,0.2)', marginRight: 1 }}
+                                />
+                            ) : c.isLast ? (
+                                <Typography
+                                    sx={{
+                                        color: theme.palette.text.primary,
+                                        textTransform: 'capitalize',
+                                    }}
+                                >
+                                    {c.label}
+                                </Typography>
+                            ) : (
+                                <Link
+                                    to={c.path}
+                                    style={{
+                                        color: '#b0b0b0',
+                                        textDecoration: 'none',
+                                        textTransform: 'capitalize',
+                                    }}
+                                >
+                                    {c.label}
+                                </Link>
+                            )}
+                        </Box>
+                    ))}
+                </Box>
             </Box>
 
             {/* ───────────── right: icons & profile ───────────── */}

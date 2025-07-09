@@ -4,7 +4,7 @@
 import React, { useEffect, useState } from 'react';
 import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { useAuth0 } from '@auth0/auth0-react';
-import Box from '@mui/material/Box';
+import { Box, useMediaQuery, useTheme } from '@mui/material';
 
 import Sidebar         from './components/Sidebar';
 import Header          from './components/Header';
@@ -55,12 +55,45 @@ function Protected({ children }) {
 /*  Shell: sidebar + header + outlet                            */
 /* ──────────────────────────────────────────────────────────── */
 function Shell() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const [isSidebarOpen, setSidebarOpen] = useState(!isMobile);
+
+  useEffect(() => {
+    if (isMobile) {
+      setSidebarOpen(false);
+    } else {
+      setSidebarOpen(true);
+    }
+  }, [isMobile]);
+
+  const handleSidebarToggle = () => {
+    setSidebarOpen(!isSidebarOpen);
+  };
+
   return (
     <Box sx={{ display: 'flex', height: '100vh' }}>
-      <Sidebar />
-      <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-        <Header />
-        <Box component="main" sx={{ flexGrow: 1, overflow: 'auto' }}>
+      <Sidebar
+        isMobile={isMobile}
+        isOpen={isSidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+      />
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+          transition: theme.transitions.create('margin', {
+            easing: theme.transitions.easing.sharp,
+            duration: theme.transitions.duration.leavingScreen,
+          }),
+          marginLeft: `-${isMobile ? 0 : isSidebarOpen ? 0 : 224}px`,
+        }}
+      >
+        <Header onMenuClick={handleSidebarToggle} />
+        <Box sx={{ flexGrow: 1, overflow: 'auto', p: { xs: 2, sm: 3 } }}>
           <Outlet />
         </Box>
       </Box>
