@@ -81,7 +81,25 @@ export default function Dashboard() {
         `${monthNames[+start[1] - 1]} – ${monthNames[+end[1] - 1]} ${end[0]}`;
 
     return (
-        <Box sx={{ width: '100%' }}>
+        <Box
+            id="main-box"
+            sx={{
+                display: "flex",
+                flexDirection: "column",
+                p: { xs: 2, sm: 3, md: 4, lg: 6 },
+                mt: { xs: 1, sm: 2, md: 3 },
+                mx: { xs: 1, sm: 2, md: "auto" },
+                minHeight: { xs: "calc(100vh - 120px)", md: "88vh" },
+                width: { xs: "calc(100% - 16px)", sm: "calc(100% - 32px)", md: "100%" },
+                maxWidth: { xs: "100%", md: "calc(100vw - 240px)", xl: "1600px" },
+                backdropFilter: "blur(18px)",
+                background: theme.palette.background.default,
+                border: "1px solid rgba(255,255,255,0.08)",
+                borderRadius: { xs: 2, md: 3 },
+                boxShadow: "0 12px 40px rgba(0,0,0,0.4)",
+                color: "#fff",
+            }}
+        >
             {/* Export button */}
             <Tooltip title="Export Dashboard Data">
                 <IconButton

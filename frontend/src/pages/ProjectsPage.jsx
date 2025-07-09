@@ -4,7 +4,6 @@ import {
     Typography,
     TextField,
     MenuItem,
-    Grid,
     IconButton,
     Tooltip,
     CircularProgress,
@@ -135,15 +134,16 @@ export default function ProjectsPage() {
             sx={{
                 display: "flex",
                 flexDirection: "column",
-                p: { xs: 1, sm: 2, md: 8 },
-                mt: { xs: 1, md: 3 },
-                mx: "auto",
-                height: "88vh",
-                width: "100%",
+                p: { xs: 2, sm: 3, md: 4, lg: 6 },
+                mt: { xs: 1, sm: 2, md: 3 },
+                mx: { xs: 1, sm: 2, md: "auto" },
+                minHeight: { xs: "calc(100vh - 120px)", md: "88vh" },
+                width: { xs: "calc(100% - 16px)", sm: "calc(100% - 32px)", md: "100%" },
                 maxWidth: { xs: "100%", md: "calc(100vw - 240px)", xl: "1600px" },
                 backdropFilter: "blur(18px)",
                 background: (t) => t.palette.background.default,
                 border: "1px solid rgba(255,255,255,0.08)",
+                borderRadius: { xs: 2, md: 3 },
                 boxShadow: "0 12px 40px rgba(0,0,0,0.4)",
                 color: "#fff",
             }}
@@ -161,20 +161,35 @@ export default function ProjectsPage() {
                         variant="h4"
                         fontWeight={700}
                         mb={4}
-                        sx={{ textShadow: "0 0 10px #6C63FF88" }}
+                        sx={{
+                            textShadow: "0 0 10px #6C63FF88",
+                            fontSize: { xs: '1.5rem', sm: '2rem', md: '2.125rem' }
+                        }}
                     >
                         My Projects
                     </Typography>
 
                     {/* filters */}
-                    <Box sx={{ display:"flex", flexWrap:"wrap", gap:2, mb:4 }}>
+                    <Box sx={{
+                        display: "grid",
+                        gridTemplateColumns: {
+                            xs: "1fr",
+                            sm: "repeat(2, 1fr)",
+                            md: "repeat(4, 1fr)"
+                        },
+                        gap: 2,
+                        mb: 4
+                    }}>
                         <TextField
                             variant="outlined"
                             size="small"
                             placeholder="Search projects…"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            sx={filterStyle}
+                            sx={{
+                                ...filterStyle,
+                                gridColumn: { xs: "1", sm: "1 / -1", md: "1" }
+                            }}
                         />
                         <TextField
                             select label="Month" size="small"
@@ -220,30 +235,42 @@ export default function ProjectsPage() {
                     {/* card grid */}
                     <Box
                         sx={{
-                            flex:1, overflowY:"auto", pr:2, p:2,
-                            "&::-webkit-scrollbar": { width:8 },
+                            flex: 1,
+                            overflowY: "auto",
+                            pr: 1,
+                            "&::-webkit-scrollbar": { width: 8 },
                             "&::-webkit-scrollbar-thumb": {
-                                backgroundColor:"rgba(108,99,255,0.4)",
-                                borderRadius:8,
-                                border:"2px solid transparent",
-                                backgroundClip:"content-box",
+                                backgroundColor: "rgba(108,99,255,0.4)",
+                                borderRadius: 8,
+                                border: "2px solid transparent",
+                                backgroundClip: "content-box",
                             },
                             "&::-webkit-scrollbar-thumb:hover": {
-                                backgroundColor:"rgba(108,99,255,0.7)",
+                                backgroundColor: "rgba(108,99,255,0.7)",
                             },
                         }}
                     >
-                        <Grid container spacing={3}>
+                        <Box
+                            sx={{
+                                display: "grid",
+                                gridTemplateColumns: {
+                                    xs: "repeat(auto-fit, minmax(280px, 1fr))",
+                                    sm: "repeat(auto-fit, minmax(300px, 1fr))",
+                                },
+                                gap: { xs: 2, sm: 3 },
+                                mt: 1,
+                                justifyItems: "center",
+                            }}
+                        >
                             {filtered.map((proj) => (
-                                <Grid item xs={12} sm={6} md={4} key={proj.id}>
-                                    <ProjectCard
-                                        proj={proj}
-                                        bigTaskStats={btStats[proj.id] ?? emptyStats}
-                                        onOpen={() => openProject(proj.id)}
-                                    />
-                                </Grid>
+                                <ProjectCard
+                                    key={proj.id}
+                                    proj={proj}
+                                    bigTaskStats={btStats[proj.id] ?? emptyStats}
+                                    onOpen={() => openProject(proj.id)}
+                                />
                             ))}
-                        </Grid>
+                        </Box>
                     </Box>
                 </>
             )}
@@ -253,14 +280,21 @@ export default function ProjectsPage() {
                 <IconButton
                     onClick={() => setModalOpen(true)}
                     sx={{
-                        position:"fixed", bottom:40, right:60,
-                        background:"linear-gradient(135deg,#6C63FF,#9B78FF)",
-                        color:"#fff", p:2,
-                        boxShadow:"0 6px 18px rgba(108,99,255,0.5)",
-                        "&:hover":{ background:"linear-gradient(135deg,#5a50e0,#8e6cf1)" },
+                        position: "fixed",
+                        bottom: { xs: 20, sm: 32 },
+                        right: { xs: 20, sm: 32 },
+                        background: "linear-gradient(135deg,#6C63FF,#9B78FF)",
+                        color: "#fff",
+                        p: { xs: 1.5, sm: 2 },
+                        boxShadow: "0 6px 18px rgba(108,99,255,0.5)",
+                        zIndex: 1000,
+                        "&:hover": {
+                            background: "linear-gradient(135deg,#5a50e0,#8e6cf1)",
+                            transform: "scale(1.1)"
+                        },
                     }}
                 >
-                    <Plus/>
+                    <Plus size={24} />
                 </IconButton>
             </Tooltip>
 

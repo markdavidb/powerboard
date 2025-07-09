@@ -8,7 +8,6 @@ import { ArrowRight } from "lucide-react";
  * Props
  * ─────
  * • isOverdue      → red border / glow
- * • width          → px (default 280)
  * • statusPill     → JSX shown top-right
  * • children       → interior content
  * • buttonLabel    → footer button text
@@ -17,7 +16,6 @@ import { ArrowRight } from "lucide-react";
  */
 export default function CardShell({
                                       isOverdue = false,
-                                      width = 280,
                                       statusPill = null,
                                       buttonLabel = "Open",
                                       onCardClick,
@@ -27,7 +25,9 @@ export default function CardShell({
     return (
         <Box
             sx={{
-                width,
+                width: "100%",
+                minWidth: 280,
+                maxWidth: 320,
                 minHeight: 230,
                 display: "flex",
                 flexDirection: "column",
@@ -42,7 +42,7 @@ export default function CardShell({
                 transition: "all .25s ease",
                 cursor: "pointer",
                 "&:hover": {
-                    transform: "translateY(-3px) scale(1.03)",
+                    transform: "translateY(-3px) scale(1.02)",
                     boxShadow: isOverdue
                         ? "0 0 12px rgba(244,67,54,0.7)"
                         : "0 2px 10px rgba(86,85,255,0.05)",
