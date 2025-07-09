@@ -115,97 +115,81 @@ export default function ProjectSummary() {
 
     /* ─────────── JSX ─────────── */
     return (
-        <Box
-            id="main-box"
-            sx={{
-                display: "flex",
-                flexDirection: "column",
-                p: { xs: 2, sm: 3, md: 4, lg: 6 },
-                mt: { xs: 1, sm: 2, md: 3 },
-                mx: { xs: 1, sm: 2, md: "auto" },
-                minHeight: { xs: "calc(100vh - 180px)", md: "87vh" },
-                width: { xs: "calc(100% - 16px)", sm: "calc(100% - 32px)", md: "100%" },
-                maxWidth: { xs: "100%", md: "calc(100vw - 240px)", xl: "1600px" },
-                backdropFilter: "blur(18px)",
-                background: (theme) => theme.palette.background.default,
-                border: "1px solid rgba(255,255,255,0.08)",
-                borderRadius: { xs: 2, md: 3 },
-                boxShadow: "0 12px 40px rgba(0,0,0,0.4)",
-                color: "#fff",
-            }}
-        >
-            {/* ─── floating export btn ──────────────────────────────────── */}
-            <Tooltip title="Export Project Summary">
-                <IconButton
-                    onClick={()=>setExportOpen(true)}
-                    sx={{
-                        position:'fixed',
-                        bottom: { xs: 20, sm: 32 },
-                        right: { xs: 20, sm: 32 },
-                        background:'linear-gradient(135deg,#1F8EF1,#5C9EFF)',
-                        color:'#fff',
-                        p: { xs: 1.5, sm: 2 },
-                        zIndex: 10,
-                        boxShadow: "0 6px 18px rgba(31,142,241,0.5)",
-                        '&:hover':{
-                            background:'linear-gradient(135deg,#167ac6,#3b8eff)',
-                            transform: "scale(1.1)"
-                        }
-                    }}
-                >
-                    <Download/>
-                </IconButton>
-            </Tooltip>
-
-            {/* ─── header row ─────────────────────────────────────────────── */}
-            <Box sx={{
-                display:'flex',
-                justifyContent: { xs: 'center', sm: 'space-between' },
-                alignItems:'center',
-                mb: 4,
-                flexDirection: { xs: 'column', sm: 'row' },
-                gap: { xs: 2, sm: 2 },
-                textAlign: { xs: 'center', sm: 'left' },
-            }}>
-                <Typography
-                    variant="h4"
-                    sx={{
-                        fontWeight: 700,
-                        fontSize: { xs: '1.5rem', sm: '2rem', md: '2.125rem' },
-                        textShadow: "0 0 10px #6C63FF88",
-                    }}
-                >
-                    {summary.project_title}
-                </Typography>
-
-                <Box sx={{
-                    display:'flex',
-                    gap: { xs: 1, sm: 2 },
-                    flexDirection: { xs: 'column', sm: 'row' },
-                    width: { xs: '100%', sm: 'auto' },
-                }}>
-                    <Button
-                        onClick={()=>setMembersOpen(true)}
-                        startIcon={<Users size={18}/>}
+        <Box sx={{ width: '100%' }}>
+            <Box
+                id="main-box"
+                sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    p: { xs: 2, sm: 3, md: 4, lg: 6 },
+                    mt: { xs: 1, sm: 2, md: 3 },
+                    mx: { xs: 1, sm: 2, md: "auto" },
+                    minHeight: { xs: "calc(100vh - 180px)", md: "87vh" },
+                    width: { xs: "calc(100% - 16px)", sm: "calc(100% - 32px)", md: "100%" },
+                    maxWidth: { xs: "100%", md: "calc(100vw - 240px)", xl: "1600px" },
+                    backdropFilter: "blur(18px)",
+                    background: (theme) => theme.palette.background.default,
+                    border: "1px solid rgba(255,255,255,0.08)",
+                    borderRadius: { xs: 2, md: 3 },
+                    boxShadow: "0 12px 40px rgba(0,0,0,0.4)",
+                    color: "#fff",
+                }}
+            >
+                {/* ─── floating export btn ──────────────────────────────────── */}
+                <Tooltip title="Export Project Summary">
+                    <IconButton
+                        onClick={()=>setExportOpen(true)}
                         sx={{
-                            background:'rgba(255,255,255,0.08)',
+                            position:'absolute',
+                            bottom: { xs: 16, sm: 24 },
+                            right: { xs: 16, sm: 24 },
+                            background:'linear-gradient(135deg,#1F8EF1,#5C9EFF)',
                             color:'#fff',
-                            borderRadius:2,
-                            textTransform:'none',
-                            fontWeight:600,
-                            px: { xs: 3, sm: 2 },
-                            py: { xs: 1.5, sm: 1 },
-                            fontSize: { xs: '0.875rem', sm: '0.875rem' },
-                            '&:hover':{ background:'rgba(255,255,255,0.16)' }
+                            p: { xs: 1.5, sm: 2 },
+                            zIndex: 10,
+                            boxShadow: "0 6px 18px rgba(31,142,241,0.5)",
+                            '&:hover':{
+                                background:'linear-gradient(135deg,#167ac6,#3b8eff)',
+                                transform: "scale(1.1)"
+                            }
                         }}
                     >
-                        Members
-                    </Button>
+                        <Download/>
+                    </IconButton>
+                </Tooltip>
 
-                    {userRole==='owner' && (
+                {/* ─── header row ─────────────────────────────────────────────── */}
+                <Box sx={{
+                    display:'flex',
+                    justifyContent: { xs: 'center', sm: 'space-between' },
+                    alignItems:'center',
+                    mb: 4,
+                    flexDirection: { xs: 'column', sm: 'row' },
+                    gap: { xs: 2, sm: 2 },
+                    textAlign: { xs: 'center', sm: 'left' },
+                    width: '100%',
+                }}>
+                    <Typography
+                        variant="h4"
+                        sx={{
+                            fontWeight: 700,
+                            fontSize: { xs: '1.5rem', sm: '2rem', md: '2.125rem' },
+                            textShadow: "0 0 10px #6C63FF88",
+                            wordBreak: 'break-word',
+                        }}
+                    >
+                        {summary.project_title}
+                    </Typography>
+
+                    <Box sx={{
+                        display:'flex',
+                        gap: { xs: 1, sm: 2 },
+                        flexDirection: { xs: 'column', sm: 'row' },
+                        width: { xs: '100%', sm: 'auto' },
+                    }}>
                         <Button
-                            onClick={()=>setSettingsOpen(true)}
-                            startIcon={<Settings size={18}/>}
+                            onClick={()=>setMembersOpen(true)}
+                            startIcon={<Users size={18}/>}
                             sx={{
                                 background:'rgba(255,255,255,0.08)',
                                 color:'#fff',
@@ -218,58 +202,77 @@ export default function ProjectSummary() {
                                 '&:hover':{ background:'rgba(255,255,255,0.16)' }
                             }}
                         >
-                            Settings
+                            Members
                         </Button>
-                    )}
-                </Box>
-            </Box>
 
-            {/* ─── metrics ───────────────────────────────────────────────── */}
-            <Grid container spacing={{ xs: 2, md: 3 }} sx={{ mb: 5 }} justifyContent="center">
-                {metrics.map(m=>(
-                    <Grid key={m.title} item xs={12} sm={6} md={4} lg={3} sx={{ display:'flex' }}>
-                        <MetricsCard title={m.title} total={m.total} done={m.done}/>
-                    </Grid>
-                ))}
-            </Grid>
-
-            {/* ─── charts row ────────────────────────────────────────────── */}
-            <Box sx={{
-                display:'flex',
-                flexDirection:{ xs:'column', md:'row' },
-                gap: 3,
-                width:'100%',
-                minHeight: { xs: 'auto', md: 450 }
-            }}>
-                {/* Bar chart */}
-                <Box sx={{
-                    width: { xs: '100%', md: '32%' },
-                    minHeight: { xs: 300, md: 'auto' },
-                    display: 'flex',
-                    flexDirection: 'column'
-                }}>
-                    <ChartBar
-                        data={monthlyTasks}
-                        title="Open vs Closed Tasks"
-                        subtitle={barSubtitle}
-                    />
+                        {userRole==='owner' && (
+                            <Button
+                                onClick={()=>setSettingsOpen(true)}
+                                startIcon={<Settings size={18}/>}
+                                sx={{
+                                    background:'rgba(255,255,255,0.08)',
+                                    color:'#fff',
+                                    borderRadius:2,
+                                    textTransform:'none',
+                                    fontWeight:600,
+                                    px: { xs: 3, sm: 2 },
+                                    py: { xs: 1.5, sm: 1 },
+                                    fontSize: { xs: '0.875rem', sm: '0.875rem' },
+                                    '&:hover':{ background:'rgba(255,255,255,0.16)' }
+                                }}
+                            >
+                                Settings
+                            </Button>
+                        )}
+                    </Box>
                 </Box>
 
-                {/* Area chart */}
+                {/* ─── metrics ───────────────────────────────────────────────── */}
+                <Grid container spacing={{ xs: 2, md: 3 }} sx={{ mb: 5, width: '100%' }} justifyContent="center">
+                    {metrics.map(m=>(
+                        <Grid key={m.title} item xs={12} sm={6} md={4} lg={3} sx={{ display:'flex', justifyContent: 'center' }}>
+                            <MetricsCard title={m.title} total={m.total} done={m.done}/>
+                        </Grid>
+                    ))}
+                </Grid>
+
+                {/* ─── charts row ────────────────────────────────────────────── */}
                 <Box sx={{
+                    display:'flex',
+                    flexDirection:{ xs:'column', md:'row' },
+                    gap: 3,
+                    width:'100%',
                     flex: 1,
-                    minHeight: { xs: 300, md: 'auto' },
-                    display: 'flex',
-                    flexDirection: 'column'
                 }}>
-                    <ChartArea
-                        data={monthlyTasks}
-                        title="Open vs Closed Tasks"
-                        subtitle="Last 6 months"
-                    />
+                    {/* Bar chart */}
+                    <Box sx={{
+                        width: { xs: '100%', md: '32%' },
+                        minHeight: { xs: 300, md: 'auto' },
+                        display: 'flex',
+                        flexDirection: 'column'
+                    }}>
+                        <ChartBar
+                            data={monthlyTasks}
+                            title="Open vs Closed Tasks"
+                            subtitle={barSubtitle}
+                        />
+                    </Box>
+
+                    {/* Area chart */}
+                    <Box sx={{
+                        flex: 1,
+                        minHeight: { xs: 300, md: 'auto' },
+                        display: 'flex',
+                        flexDirection: 'column'
+                    }}>
+                        <ChartArea
+                            data={monthlyTasks}
+                            title="Open vs Closed Tasks"
+                            subtitle="Last 6 months"
+                        />
+                    </Box>
                 </Box>
             </Box>
-
             {/* ─── modals ────────────────────────────────────────────────── */}
             <ProjectMembersModal
                 open={membersOpen}
