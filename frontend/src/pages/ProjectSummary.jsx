@@ -135,145 +135,40 @@ export default function ProjectSummary() {
                     color: "#fff",
                 }}
             >
-                {/* ─── floating export btn ──────────────────────────────────── */}
-                <Tooltip title="Export Project Summary">
-                    <IconButton
-                        onClick={()=>setExportOpen(true)}
-                        sx={{
-                            position:'absolute',
-                            bottom: { xs: 16, sm: 24 },
-                            right: { xs: 16, sm: 24 },
-                            background:'linear-gradient(135deg,#1F8EF1,#5C9EFF)',
-                            color:'#fff',
-                            p: { xs: 1.5, sm: 2 },
-                            zIndex: 10,
-                            boxShadow: "0 6px 18px rgba(31,142,241,0.5)",
-                            '&:hover':{
-                                background:'linear-gradient(135deg,#167ac6,#3b8eff)',
-                                transform: "scale(1.1)"
-                            }
-                        }}
-                    >
-                        <Download/>
-                    </IconButton>
-                </Tooltip>
+                {/* TEMPORARY TEST - Just a simple title and colored box */}
+                <Typography variant="h4" sx={{ mb: 2, textAlign: 'center' }}>
+                    TEST: {summary.project_title}
+                </Typography>
 
-                {/* ─── header row ─────────────────────────────────────────────── */}
                 <Box sx={{
-                    display:'flex',
-                    justifyContent: { xs: 'center', sm: 'space-between' },
-                    alignItems:'center',
-                    mb: 4,
-                    flexDirection: { xs: 'column', sm: 'row' },
-                    gap: { xs: 2, sm: 2 },
-                    textAlign: { xs: 'center', sm: 'left' },
                     width: '100%',
+                    height: 200,
+                    backgroundColor: 'red',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    mb: 2
                 }}>
-                    <Typography
-                        variant="h4"
-                        sx={{
-                            fontWeight: 700,
-                            fontSize: { xs: '1.5rem', sm: '2rem', md: '2.125rem' },
-                            textShadow: "0 0 10px #6C63FF88",
-                            wordBreak: 'break-word',
-                        }}
-                    >
-                        {summary.project_title}
+                    <Typography variant="h6" color="white">
+                        RED BOX - Should fill width
                     </Typography>
-
-                    <Box sx={{
-                        display:'flex',
-                        gap: { xs: 1, sm: 2 },
-                        flexDirection: { xs: 'column', sm: 'row' },
-                        width: { xs: '100%', sm: 'auto' },
-                    }}>
-                        <Button
-                            onClick={()=>setMembersOpen(true)}
-                            startIcon={<Users size={18}/>}
-                            sx={{
-                                background:'rgba(255,255,255,0.08)',
-                                color:'#fff',
-                                borderRadius:2,
-                                textTransform:'none',
-                                fontWeight:600,
-                                px: { xs: 3, sm: 2 },
-                                py: { xs: 1.5, sm: 1 },
-                                fontSize: { xs: '0.875rem', sm: '0.875rem' },
-                                '&:hover':{ background:'rgba(255,255,255,0.16)' }
-                            }}
-                        >
-                            Members
-                        </Button>
-
-                        {userRole==='owner' && (
-                            <Button
-                                onClick={()=>setSettingsOpen(true)}
-                                startIcon={<Settings size={18}/>}
-                                sx={{
-                                    background:'rgba(255,255,255,0.08)',
-                                    color:'#fff',
-                                    borderRadius:2,
-                                    textTransform:'none',
-                                    fontWeight:600,
-                                    px: { xs: 3, sm: 2 },
-                                    py: { xs: 1.5, sm: 1 },
-                                    fontSize: { xs: '0.875rem', sm: '0.875rem' },
-                                    '&:hover':{ background:'rgba(255,255,255,0.16)' }
-                                }}
-                            >
-                                Settings
-                            </Button>
-                        )}
-                    </Box>
                 </Box>
 
-                {/* ─── metrics ───────────────────────────────────────────────── */}
-                <Grid container spacing={{ xs: 2, md: 3 }} sx={{ mb: 5, width: '100%' }} justifyContent="center">
-                    {metrics.map(m=>(
-                        <Grid key={m.title} item xs={12} sm={6} md={4} lg={3} sx={{ display:'flex', justifyContent: 'center' }}>
-                            <MetricsCard title={m.title} total={m.total} done={m.done}/>
-                        </Grid>
-                    ))}
-                </Grid>
-
-                {/* ─── charts row ────────────────────────────────────────────── */}
                 <Box sx={{
-                    display:'flex',
-                    flexDirection:{ xs:'column', md:'row' },
-                    gap: 3,
-                    width:'100%',
-                    flex: 1,
+                    width: '100%',
+                    height: 200,
+                    backgroundColor: 'blue',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
                 }}>
-                    {/* Bar chart */}
-                    <Box sx={{
-                        width: { xs: '100%', md: '32%' },
-                        minHeight: { xs: 300, md: 'auto' },
-                        display: 'flex',
-                        flexDirection: 'column'
-                    }}>
-                        <ChartBar
-                            data={monthlyTasks}
-                            title="Open vs Closed Tasks"
-                            subtitle={barSubtitle}
-                        />
-                    </Box>
-
-                    {/* Area chart */}
-                    <Box sx={{
-                        flex: 1,
-                        minHeight: { xs: 300, md: 'auto' },
-                        display: 'flex',
-                        flexDirection: 'column'
-                    }}>
-                        <ChartArea
-                            data={monthlyTasks}
-                            title="Open vs Closed Tasks"
-                            subtitle="Last 6 months"
-                        />
-                    </Box>
+                    <Typography variant="h6" color="white">
+                        BLUE BOX - Should fill width
+                    </Typography>
                 </Box>
             </Box>
-            {/* ─── modals ────────────────────────────────────────────────── */}
+
+            {/* Keep modals for functionality */}
             <ProjectMembersModal
                 open={membersOpen}
                 onClose={()=>setMembersOpen(false)}
