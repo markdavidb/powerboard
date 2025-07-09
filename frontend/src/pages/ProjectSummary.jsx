@@ -115,36 +115,53 @@ export default function ProjectSummary() {
 
     /* ─────────── JSX ─────────── */
     return (
-        <Box sx={{
-            width:'100%',
-            maxWidth:{ xs:'100%', md:'calc(100vw - 240px)', xl:'1600px' },
-            mx:'auto',
-            mt:{ xs:1, md:0 },
-            p:{ xs:1, sm:2, md:4 },
-            height:'87vh',
-            boxSizing:'border-box',
-            backdropFilter:'blur(18px)',
-            background: theme=>theme.palette.background.default,
-            border:'1px solid rgba(255,255,255,0.08)',
-            boxShadow:'0 12px 40px rgba(0,0,0,0.4)',
-            display:'flex',
-            flexDirection:'column',
-        }}>
+        <Box
+            id="main-box"
+            sx={{
+                display: "flex",
+                flexDirection: "column",
+                p: { xs: 2, sm: 3, md: 4, lg: 6 },
+                mt: { xs: 1, sm: 2, md: 3 },
+                mx: { xs: 1, sm: 2, md: "auto" },
+                minHeight: { xs: "calc(100vh - 180px)", md: "87vh" },
+                width: { xs: "calc(100% - 16px)", sm: "calc(100% - 32px)", md: "100%" },
+                maxWidth: { xs: "100%", md: "calc(100vw - 240px)", xl: "1600px" },
+                backdropFilter: "blur(18px)",
+                background: (theme) => theme.palette.background.default,
+                border: "1px solid rgba(255,255,255,0.08)",
+                borderRadius: { xs: 2, md: 3 },
+                boxShadow: "0 12px 40px rgba(0,0,0,0.4)",
+                color: "#fff",
+            }}
+        >
 
             {/* ─── header row ─────────────────────────────────────────────── */}
             <Box sx={{
                 display:'flex',
-                justifyContent:'space-between',
+                justifyContent: { xs: 'center', sm: 'space-between' },
                 alignItems:'center',
                 mb:4,
-                flexWrap:'wrap',
-                gap:2,
+                flexDirection: { xs: 'column', sm: 'row' },
+                gap: { xs: 3, sm: 2 },
+                textAlign: { xs: 'center', sm: 'left' },
             }}>
-                <Typography variant="h4" sx={{ fontWeight:700 }}>
+                <Typography
+                    variant="h4"
+                    sx={{
+                        fontWeight: 700,
+                        fontSize: { xs: '1.5rem', sm: '2rem', md: '2.125rem' },
+                        textShadow: "0 0 10px #6C63FF88",
+                    }}
+                >
                     {summary.project_title}
                 </Typography>
 
-                <Box sx={{ display:'flex', gap:2 }}>
+                <Box sx={{
+                    display:'flex',
+                    gap: { xs: 1, sm: 2 },
+                    flexDirection: { xs: 'column', xs400: 'row' },
+                    width: { xs: '100%', sm: 'auto' },
+                }}>
                     <Button
                         onClick={()=>setMembersOpen(true)}
                         startIcon={<Users size={18}/>}
@@ -154,7 +171,9 @@ export default function ProjectSummary() {
                             borderRadius:2,
                             textTransform:'none',
                             fontWeight:600,
-                            px:2,
+                            px: { xs: 3, sm: 2 },
+                            py: { xs: 1.5, sm: 1 },
+                            fontSize: { xs: '0.875rem', sm: '0.875rem' },
                             '&:hover':{ background:'rgba(255,255,255,0.16)' }
                         }}
                     >
@@ -171,7 +190,9 @@ export default function ProjectSummary() {
                                 borderRadius:2,
                                 textTransform:'none',
                                 fontWeight:600,
-                                px:2,
+                                px: { xs: 3, sm: 2 },
+                                py: { xs: 1.5, sm: 1 },
+                                fontSize: { xs: '0.875rem', sm: '0.875rem' },
                                 '&:hover':{ background:'rgba(255,255,255,0.16)' }
                             }}
                         >
@@ -182,9 +203,9 @@ export default function ProjectSummary() {
             </Box>
 
             {/* ─── metrics ───────────────────────────────────────────────── */}
-            <Grid container spacing={3} sx={{ mb:5 }} justifyContent="center">
+            <Grid container spacing={{ xs: 2, md: 3 }} sx={{ mb: 5 }} justifyContent="center">
                 {metrics.map(m=>(
-                    <Grid key={m.title} item xs={12} md={4} sx={{ display:'flex' }}>
+                    <Grid key={m.title} item xs={12} sm={6} md={4} sx={{ display:'flex' }}>
                         <MetricsCard title={m.title} total={m.total} done={m.done}/>
                     </Grid>
                 ))}
@@ -194,11 +215,17 @@ export default function ProjectSummary() {
             <Box sx={{
                 display:'flex',
                 flexDirection:{ xs:'column', md:'row' },
-                gap:3,
+                gap: 3,
                 width:'100%',
+                minHeight: { xs: 'auto', md: 450 }
             }}>
-                {/* Bar chart (fixed width) */}
-                <Box sx={{ flexShrink:0, width:{ xs:'100%', md:320 } }}>
+                {/* Bar chart */}
+                <Box sx={{
+                    width: { xs: '100%', md: '32%' },
+                    minHeight: { xs: 300, md: 'auto' },
+                    display: 'flex',
+                    flexDirection: 'column'
+                }}>
                     <ChartBar
                         data={monthlyTasks}
                         title="Open vs Closed Tasks"
@@ -206,8 +233,13 @@ export default function ProjectSummary() {
                     />
                 </Box>
 
-                {/* Area chart (fills remaining space) */}
-                <Box sx={{ flexGrow:1 }}>
+                {/* Area chart */}
+                <Box sx={{
+                    flex: 1,
+                    minHeight: { xs: 300, md: 'auto' },
+                    display: 'flex',
+                    flexDirection: 'column'
+                }}>
                     <ChartArea
                         data={monthlyTasks}
                         title="Open vs Closed Tasks"
@@ -221,10 +253,18 @@ export default function ProjectSummary() {
                 <IconButton
                     onClick={()=>setExportOpen(true)}
                     sx={{
-                        position:'fixed', bottom:32, right:32,
+                        position:'fixed',
+                        bottom: { xs: 20, sm: 32 },
+                        right: { xs: 20, sm: 32 },
                         background:'linear-gradient(135deg,#1F8EF1,#5C9EFF)',
-                        color:'#fff', p:2, zIndex:999,
-                        '&:hover':{ background:'linear-gradient(135deg,#167ac6,#3b8eff)' }
+                        color:'#fff',
+                        p: { xs: 1.5, sm: 2 },
+                        zIndex: 1000,
+                        boxShadow: "0 6px 18px rgba(31,142,241,0.5)",
+                        '&:hover':{
+                            background:'linear-gradient(135deg,#167ac6,#3b8eff)',
+                            transform: "scale(1.1)"
+                        }
                     }}
                 >
                     <Download/>
