@@ -257,8 +257,9 @@ export default function ProjectsPage() {
                                     xs: "repeat(auto-fit, minmax(280px, 1fr))",
                                     sm: "repeat(auto-fit, minmax(300px, 1fr))",
                                 },
-                                gap: { xs: 2, sm: 3 },
+                                gap: { xs: 1, sm: 1.5 },
                                 mt: 1,
+                                ml: 1.5,
                                 justifyItems: "center",
                             }}
                         >
