@@ -41,10 +41,10 @@ const inputSx = {
 
 const modalSx = {
     position: 'absolute',
-    top: '55%',
-    left: '55%',
+    top: '50%',
+    left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: { xs: '90%', sm: 500 },
+    width: { xs: '100%', sm: 500 },
     maxHeight: '80vh',
     bgcolor: '#18181E',
     border: '1px solid #6C63FF',
