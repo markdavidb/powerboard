@@ -16,9 +16,7 @@ import BigTaskProgress from '../components/BigTaskProgress';
 import BigTaskCard from '../components/BigTaskCard';
 
 import {
-  filterTextFieldSx, filterSelectBoxSx, filterSelectSx,
-  dueButtonSx, dueMenuPaperSx, dueMenuItemSx, dueDividerSx,
-  dueInputBoxSx, dueTypographySx, dueTextFieldSx, dueApplyButtonSx,
+  filterTextFieldSx, filterSelectBoxSx, filterSelectSx, dueButtonSx
 } from '../themes/filterStyles';
 
 export default function BigTasksPage() {
@@ -129,6 +127,7 @@ export default function BigTasksPage() {
     setPriorityFilter('');
     setDueFilter('');
     setMonthYear('');
+    setDueAnchor(null);
   };
 
   if (loading) {
@@ -162,21 +161,42 @@ export default function BigTasksPage() {
       {/* header */}
       <Box sx={{
         display: 'flex',
-        flexDirection: { xs: 'column', sm: 'row' },
-        alignItems: { xs: 'flex-start', sm: 'center' },
+        flexDirection: 'row',
+        alignItems: 'center',
         justifyContent: 'space-between',
-        mb: 3,
-        gap: 2,
+        mb: { xs: 2, sm: 3 },
+        gap: { xs: 1, sm: 2 },
       }}>
-        <Box>
-          <Typography variant="h4" fontWeight={700}>
+        <Box sx={{ flex: 1, minWidth: 0 }}>
+          <Typography
+            variant={{ xs: 'subtitle1', sm: 'h5', md: 'h4' }} // much smaller on mobile
+            fontWeight={{ xs: 600, sm: 700 }} // less bold on mobile
+            sx={{
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              fontSize: { xs: '16px', sm: '20px', md: '24px' }, // explicit smaller sizes
+              lineHeight: { xs: 1.2, sm: 1.3 } // tighter line height
+            }}
+          >
             {project?.title || ''}
           </Typography>
-          <Typography variant="body2" color="#bbb" ml={0.5}>
+          <Typography
+            variant="body2"
+            color="#bbb"
+            sx={{
+              ml: 0.5,
+              fontSize: { xs: '10px', sm: '12px' }, // much smaller on mobile
+              mt: { xs: -0.5, sm: 0 }, // tighter spacing on mobile
+              fontWeight: { xs: 400, sm: 500 } // lighter weight on mobile
+            }}
+          >
             {bigTasks.length} epics • {doneCount} done
           </Typography>
         </Box>
-        <BigTaskProgress completed={doneCount} total={bigTasks.length} />
+        <Box sx={{ flexShrink: 0 }}>
+          <BigTaskProgress completed={doneCount} total={bigTasks.length} />
+        </Box>
       </Box>
 
       {/* filters header */}
@@ -250,19 +270,42 @@ export default function BigTasksPage() {
         </Box>
 
         {/* right: filter toggle & clear */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, ml: 'auto' }}>
           {/* mobile filter toggle */}
           <Button
             variant="outlined"
-            startIcon={<SlidersHorizontal size={16} />}
+            startIcon={<SlidersHorizontal size={14} />}
             onClick={() => setDrawerOpen(true)}
-            sx={{ display: { xs: 'inline-flex', md: 'none' } }}
+            sx={{
+              display: { xs: 'inline-flex', md: 'none' },
+              minWidth: 'auto',
+              px: { xs: 1.5, sm: 2 },
+              py: { xs: 0.5, sm: 0.75 },
+              fontSize: { xs: '12px', sm: '14px' },
+              fontWeight: 500,
+              height: { xs: 32, sm: 36 },
+              borderColor: 'rgba(255,255,255,0.2)',
+              color: '#fff',
+              '&:hover': {
+                borderColor: 'rgba(255,255,255,0.3)',
+                backgroundColor: 'rgba(255,255,255,0.05)'
+              }
+            }}
           >
-            Filters
+            <span style={{ display: { xs: 'none', sm: 'inline' } }}>Filters</span>
           </Button>
-          <Button onClick={clearFilters} sx={{ color: '#fff', textTransform: 'none' }}>
-            Clear Filters
-          </Button>
+          {(rawSearch || statusFilter || priorityFilter || dueFilter) && (
+            <Button onClick={clearFilters} sx={{
+              color: '#bbb',
+              textTransform: 'none',
+              fontSize: { xs: 11, sm: 12 },
+              minWidth: 'auto',
+              px: { xs: 1, sm: 1.5 },
+              py: { xs: 0.25, sm: 0.5 }
+            }}>
+              Clear
+            </Button>
+          )}
         </Box>
       </Box>
 
