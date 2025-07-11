@@ -267,32 +267,50 @@ export default function BigTasksPage() {
       </Box>
 
       {/* epic grid */}
-      <Box
-        sx={{
-          flex: 1,
-          overflowY: 'auto',
-          pr: 1,
-          display: 'grid',
-          gridTemplateColumns: {
-            xs: 'repeat(auto-fit, minmax(280px, 1fr))',
-            sm: 'repeat(auto-fit, minmax(300px, 1fr))',
-          },
-          gap: { xs: 1, sm: 1.5 },
-          justifyItems: 'center',
+     <Box
+  sx={{
+    flex: 1,
+    overflowY: 'auto',
+    pr: 1,
+    "&::-webkit-scrollbar": { width: 8 },
+    "&::-webkit-scrollbar-thumb": {
+      backgroundColor: "rgba(108,99,255,0.4)",
+      borderRadius: 8,
+      border: "2px solid transparent",
+      backgroundClip: "content-box",
+    },
+    "&::-webkit-scrollbar-thumb:hover": {
+      backgroundColor: "rgba(108,99,255,0.7)",
+    },
+  }}
+>
+  <Box
+    sx={{
+      display: "grid",
+      gridTemplateColumns: {
+        xs: "repeat(auto-fit, minmax(280px, 1fr))",
+        sm: "repeat(auto-fit, minmax(300px, 1fr))",
+      },
+      gap: { xs: 1, sm: 1.5 },
+      mt: 1,
+      ml: 1.5,
+      justifyItems: "center",
+    }}
+  >
+    {sorted.map(bt => (
+      <BigTaskCard
+        key={bt.id}
+        bt={bt}
+        onNavigate={() => navigate(`/projects/${projectId}/board?epicId=${bt.id}`)}
+        onDetails={() => {
+          setSelected(bt);
+          setDetailsOpen(true);
         }}
-      >
-        {sorted.map(bt => (
-          <BigTaskCard
-            key={bt.id}
-            bt={bt}
-            onNavigate={() => navigate(`/projects/${projectId}/board?epicId=${bt.id}`)}
-            onDetails={() => {
-              setSelected(bt);
-              setDetailsOpen(true);
-            }}
-          />
-        ))}
-      </Box>
+      />
+    ))}
+  </Box>
+</Box>
+
 
       {/* create epic button */}
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
