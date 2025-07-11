@@ -7,11 +7,11 @@ import {
   IconButton,
   Tooltip,
   CircularProgress,
+  Paper,
+  Chip,
   Button,
-  Drawer,
-  InputAdornment
 } from "@mui/material";
-import { Plus, SlidersHorizontal, Calendar as CalendarIcon, Search as SearchIcon } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useSnackbar } from "notistack";
 
@@ -19,6 +19,7 @@ import { API } from "../api/axios";
 import CreateProjectModal from "../components/CreateProjectModal";
 import ProjectCard from "../components/ProjectCard";
 
+/* ── tiny helpers ───────────────────────────────── */
 const filterStyle = {
   backgroundColor: "rgba(255,255,255,0.05)",
   borderRadius: 2,
@@ -35,14 +36,14 @@ export default function ProjectsPage() {
   const [projects, setProjects] = useState([]);
   const [btStats, setBtStats] = useState({});
   const [loadingProjects, setLoadingProjects] = useState(true);
-  const loadingStats = projects.length > 0 && Object.keys(btStats).length < projects.length;
+  const loadingStats =
+    projects.length > 0 && Object.keys(btStats).length < projects.length;
   const loading = Boolean(loadingProjects || loadingStats);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [filterMonth, setFilterMonth] = useState("");
   const [filterYear, setFilterYear] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
-  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const [modalOpen, setModalOpen] = useState(false);
   const navigate = useNavigate();
@@ -87,7 +88,7 @@ export default function ProjectsPage() {
     return () => controller.abort();
   }, [projects]);
 
-  const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   const monthOptions = monthNames.map((l, i) => ({ value: String(i + 1), label: l }));
   const currentYear = new Date().getFullYear();
   const yearOptions = Array.from({ length: 11 }, (_, i) => currentYear - 5 + i);
@@ -117,13 +118,6 @@ export default function ProjectsPage() {
   };
 
   const openProject = (id) => navigate(`/projects/${id}/summary`);
-
-  const clearFilters = () => {
-    setSearchTerm("");
-    setFilterMonth("");
-    setFilterYear("");
-    setFilterStatus("");
-  };
 
   return (
     <Box
@@ -155,180 +149,140 @@ export default function ProjectsPage() {
           <Typography
             variant="h4"
             fontWeight={700}
-            mb={4}
+            mb={3}
             sx={{
               textShadow: "0 0 10px #6C63FF88",
-              fontSize: { xs: '1.5rem', sm: '2rem', md: '2.125rem' }
+              fontSize: { xs: "1.5rem", sm: "2rem", md: "2.125rem" },
             }}
           >
             My Projects
           </Typography>
 
-          {/* Filter toolbar */}
-          <Box
+          {/* filters box with chips */}
+          <Paper
+            elevation={6}
             sx={{
               display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
               flexWrap: "wrap",
               gap: 2,
-              mb: 4,
+              p: 2,
+              mb: 3,
+              backgroundColor: "rgba(255,255,255,0.02)",
+              borderRadius: 2,
+              backdropFilter: "blur(12px)",
+              boxShadow: "0 8px 30px rgba(0,0,0,0.25)",
             }}
           >
-            <Box sx={{ display: { xs: "none", md: "grid" }, gridTemplateColumns: "repeat(4, 1fr)", gap: 2, flex: 1 }}>
-              <TextField
-                variant="outlined"
-                size="small"
-                placeholder="Search projects…"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                sx={filterStyle}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchIcon size={16} style={{ color: "#aaa" }} />
-                    </InputAdornment>
-                  ),
-                }}
-              />
-              <TextField select label="Month" size="small" value={filterMonth} onChange={(e) => setFilterMonth(e.target.value)} sx={filterStyle}>
-                <MenuItem value="">All</MenuItem>
-                {monthOptions.map((m) => (
-                  <MenuItem key={m.value} value={m.value}>{m.label}</MenuItem>
-                ))}
-              </TextField>
-              <TextField select label="Year" size="small" value={filterYear} onChange={(e) => setFilterYear(e.target.value)} sx={filterStyle}>
-                <MenuItem value="">All</MenuItem>
-                {yearOptions.map((y) => (
-                  <MenuItem key={y} value={String(y)}>{y}</MenuItem>
-                ))}
-              </TextField>
-              <TextField select label="Status" size="small" value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} sx={filterStyle}>
-                <MenuItem value="">All</MenuItem>
-                {statusOptions.map((s) => (
-                  <MenuItem key={s} value={s}>{s}</MenuItem>
-                ))}
-              </TextField>
-            </Box>
-
-            {/* Right buttons */}
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-              <Button
-                variant="outlined"
-                startIcon={<SlidersHorizontal size={16} />}
-                onClick={() => setDrawerOpen(true)}
-                sx={{ display: { xs: "inline-flex", md: "none" } }}
-              >
-                Filters
-              </Button>
-              <Button onClick={clearFilters} sx={{ color: "#fff", textTransform: "none" }}>
-                Clear Filters
-              </Button>
-            </Box>
-          </Box>
-
-          {/* Cards */}
-          <Box sx={{ flex: 1, overflowY: "auto", pr: 1 }}>
-            <Box
-              sx={{
-                display: "grid",
-                gridTemplateColumns: {
-                  xs: "repeat(auto-fit, minmax(280px, 1fr))",
-                  sm: "repeat(auto-fit, minmax(300px, 1fr))",
-                },
-                gap: { xs: 1, sm: 1.5 },
-                mt: 1,
-                ml: 1.5,
-                justifyItems: "center",
-              }}
+            <TextField
+              size="small"
+              placeholder="Search…"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              sx={{ ...filterStyle, minWidth: 180 }}
+            />
+            <TextField
+              select label="Month" size="small"
+              value={filterMonth}
+              onChange={(e) => setFilterMonth(e.target.value)}
+              sx={filterStyle}
             >
-              {filtered.map((proj) => (
-                <ProjectCard
-                  key={proj.id}
-                  proj={proj}
-                  bigTaskStats={btStats[proj.id] ?? emptyStats}
-                  onOpen={() => openProject(proj.id)}
-                />
+              <MenuItem value="">All</MenuItem>
+              {monthOptions.map((m) => (
+                <MenuItem key={m.value} value={m.value}>
+                  {m.label}
+                </MenuItem>
               ))}
-            </Box>
-          </Box>
+            </TextField>
+            <TextField
+              select label="Year" size="small"
+              value={filterYear}
+              onChange={(e) => setFilterYear(e.target.value)}
+              sx={filterStyle}
+            >
+              <MenuItem value="">All</MenuItem>
+              {yearOptions.map((y) => (
+                <MenuItem key={y} value={String(y)}>
+                  {y}
+                </MenuItem>
+              ))}
+            </TextField>
+            <TextField
+              select label="Status" size="small"
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              sx={filterStyle}
+            >
+              <MenuItem value="">All</MenuItem>
+              {statusOptions.map((s) => (
+                <MenuItem key={s} value={s}>
+                  {s}
+                </MenuItem>
+              ))}
+            </TextField>
 
-          {/* FAB */}
-          <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3 }}>
-            <Tooltip title="Create Project">
-              <IconButton
-                onClick={() => setModalOpen(true)}
-                sx={{
-                  background: "linear-gradient(135deg,#6C63FF,#9B78FF)",
-                  color: "#fff",
-                  p: { xs: 1.5, sm: 2 },
-                  borderRadius: 2,
-                  boxShadow: "0 6px 18px rgba(108,99,255,0.5)",
-                  "&:hover": {
-                    background: "linear-gradient(135deg,#5a50e0,#8e6cf1)",
-                    transform: "scale(1.05)",
-                  },
-                }}
-              >
-                <Plus size={24} />
-              </IconButton>
-            </Tooltip>
+            {/* clear button */}
+            <Button
+              onClick={() => {
+                setSearchTerm("");
+                setFilterMonth("");
+                setFilterYear("");
+                setFilterStatus("");
+              }}
+              size="small"
+              sx={{ color: "#bbb", ml: "auto" }}
+            >
+              Clear
+            </Button>
+          </Paper>
+
+          {/* card grid */}
+          <Box
+            sx={{
+              flex: 1,
+              overflowY: "auto",
+              pr: 1,
+              display: "grid",
+              gridTemplateColumns: {
+                xs: "repeat(auto-fit, minmax(280px, 1fr))",
+                sm: "repeat(auto-fit, minmax(300px, 1fr))",
+              },
+              gap: { xs: 1, sm: 1.5 },
+              justifyItems: "center",
+            }}
+          >
+            {filtered.map((proj) => (
+              <ProjectCard
+                key={proj.id}
+                proj={proj}
+                bigTaskStats={btStats[proj.id] ?? emptyStats}
+                onOpen={() => openProject(proj.id)}
+              />
+            ))}
           </Box>
         </>
       )}
 
-      <Drawer
-        anchor="bottom"
-        open={drawerOpen}
-        onClose={() => setDrawerOpen(false)}
-        PaperProps={{
-          sx: {
-            borderTopLeftRadius: 12,
-            borderTopRightRadius: 12,
-            background: (t) => t.palette.background.default,
-            p: 3,
-          },
-        }}
-      >
-        <Typography variant="h6" fontWeight={600} textAlign="center" mb={2}>
-          Filters
-        </Typography>
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-          <TextField
-            placeholder="Search projects…"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            size="small"
-            sx={filterStyle}
-          />
-          <TextField select label="Month" size="small" value={filterMonth} onChange={(e) => setFilterMonth(e.target.value)} sx={filterStyle}>
-            <MenuItem value="">All</MenuItem>
-            {monthOptions.map((m) => (
-              <MenuItem key={m.value} value={m.value}>{m.label}</MenuItem>
-            ))}
-          </TextField>
-          <TextField select label="Year" size="small" value={filterYear} onChange={(e) => setFilterYear(e.target.value)} sx={filterStyle}>
-            <MenuItem value="">All</MenuItem>
-            {yearOptions.map((y) => (
-              <MenuItem key={y} value={String(y)}>{y}</MenuItem>
-            ))}
-          </TextField>
-          <TextField select label="Status" size="small" value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} sx={filterStyle}>
-            <MenuItem value="">All</MenuItem>
-            {statusOptions.map((s) => (
-              <MenuItem key={s} value={s}>{s}</MenuItem>
-            ))}
-          </TextField>
-          <Button
-            fullWidth
-            variant="contained"
-            sx={{ mt: 2, background: "#6C63FF" }}
-            onClick={() => setDrawerOpen(false)}
-          >
-            Apply Filters
-          </Button>
-        </Box>
-      </Drawer>
+      <Tooltip title="Create Project">
+        <IconButton
+          onClick={() => setModalOpen(true)}
+          sx={{
+            position: "fixed",
+            bottom: { xs: 20, sm: 32 },
+            right: { xs: 20, sm: 32 },
+            background: "linear-gradient(135deg,#6C63FF,#9B78FF)",
+            color: "#fff",
+            p: { xs: 1.5, sm: 2 },
+            boxShadow: "0 6px 18px rgba(108,99,255,0.5)",
+            zIndex: 1000,
+            "&:hover": {
+              background: "linear-gradient(135deg,#5a50e0,#8e6cf1)",
+              transform: "scale(1.1)",
+            },
+          }}
+        >
+          <Plus size={24} />
+        </IconButton>
+      </Tooltip>
 
       <CreateProjectModal
         open={modalOpen}
