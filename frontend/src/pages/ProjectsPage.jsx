@@ -226,6 +226,37 @@ export default function ProjectsPage() {
               <Button onClick={clearFilters} sx={{ color: "#fff", textTransform: "none" }}>
                 Clear Filters
               </Button>
+              {/* Create Project Button - moved here */}
+              <Button
+                variant="contained"
+                startIcon={<Plus size={18} />}
+                onClick={() => setModalOpen(true)}
+                sx={{
+                  background: "linear-gradient(135deg,#6C63FF,#9B78FF)",
+                  color: "#fff",
+                  textTransform: "none",
+                  fontWeight: 600,
+                  px: { xs: 1.5, sm: 3 }, // less padding on mobile
+                  py: { xs: 1, sm: 1.25 },
+                  borderRadius: 2,
+                  boxShadow: "0 4px 12px rgba(108,99,255,0.4)",
+                  minWidth: { xs: 44, sm: 'auto' }, // fixed width on mobile for centering
+                  "&:hover": {
+                    background: "linear-gradient(135deg,#5a50e0,#8e6cf1)",
+                    boxShadow: "0 6px 16px rgba(108,99,255,0.5)",
+                    transform: "translateY(-1px)",
+                  },
+                  transition: "all 0.2s ease-in-out",
+                  // Hide startIcon margin on mobile and center the icon
+                  "& .MuiButton-startIcon": {
+                    margin: { xs: 0, sm: '0 8px 0 -4px' }
+                  }
+                }}
+              >
+                <Box sx={{ display: { xs: "none", sm: "inline" } }}>
+                  Create Project
+                </Box>
+              </Button>
             </Box>
           </Box>
 
@@ -255,91 +286,77 @@ export default function ProjectsPage() {
             </Box>
           </Box>
 
-          {/* FAB */}
-          <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3 }}>
-            <Tooltip title="Create Project">
-              <IconButton
-                onClick={() => setModalOpen(true)}
-                sx={{
-                  background: "linear-gradient(135deg,#6C63FF,#9B78FF)",
-                  color: "#fff",
-                  p: { xs: 1.5, sm: 2 },
-                  borderRadius: 2,
-                  boxShadow: "0 6px 18px rgba(108,99,255,0.5)",
-                  "&:hover": {
-                    background: "linear-gradient(135deg,#5a50e0,#8e6cf1)",
-                    transform: "scale(1.05)",
-                  },
+          {/* ─────────────── Mobile Filter Drawer ─────────────── */}
+          <Drawer
+            anchor="bottom"
+            open={drawerOpen}
+            onClose={() => setDrawerOpen(false)}
+            PaperProps={{
+              sx: {
+                borderTopLeftRadius: 12,
+                borderTopRightRadius: 12,
+                background: (t) => t.palette.background.default,
+                p: 3,
+              },
+            }}
+          >
+            <Typography variant="h6" fontWeight={600} textAlign="center" mb={2}>
+              Filters
+            </Typography>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              <TextField
+                variant="outlined"
+                size="small"
+                placeholder="Search projects…"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                sx={filterStyle}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon size={16} style={{ color: "#aaa" }} />
+                    </InputAdornment>
+                  ),
                 }}
+              />
+              <TextField select label="Month" size="small" value={filterMonth} onChange={(e) => setFilterMonth(e.target.value)} sx={filterStyle}>
+                <MenuItem value="">All</MenuItem>
+                {monthOptions.map((m) => (
+                  <MenuItem key={m.value} value={m.value}>{m.label}</MenuItem>
+                ))}
+              </TextField>
+              <TextField select label="Year" size="small" value={filterYear} onChange={(e) => setFilterYear(e.target.value)} sx={filterStyle}>
+                <MenuItem value="">All</MenuItem>
+                {yearOptions.map((y) => (
+                  <MenuItem key={y} value={String(y)}>{y}</MenuItem>
+                ))}
+              </TextField>
+              <TextField select label="Status" size="small" value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} sx={filterStyle}>
+                <MenuItem value="">All</MenuItem>
+                {statusOptions.map((s) => (
+                  <MenuItem key={s} value={s}>{s}</MenuItem>
+                ))}
+              </TextField>
+              <Button
+                fullWidth
+                variant="contained"
+                sx={{ mt: 2, background: "#6C63FF" }}
+                onClick={() => setDrawerOpen(false)}
               >
-                <Plus size={24} />
-              </IconButton>
-            </Tooltip>
-          </Box>
+                Apply Filters
+              </Button>
+            </Box>
+          </Drawer>
+
+          {/* ─────────────── Create Project Modal ─────────────── */}
+          <CreateProjectModal
+            open={modalOpen}
+            onClose={() => setModalOpen(false)}
+            onProjectCreated={handleProjectCreated}
+            container={containerRef.current}
+          />
         </>
       )}
-
-      {/* ─────────────── Drawer (mobile filters) ─────────────── */}
-      <Drawer
-        anchor="bottom"
-        open={drawerOpen}
-        onClose={() => setDrawerOpen(false)}
-        PaperProps={{
-          sx: {
-            borderTopLeftRadius: 12,
-            borderTopRightRadius: 12,
-            background: (t) => t.palette.background.default,
-            p: 3,
-          },
-        }}
-      >
-        <Typography variant="h6" fontWeight={600} textAlign="center" mb={2}>
-          Filters
-        </Typography>
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-          <TextField
-            placeholder="Search projects…"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            size="small"
-            sx={filterStyle}
-          />
-          <TextField select label="Month" size="small" value={filterMonth} onChange={(e) => setFilterMonth(e.target.value)} sx={filterStyle}>
-            <MenuItem value="">All</MenuItem>
-            {monthOptions.map((m) => (
-              <MenuItem key={m.value} value={m.value}>{m.label}</MenuItem>
-            ))}
-          </TextField>
-          <TextField select label="Year" size="small" value={filterYear} onChange={(e) => setFilterYear(e.target.value)} sx={filterStyle}>
-            <MenuItem value="">All</MenuItem>
-            {yearOptions.map((y) => (
-              <MenuItem key={y} value={String(y)}>{y}</MenuItem>
-            ))}
-          </TextField>
-          <TextField select label="Status" size="small" value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} sx={filterStyle}>
-            <MenuItem value="">All</MenuItem>
-            {statusOptions.map((s) => (
-              <MenuItem key={s} value={s}>{s}</MenuItem>
-            ))}
-          </TextField>
-          <Button
-            fullWidth
-            variant="contained"
-            sx={{ mt: 2, background: "#6C63FF" }}
-            onClick={() => setDrawerOpen(false)}
-          >
-            Apply Filters
-          </Button>
-        </Box>
-      </Drawer>
-
-      {/* Create Modal */}
-      <CreateProjectModal
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        onProjectCreated={handleProjectCreated}
-        container={containerRef.current}
-      />
     </Box>
   );
 }

@@ -195,7 +195,7 @@ export default function ProjectSettingsModal({
                         <Box
                             component="form"
                             onSubmit={handleSave}
-                            sx={{ flex: 1, overflowY: 'auto' }}
+                            sx={{ flex: 1, overflowY: 'auto',p:1 }}
                         >
                             <Stack spacing={2}>
                                 <TextField

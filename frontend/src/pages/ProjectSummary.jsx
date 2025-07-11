@@ -138,28 +138,45 @@ export default function ProjectSummary() {
 
             {/* ─── header row ─────────────────────────────────────────────── */}
             <Box sx={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                mb: 4,
-                flexWrap: 'wrap',
-                gap: 2,
+                mb: { xs: 3, sm: 4, md: 5 },
             }}>
-                <Typography variant="h4" sx={{fontWeight: 700}}>
+                {/* Title */}
+                <Typography
+                    variant={{ xs: 'h5', sm: 'h4', md: 'h3' }}
+                    sx={{
+                        fontWeight: { xs: 700, sm: 800 },
+                        fontSize: { xs: '20px', sm: '28px', md: '32px' },
+                        mb: { xs: 3, sm: 4 }, // more space below title
+                        color: '#fff',
+                        letterSpacing: '-0.02em',
+                        lineHeight: 1.2
+                    }}
+                >
                     {summary.project_title}
                 </Typography>
 
-                <Box sx={{display: 'flex', gap: 2}}>
+                {/* Action buttons */}
+                <Box sx={{
+                    display: 'flex',
+                    gap: { xs: 1, sm: 1.5 }, // smaller gap between buttons
+                    alignItems: 'center',
+                    flexWrap: 'wrap',
+                    justifyContent: 'flex-start'
+                }}>
                     <Button
                         onClick={() => setMembersOpen(true)}
-                        startIcon={<Users size={18}/>}
+                        startIcon={<Users size={14}/>} // smaller icon
                         sx={{
                             background: 'rgba(255,255,255,0.08)',
                             color: '#fff',
-                            borderRadius: 2,
+                            borderRadius: 1.5, // smaller border radius
                             textTransform: 'none',
-                            fontWeight: 600,
-                            px: 2,
+                            fontWeight: 500, // lighter font weight
+                            fontSize: '13px', // smaller text
+                            px: 1.5, // smaller horizontal padding
+                            py: 0.75, // smaller vertical padding
+                            mt:2,
+                            minHeight: 35, // smaller button height
                             '&:hover': {background: 'rgba(255,255,255,0.16)'}
                         }}
                     >
@@ -169,14 +186,18 @@ export default function ProjectSummary() {
                     {userRole === 'owner' && (
                         <Button
                             onClick={() => setSettingsOpen(true)}
-                            startIcon={<Settings size={18}/>}
+                            startIcon={<Settings size={14}/>} // smaller icon
                             sx={{
                                 background: 'rgba(255,255,255,0.08)',
                                 color: '#fff',
-                                borderRadius: 2,
+                                borderRadius: 1.5, // smaller border radius
                                 textTransform: 'none',
-                                fontWeight: 600,
-                                px: 2,
+                                fontWeight: 500, // lighter font weight
+                                fontSize: '13px', // smaller text
+                                px: 1.5, // smaller horizontal padding
+                                py: 0.75, // smaller vertical padding
+                                                            mt:2,
+                                minHeight: 32, // smaller button height
                                 '&:hover': {background: 'rgba(255,255,255,0.16)'}
                             }}
                         >

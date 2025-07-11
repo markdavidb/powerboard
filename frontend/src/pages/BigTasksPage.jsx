@@ -162,21 +162,23 @@ export default function BigTasksPage() {
       <Box sx={{
         display: 'flex',
         flexDirection: 'row',
-        alignItems: 'center',
+        alignItems: 'flex-start', // align to top instead of center
         justifyContent: 'space-between',
         mb: { xs: 2, sm: 3 },
         gap: { xs: 1, sm: 2 },
+        minHeight: 48, // ensure consistent height
       }}>
-        <Box sx={{ flex: 1, minWidth: 0 }}>
+        <Box sx={{ flex: 1, minWidth: 0, mr: 1 }}> {/* add right margin */}
           <Typography
-            variant={{ xs: 'subtitle1', sm: 'h5', md: 'h4' }} // much smaller on mobile
-            fontWeight={{ xs: 600, sm: 700 }} // less bold on mobile
+            variant={{ xs: 'subtitle1', sm: 'h5', md: 'h4' }}
+            fontWeight={{ xs: 600, sm: 700 }}
             sx={{
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-              fontSize: { xs: '16px', sm: '20px', md: '24px' }, // explicit smaller sizes
-              lineHeight: { xs: 1.2, sm: 1.3 } // tighter line height
+              fontSize: { xs: '16px', sm: '20px', md: '24px' },
+              lineHeight: { xs: 1.3, sm: 1.4 }, // slightly more space
+              wordBreak: 'break-word', // allow title to break
+              overflowWrap: 'break-word',
+              hyphens: 'auto', // add hyphenation
+              maxWidth: '100%'
             }}
           >
             {project?.title || ''}
@@ -186,15 +188,21 @@ export default function BigTasksPage() {
             color="#bbb"
             sx={{
               ml: 0.5,
-              fontSize: { xs: '10px', sm: '12px' }, // much smaller on mobile
-              mt: { xs: -0.5, sm: 0 }, // tighter spacing on mobile
-              fontWeight: { xs: 400, sm: 500 } // lighter weight on mobile
+              fontSize: { xs: '10px', sm: '12px' },
+              mt: { xs: 0.5, sm: 0 }, // add small top margin on mobile
+              fontWeight: { xs: 400, sm: 500 },
+              wordBreak: 'break-word'
             }}
           >
             {bigTasks.length} epics • {doneCount} done
           </Typography>
         </Box>
-        <Box sx={{ flexShrink: 0 }}>
+        <Box sx={{
+          flexShrink: 0,
+          alignSelf: 'flex-start', // keep progress at top
+          position: 'relative',
+          zIndex: 1 // ensure it stays above other elements
+        }}>
           <BigTaskProgress completed={doneCount} total={bigTasks.length} />
         </Box>
       </Box>
@@ -306,6 +314,36 @@ export default function BigTasksPage() {
               Clear
             </Button>
           )}
+          {/* Create Epic Button - moved here */}
+          <Button
+            variant="contained"
+            startIcon={<Plus size={18} />}
+            onClick={() => setCreateOpen(true)}
+            sx={{
+              background: 'linear-gradient(135deg,#6C63FF,#9B78FF)',
+              color: '#fff',
+              textTransform: 'none',
+              fontWeight: 600,
+              px: { xs: 1.5, sm: 3 },
+              py: { xs: 1, sm: 1.25 },
+              borderRadius: 2,
+              boxShadow: '0 4px 12px rgba(108,99,255,0.4)',
+              minWidth: { xs: 44, sm: 'auto' },
+              '&:hover': {
+                background: 'linear-gradient(135deg,#5a50e0,#8e6cf1)',
+                boxShadow: '0 6px 16px rgba(108,99,255,0.5)',
+                transform: 'translateY(-1px)',
+              },
+              transition: 'all 0.2s ease-in-out',
+              '& .MuiButton-startIcon': {
+                margin: { xs: 0, sm: '0 8px 0 -4px' }
+              }
+            }}
+          >
+            <Box sx={{ display: { xs: 'none', sm: 'inline' } }}>
+              Create Epic
+            </Box>
+          </Button>
         </Box>
       </Box>
 
@@ -354,22 +392,6 @@ export default function BigTasksPage() {
   </Box>
 </Box>
 
-
-      {/* create epic button */}
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
-        <Tooltip title="Create Epic">
-          <IconButton
-            onClick={() => setCreateOpen(true)}
-            sx={{
-              background: 'linear-gradient(135deg,#6C63FF,#9B78FF)',
-              color: '#fff', p: 2,
-              '&:hover': { background: 'linear-gradient(135deg,#5a50e0,#8e6cf1)' },
-            }}
-          >
-            <Plus />
-          </IconButton>
-        </Tooltip>
-      </Box>
 
       {/* modals */}
       <CreateBigTaskModal

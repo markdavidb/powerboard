@@ -1,11 +1,18 @@
 // src/components/BigTaskProgress.jsx
 import React from 'react';
-import { Box, Typography } from '@mui/material';
+import { Box, Typography, useMediaQuery, useTheme } from '@mui/material';
 
 export default function BigTaskProgress({ completed, total }) {
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
     const percentage = total > 0 ? (completed / total) * 100 : 0;
-    const radius = 32; // smaller for mobile
-    const strokeWidth = 4;
+
+    // Responsive sizing - bigger for PC
+    const radius = isMobile ? 30 : 50; // increased PC size from 32 to 40
+    const strokeWidth = isMobile ? 3 : 5; // slightly thicker stroke for PC
+    const fontSize = isMobile ? '10px' : '14px'; // larger text for PC
+
     const normalizedRadius = radius - strokeWidth * 2;
     const circumference = normalizedRadius * 2 * Math.PI;
     const strokeDasharray = `${circumference} ${circumference}`;
@@ -55,7 +62,7 @@ export default function BigTaskProgress({ completed, total }) {
             <Typography
                 sx={{
                     position: 'absolute',
-                    fontSize: '12px',
+                    fontSize: fontSize,
                     fontWeight: 600,
                     color: '#fff',
                     textAlign: 'center'
@@ -66,4 +73,3 @@ export default function BigTaskProgress({ completed, total }) {
         </Box>
     );
 }
-
