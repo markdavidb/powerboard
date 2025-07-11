@@ -17,6 +17,13 @@ import {
     Divider,
     Tooltip,
     IconButton,
+    Collapse,
+    useMediaQuery,
+    useTheme,
+    Tabs,
+    Tab,
+    Fab,
+    Drawer,
 } from '@mui/material';
 import {
     ChevronLeft,
@@ -24,6 +31,10 @@ import {
     Search as SearchIcon,
     Calendar as CalendarIcon,
     Plus,
+    Filter,
+    ChevronDown,
+    ChevronUp,
+    SlidersHorizontal,
 } from 'lucide-react';
 import JiraTaskBoard from '../components/board/JiraTaskBoard';
 import TaskDetailsModal from '../components/TaskDetailsModal';
@@ -45,6 +56,8 @@ import {
     dueApplyButtonSx,
 } from '../themes/filterStyles';
 
+const STATUSES = ['To Do', 'In Progress', 'Review', 'Done'];
+
 
 const buttonSx = {
     backgroundColor: 'rgba(255, 255, 255, 0.08)',
@@ -62,6 +75,8 @@ export default function TaskBoard() {
     const {projectId} = useParams();
     const {search} = useLocation();
     const navigate = useNavigate();
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('md'));
     const epicId = new URLSearchParams(search).get('epicId');
     const [openEpicModal, setOpenEpicModal] = useState(false);
 
@@ -69,6 +84,11 @@ export default function TaskBoard() {
 
     const [project, setProject] = useState(null);
     const [epic, setEpic] = useState(null);
+
+    // Mobile-specific states
+    const [selectedStatusTab, setSelectedStatusTab] = useState(0);
+    const [filtersOpen, setFiltersOpen] = useState(false);
+
     const [tasks, setTasks] = useState([]);
     const [loading, setLoading] = useState(true);
     const [authorized, setAuthorized] = useState(true);
@@ -239,7 +259,14 @@ export default function TaskBoard() {
             ) : (
                 <>
                     {/* Header */}
-                    <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2}}>
+                    <Box sx={{
+                        display: 'flex',
+                        flexDirection: { xs: 'column', sm: 'row' },
+                        alignItems: { xs: 'flex-start', sm: 'center' },
+                        justifyContent: 'space-between',
+                        mb: 3,
+                        gap: 2,
+                    }}>
                         <Box sx={{display: 'flex', alignItems: 'center', gap: 2}}>
                             <Button
                                 onClick={() => navigate(`/projects/${projectId}/big_tasks`)}
@@ -256,9 +283,22 @@ export default function TaskBoard() {
                                 </Typography>
                             </Box>
                         </Box>
-                        <Box sx={{display: 'flex', alignItems: 'center', gap: 2}}>
+
+                        {/* Right side - stacks vertically on mobile */}
+                        <Box sx={{
+                            display: 'flex',
+                            flexDirection: { xs: 'column', sm: 'row' },
+                            alignItems: { xs: 'flex-start', sm: 'center' },
+                            gap: 2,
+                            width: { xs: '100%', sm: 'auto' },
+                        }}>
+                            {/* Action buttons */}
                             {epicId && (
-                                <>
+                                <Box sx={{
+                                    display: 'flex',
+                                    gap: 1.5,
+                                    flexWrap: 'wrap',
+                                }}>
                                     <Button
                                         startIcon={<Users size={18}/>}
                                         onClick={() => setOpenMembersModal(true)}
@@ -269,9 +309,14 @@ export default function TaskBoard() {
                                     <Button onClick={() => setOpenEpicModal(true)} sx={buttonSx}>
                                         Epic Details
                                     </Button>
-                                </>
+                                </Box>
                             )}
-                            <Box sx={{ml: 'auto'}}>
+
+                            {/* Progress indicator */}
+                            <Box sx={{
+                                alignSelf: { xs: 'center', sm: 'auto' },
+                                mt: { xs: 1, sm: 0 },
+                            }}>
                                 <BigTaskProgress
                                     completed={tasks.filter(t => t.status === 'Done').length}
                                     total={tasks.length}
@@ -298,10 +343,19 @@ export default function TaskBoard() {
       0 0 8px rgba(108,99,255,0.2)
     `,
                             width: '100%',
-                            justifyContent: 'center',
+                            justifyContent: 'space-between',
                         }}
                     >
 
+                        {/* Desktop filters */}
+                        <Box
+                            sx={{
+                                display: { xs: 'none', md: 'flex' },
+                                gap: 1.5,
+                                alignItems: 'center',
+                                flex: 1,
+                            }}
+                        >
                             {/* Search */}
                             <TextField
                                 size="small"
@@ -319,54 +373,52 @@ export default function TaskBoard() {
                                 sx={filterTextFieldSx}
                             />
 
-                        {/* Status */}
-                        <FormControl size="small" sx={filterSelectBoxSx}>
-                            <Select
-                                value={statusFilter}
-                                onChange={e => setStatusFilter(e.target.value)}
-                                displayEmpty
-                                variant="outlined"
-                                renderValue={selected =>
-                                    selected ? selected : <em>Status</em>
-                                }
-                                sx={filterSelectSx}
-                                inputProps={{ 'aria-label': 'Status' }}
-                            >
-                                <MenuItem value="">
-                                    <em>All</em>
-                                </MenuItem>
-                                <MenuItem value="To Do">To Do</MenuItem>
-                                <MenuItem value="In Progress">In Progress</MenuItem>
-                                <MenuItem value="Review">Review</MenuItem>
-                                <MenuItem value="Done">Done</MenuItem>
-                            </Select>
-                        </FormControl>
-
+                            {/* Status */}
+                            <FormControl size="small" sx={filterSelectBoxSx}>
+                                <Select
+                                    value={statusFilter}
+                                    onChange={e => setStatusFilter(e.target.value)}
+                                    displayEmpty
+                                    variant="outlined"
+                                    renderValue={selected =>
+                                        selected ? selected : <em>Status</em>
+                                    }
+                                    sx={filterSelectSx}
+                                    inputProps={{ 'aria-label': 'Status' }}
+                                >
+                                    <MenuItem value="">
+                                        <em>All</em>
+                                    </MenuItem>
+                                    <MenuItem value="To Do">To Do</MenuItem>
+                                    <MenuItem value="In Progress">In Progress</MenuItem>
+                                    <MenuItem value="Review">Review</MenuItem>
+                                    <MenuItem value="Done">Done</MenuItem>
+                                </Select>
+                            </FormControl>
 
                             {/* Priority */}
-                        <FormControl size="small" sx={filterSelectBoxSx}>
-                            <Select
-                                value={priorityFilter}
-                                onChange={e => setPriorityFilter(e.target.value)}
-                                displayEmpty
-                                variant="outlined"
-                                renderValue={selected =>
-                                    selected ? selected : <em>Priority</em>
-                                }
-                                sx={filterSelectSx}
-                                inputProps={{ 'aria-label': 'Priority' }}
-                            >
-                                <MenuItem value="">
-                                    <em>All</em>
-                                </MenuItem>
-                                <MenuItem value="Highest">Highest</MenuItem>
-                                <MenuItem value="High">High</MenuItem>
-                                <MenuItem value="Medium">Medium</MenuItem>
-                                <MenuItem value="Low">Low</MenuItem>
-                                <MenuItem value="Lowest">Lowest</MenuItem>
-                            </Select>
-                        </FormControl>
-
+                            <FormControl size="small" sx={filterSelectBoxSx}>
+                                <Select
+                                    value={priorityFilter}
+                                    onChange={e => setPriorityFilter(e.target.value)}
+                                    displayEmpty
+                                    variant="outlined"
+                                    renderValue={selected =>
+                                        selected ? selected : <em>Priority</em>
+                                    }
+                                    sx={filterSelectSx}
+                                    inputProps={{ 'aria-label': 'Priority' }}
+                                >
+                                    <MenuItem value="">
+                                        <em>All</em>
+                                    </MenuItem>
+                                    <MenuItem value="Highest">Highest</MenuItem>
+                                    <MenuItem value="High">High</MenuItem>
+                                    <MenuItem value="Medium">Medium</MenuItem>
+                                    <MenuItem value="Low">Low</MenuItem>
+                                    <MenuItem value="Lowest">Lowest</MenuItem>
+                                </Select>
+                            </FormControl>
 
                             {/* Assignee */}
                             <TextField
@@ -376,7 +428,6 @@ export default function TaskBoard() {
                                 value={assigneeFilter}
                                 onChange={(e) => setAssigneeFilter(e.target.value)}
                                 sx={{...filterTextFieldSx, width: 150}}
-
                             />
 
                             <Box>
@@ -419,13 +470,8 @@ export default function TaskBoard() {
 
                                     <Divider sx={dueDividerSx}/>
 
-                                    <Box
-                                        sx={dueInputBoxSx}
-                                    >
-                                        <Typography
-                                            variant="subtitle2"
-                                            sx={dueTypographySx}
-                                        >
+                                    <Box sx={dueInputBoxSx}>
+                                        <Typography variant="subtitle2" sx={dueTypographySx}>
                                             By Month & Year
                                         </Typography>
 
@@ -443,7 +489,6 @@ export default function TaskBoard() {
                                             fullWidth
                                         />
 
-
                                         <Button
                                             onClick={applyMonthYear}
                                             disabled={!monthYear}
@@ -453,15 +498,31 @@ export default function TaskBoard() {
                                             Apply
                                         </Button>
                                     </Box>
-
                                 </Menu>
                             </Box>
+                        </Box>
 
+                        {/* Right actions */}
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                            <Button
+                                variant="outlined"
+                                startIcon={<SlidersHorizontal size={16} />}
+                                onClick={() => setFiltersOpen(true)}
+                                sx={{
+                                    display: { xs: 'inline-flex', md: 'none' },
+                                    color: '#fff',
+                                    borderColor: 'rgba(255,255,255,0.2)',
+                                    '&:hover': { borderColor: '#6C63FF' }
+                                }}
+                            >
+                                Filters
+                            </Button>
                             <Button onClick={clearFilters} variant="text"
                                     sx={{color: '#fff', textTransform: 'none', '&:hover': {color: '#6C63FF'}}}>
                                 Clear Filters
                             </Button>
                         </Box>
+                    </Box>
 
                     {/* Board */}
                     <Box

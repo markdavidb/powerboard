@@ -41,7 +41,7 @@ export default function TaskCard({ task, onClick }) {
             onClick={() => onClick && onClick(task)}
             sx={{
                 position: 'relative',
-                p: 1.5,
+                p: 2,                     // Increased from 1.5
                 borderRadius: 2,
                 background: 'rgba(24,24,30,0.6)',
                 color: theme.palette.common.white,
@@ -49,8 +49,9 @@ export default function TaskCard({ task, onClick }) {
                 cursor: 'pointer',
                 transition: 'transform 0.2s, box-shadow 0.2s',
                 boxShadow: '0 1.5px 4px rgba(0,0,0,0.16)',
-                maxWidth: 350,        // 👈 ADD THIS LINE!
-                width: '100%',        // always fill available width up to maxWidth
+                maxWidth: 320,            // Increased from 280
+                width: '100%',
+                minHeight: 140,           // Increased from 120
                 '&:hover': {
                     transform: 'translateY(-2px)',
                     boxShadow: '0 3px 8px rgba(0,0,0,0.1)',
@@ -73,17 +74,15 @@ export default function TaskCard({ task, onClick }) {
             <Typography
                 variant="subtitle1"
                 sx={{
-                    fontWeight: 500,
-                    fontSize: '1rem',
-                    mb: 1,
-                    whiteSpace: 'normal',         // allow wrapping
-                    overflowWrap: 'break-word',   // wrap mid-word if needed
-                    wordBreak: 'break-word',      // break long words
-                    lineHeight: 1.35,
-                    minHeight: 0,                 // allow card to shrink
-                    maxHeight: 52,                // (optional) limit to 2 lines
+                    fontWeight: 600,              // Increased from 500
+                    fontSize: '1rem',             // Increased from 0.875rem
+                    mb: 1.5,                      // Increased from 1
+                    whiteSpace: 'normal',
+                    overflowWrap: 'break-word',
+                    wordBreak: 'break-word',
+                    lineHeight: 1.4,              // Slightly increased from 1.3
                     display: '-webkit-box',
-                    WebkitLineClamp: 2,           // (optional) limit to 2 lines
+                    WebkitLineClamp: 3,
                     WebkitBoxOrient: 'vertical',
                     overflow: 'hidden'
                 }}
@@ -97,18 +96,19 @@ export default function TaskCard({ task, onClick }) {
                     label={task.label}
                     size="small"
                     sx={{
-                        mb: 1,
+                        mb: 1.5,                  // Increased from 1
                         backgroundColor: 'rgba(108,99,255,0.25)',
                         color: '#fff',
                         fontWeight: 500,
-                        fontSize: '0.72rem',
+                        fontSize: '0.75rem',      // Increased from 0.65rem
                         borderRadius: 1,
+                        height: 24,               // Increased from 20
                     }}
                 />
             )}
 
             {/* Status & Priority */}
-            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mt: 1 }}>
+            <Box sx={{ display: 'flex', gap: 0.75, flexWrap: 'wrap', mt: 1.5 }}>
                 {task.status && (
                     <Chip
                         icon={statusData.icon}
@@ -118,7 +118,8 @@ export default function TaskCard({ task, onClick }) {
                             backgroundColor: 'rgba(255,255,255,0.08)',
                             color: statusData.color,
                             fontWeight: 500,
-                            fontSize: '0.75rem',
+                            fontSize: '0.75rem',    // Increased from 0.65rem
+                            height: 26,             // Increased from 22
                         }}
                     />
                 )}
@@ -131,7 +132,8 @@ export default function TaskCard({ task, onClick }) {
                             backgroundColor: 'rgba(255,255,255,0.1)',
                             color: priorityData.color,
                             fontWeight: 500,
-                            fontSize: '0.75rem',
+                            fontSize: '0.75rem',    // Increased from 0.65rem
+                            height: 26,             // Increased from 22
                         }}
                     />
                 )}
@@ -143,13 +145,16 @@ export default function TaskCard({ task, onClick }) {
                     variant="caption"
                     sx={{
                         display: 'block',
-                        mt: 1.5,
+                        mt: 2,                    // Increased from 1.5
                         color: 'rgba(255,255,255,0.6)',
-                        fontSize: '0.75rem',
+                        fontSize: '0.75rem',      // Increased from 0.65rem
                         fontStyle: 'italic',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
                     }}
                 >
-                    Assigned by: {task.creator_name}
+                    By: {task.creator_name}
                 </Typography>
             )}
         </Paper>

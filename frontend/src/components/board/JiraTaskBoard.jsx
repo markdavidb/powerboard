@@ -1,12 +1,14 @@
 // src/components/board/JiraTaskBoard.jsx
-import React from 'react';
-import { Box, Typography, useTheme } from '@mui/material';
+import React, { useState } from 'react';
+import { Box, Typography, useTheme, Tabs, Tab, useMediaQuery } from '@mui/material';
 import TaskCard from './TaskCard';
 
 const STATUSES = ['To Do', 'In Progress', 'Review', 'Done'];
 
 export default function JiraTaskBoard({ tasks = [], onTaskClick }) {
     const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+    const [selectedTab, setSelectedTab] = useState(0);
 
     // group tasks by status
     const buckets = STATUSES.map(status => ({
@@ -14,6 +16,90 @@ export default function JiraTaskBoard({ tasks = [], onTaskClick }) {
         items: tasks.filter(t => t.status === status),
     }));
 
+    if (isMobile) {
+        // Mobile: Tab-based view
+        return (
+            <Box sx={{ width: '100%', height: '100%' }}>
+                {/* Tab Headers */}
+                <Box sx={{ borderBottom: 1, borderColor: 'rgba(255, 255, 255, 0.1)' }}>
+                    <Tabs
+                        value={selectedTab}
+                        onChange={(e, newValue) => setSelectedTab(newValue)}
+                        variant="fullWidth"
+                        sx={{
+                            '& .MuiTab-root': {
+                                color: 'rgba(255, 255, 255, 0.7)',
+                                fontWeight: 500,
+                                fontSize: '0.9rem',
+                                '&.Mui-selected': {
+                                    color: '#6C63FF',
+                                },
+                            },
+                            '& .MuiTabs-indicator': {
+                                backgroundColor: '#6C63FF',
+                                height: 3,
+                            },
+                        }}
+                    >
+                        {buckets.map(({ status, items }, index) => (
+                            <Tab
+                                key={status}
+                                label={`${status} (${items.length})`}
+                                sx={{ minWidth: 0 }}
+                            />
+                        ))}
+                    </Tabs>
+                </Box>
+
+                {/* Tab Content */}
+                <Box
+                    sx={{
+                        flex: 1,
+                        p: 2,
+                        overflowY: 'auto',
+                        height: 'calc(100% - 48px)', // Subtract tab height
+                        '&::-webkit-scrollbar': { width: 6 },
+                        '&::-webkit-scrollbar-thumb': {
+                            backgroundColor: 'rgba(108,99,255,0.3)',
+                            borderRadius: 3,
+                        },
+                    }}
+                >
+                    {buckets[selectedTab] && (
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                            {buckets[selectedTab].items.length ? (
+                                buckets[selectedTab].items.map(task => (
+                                    <Box
+                                        key={task.id}
+                                        onClick={() => onTaskClick(task)}
+                                        sx={{
+                                            transition: 'transform 0.2s, box-shadow 0.2s',
+                                            '&:hover': {
+                                                transform: 'translateY(-2px)',
+                                                boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                                            }
+                                        }}
+                                    >
+                                        <TaskCard task={task} />
+                                    </Box>
+                                ))
+                            ) : (
+                                <Typography
+                                    variant="body2"
+                                    color="text.secondary"
+                                    sx={{ textAlign: 'center', mt: 4 }}
+                                >
+                                    No tasks in {buckets[selectedTab].status}
+                                </Typography>
+                            )}
+                        </Box>
+                    )}
+                </Box>
+            </Box>
+        );
+    }
+
+    // Desktop: Original column-based view
     return (
         <Box
             sx={{
@@ -22,7 +108,7 @@ export default function JiraTaskBoard({ tasks = [], onTaskClick }) {
                 gap: 2,
                 p: 2,
                 overflowX: 'auto',
-                height: '60vh', // Make the board tall enough for vertical scrollbars
+                height: '60vh',
                 alignItems: 'flex-start',
                 '&::-webkit-scrollbar': { height: 3 },
                 '&::-webkit-scrollbar-thumb': {
@@ -35,7 +121,7 @@ export default function JiraTaskBoard({ tasks = [], onTaskClick }) {
                 <Box
                     key={status}
                     sx={{
-                        minWidth: 360,
+                        minWidth: 320,
                         maxWidth: 320,
                         width: 300,
                         flexShrink: 0,
@@ -73,7 +159,7 @@ export default function JiraTaskBoard({ tasks = [], onTaskClick }) {
                         {status} {items.length ? `(${items.length})` : ''}
                     </Typography>
 
-                    {/* Task stack, scrolls vertically if overflow */}
+                    {/* Task stack */}
                     <Box
                         sx={{
                             flex: 1,
@@ -88,7 +174,6 @@ export default function JiraTaskBoard({ tasks = [], onTaskClick }) {
                                 backgroundColor: 'rgba(108,99,255,0.20)',
                                 borderRadius: 3,
                             },
-                            // This will ensure the scrollbar is "inside" the column but invisible until hovered.
                             '&:hover::-webkit-scrollbar-thumb': {
                                 backgroundColor: 'rgba(108,99,255,0.40)',
                             }

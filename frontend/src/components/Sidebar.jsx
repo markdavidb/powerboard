@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import {
     Drawer, List, ListItem, ListItemButton, ListItemIcon,
-    ListItemText, ListSubheader, Box, Typography, Divider,
+    ListItemText, ListSubheader, Box, Typography, Divider, Chip,
 } from '@mui/material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth0 } from '@auth0/auth0-react';
@@ -13,8 +13,7 @@ import {
 import useRoles from '../hooks/useRoles';
 import HelpModal from './HelpModal';   // <--- Import your modal
 
-const drawerWidth = 224;
-const accent = '#7c84ff';
+const drawerWidth = 280;
 
 const mainNav = [
     { text: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard size={20} /> },
@@ -40,20 +39,28 @@ export default function Sidebar({ isMobile, isOpen, onClose }) {
         location.pathname === path || location.pathname.startsWith(path + '/');
 
     const itemSx = (sel) => ({
-        my: 0.4, pl: 3, pr: 1.5, height: 44,
-        borderLeft: sel ? `4px solid ${accent}` : '4px solid transparent',
-        background: sel ? 'rgba(120,105,255,0.12)' : 'transparent',
-        color: sel ? accent : '#e4e5ed',
-        fontWeight: sel ? 700 : 500,
-        borderRadius: 0,
-        transition: 'background 0.15s ease',
+        my: 0.2,
+        mx: 1,
+        px: 2,
+        py: 1.5,
+        height: 40,
+        borderRadius: '8px',
+        background: sel ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
+        color: sel ? '#ffffff' : 'rgba(255, 255, 255, 0.7)',
+        fontWeight: sel ? 600 : 400,
+        fontSize: '14px',
+        border: sel ? '1px solid rgba(255, 255, 255, 0.2)' : '1px solid transparent',
+        transition: 'all 0.2s ease',
         '&:hover': {
             background: sel
-                ? 'rgba(120,105,255,0.14)'
-                : 'rgba(120,105,255,0.06)',
-            color: sel ? accent : '#c8cbff',
+                ? 'rgba(255, 255, 255, 0.15)'
+                : 'rgba(255, 255, 255, 0.08)',
+            color: '#ffffff',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
         },
-        '&:focus': { borderRadius: 0 },
+        '&:active': {
+            transform: 'scale(0.98)',
+        },
     });
 
     const clickNav = (path) => {
@@ -74,121 +81,244 @@ export default function Sidebar({ isMobile, isOpen, onClose }) {
                         width: drawerWidth,
                         boxSizing: 'border-box',
                         background: '#181926',
-                        color: '#f4f5fa',
+                        color: '#ffffff',
                         borderRadius: 0,
-                        borderRight: 'none',
+                        borderRight: '1px solid rgba(255, 255, 255, 0.1)',
+                        boxShadow: 'none',
                     },
                 }}
                 ModalProps={{
-                    keepMounted: true, // Better open performance on mobile.
+                    keepMounted: true,
                 }}
             >
-                {/* logo */}
+                {/* Logo Section */}
                 <Box sx={{
-                    height: 62, display: 'flex', alignItems: 'center',
-                    justifyContent: 'center', background: 'rgba(24,25,38,0.85)',
+                    height: 64,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    px: 3,
+                    py: 2,
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
                 }}>
-                    <Typography variant="h6" sx={{
-                        fontWeight: 900, fontSize: '1.3rem', letterSpacing: 1.8,
-                        color: '#c5cae9', fontFamily: 'monospace',
-                    }}>
-                        PowerBoard
-                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Box sx={{
+                            width: 28,
+                            height: 28,
+                            borderRadius: '6px',
+                            background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: 'white',
+                            fontWeight: 700,
+                            fontSize: '14px',
+                        }}>
+                            P
+                        </Box>
+                        <Typography variant="h6" sx={{
+                            fontWeight: 600,
+                            fontSize: '16px',
+                            color: '#ffffff',
+                            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                        }}>
+                            PowerBoard
+                        </Typography>
+                    </Box>
                 </Box>
-                <Divider sx={{ borderColor: '#23243a', my: 1 }} />
 
-                {/* main nav */}
-                <List subheader={
-                    <ListSubheader disableSticky sx={{
-                        bgcolor: 'transparent', color: '#6c6f80', fontSize: 11,
-                        letterSpacing: 1, pl: 3, pb: 0.5,
+                {/* Main Navigation */}
+                <Box sx={{ px: 2, py: 3 }}>
+                    <Typography sx={{
+                        fontSize: '12px',
+                        fontWeight: 600,
+                        color: 'rgba(255, 255, 255, 0.5)',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px',
+                        mb: 2,
+                        px: 2,
                     }}>
-                        OVERVIEW
-                    </ListSubheader>
-                }>
-                    {mainNav.map(({ text, path, icon }) => {
-                        const sel = isSelected(path);
-                        return (
-                            <ListItem key={text} disablePadding>
-                                <ListItemButton sx={itemSx(sel)} onClick={() => clickNav(path)}>
-                                    <ListItemIcon sx={{ minWidth: 34 }}>{icon}</ListItemIcon>
-                                    <ListItemText primary={text} />
-                                </ListItemButton>
-                            </ListItem>
-                        );
-                    })}
+                        Navigation
+                    </Typography>
+                    <List sx={{ p: 0 }}>
+                        {mainNav.map(({ text, path, icon }) => {
+                            const sel = isSelected(path);
+                            return (
+                                <ListItem key={text} disablePadding sx={{ mb: 0.5 }}>
+                                    <ListItemButton sx={itemSx(sel)} onClick={() => clickNav(path)}>
+                                        <ListItemIcon sx={{
+                                            minWidth: 28,
+                                            color: 'inherit',
+                                            '& svg': { strokeWidth: 1.5 }
+                                        }}>
+                                            {icon}
+                                        </ListItemIcon>
+                                        <ListItemText
+                                            primary={text}
+                                            sx={{
+                                                '& .MuiTypography-root': {
+                                                    fontSize: '14px',
+                                                    fontWeight: 'inherit',
+                                                }
+                                            }}
+                                        />
+                                    </ListItemButton>
+                                </ListItem>
+                            );
+                        })}
 
-                    {/* Admin Console link */}
-                    {!isLoading && isAdmin && (() => {
-                        const path = '/admin/projects';
-                        const sel = isSelected(path);
-                        return (
-                            <ListItem key="Admin Console" disablePadding>
-                                <ListItemButton sx={itemSx(sel)} onClick={() => clickNav(path)}>
-                                    <ListItemIcon sx={{ minWidth: 34 }}><Shield size={20} /></ListItemIcon>
-                                    <ListItemText primary="Admin Console" />
-                                </ListItemButton>
-                            </ListItem>
-                        );
-                    })()}
-                </List>
+                        {/* Admin Console with Badge */}
+                        {!isLoading && isAdmin && (() => {
+                            const path = '/admin/projects';
+                            const sel = isSelected(path);
+                            return (
+                                <ListItem key="Admin Console" disablePadding sx={{ mb: 0.5 }}>
+                                    <ListItemButton sx={itemSx(sel)} onClick={() => clickNav(path)}>
+                                        <ListItemIcon sx={{
+                                            minWidth: 28,
+                                            color: 'inherit',
+                                            '& svg': { strokeWidth: 1.5 }
+                                        }}>
+                                            <Shield size={18} />
+                                        </ListItemIcon>
+                                        <ListItemText
+                                            primary="Admin Console"
+                                            sx={{
+                                                '& .MuiTypography-root': {
+                                                    fontSize: '14px',
+                                                    fontWeight: 'inherit',
+                                                }
+                                            }}
+                                        />
+                                        <Chip
+                                            label="Admin"
+                                            size="small"
+                                            sx={{
+                                                height: 18,
+                                                fontSize: '10px',
+                                                fontWeight: 600,
+                                                background: 'rgba(245, 158, 11, 0.2)',
+                                                color: '#fbbf24',
+                                                border: '1px solid rgba(245, 158, 11, 0.3)',
+                                                '& .MuiChip-label': { px: 1 }
+                                            }}
+                                        />
+                                    </ListItemButton>
+                                </ListItem>
+                            );
+                        })()}
+                    </List>
+                </Box>
 
-                {/* extra nav */}
-                <List subheader={
-                    <ListSubheader disableSticky sx={{
-                        bgcolor: 'transparent', color: '#6c6f80', fontSize: 11,
-                        letterSpacing: 1, mt: 1, pl: 3, pb: 0.5,
+                <Divider sx={{ borderColor: 'rgba(255, 255, 255, 0.1)', mx: 2 }} />
+
+                {/* Settings Section */}
+                <Box sx={{ px: 2, py: 3, flexGrow: 1 }}>
+                    <Typography sx={{
+                        fontSize: '12px',
+                        fontWeight: 600,
+                        color: 'rgba(255, 255, 255, 0.5)',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px',
+                        mb: 2,
+                        px: 2,
                     }}>
-                        EXTRAS
-                    </ListSubheader>
-                } sx={{ mb: 'auto' }}>
-                    {extraNav.map(({ text, path, icon }) => {
-                        const sel = isSelected(path);
-                        return (
-                            <ListItem key={text} disablePadding>
-                                <ListItemButton sx={itemSx(sel)} onClick={() => clickNav(path)}>
-                                    <ListItemIcon sx={{ minWidth: 34 }}>{icon}</ListItemIcon>
-                                    <ListItemText primary={text} />
-                                </ListItemButton>
-                            </ListItem>
-                        );
-                    })}
-                    {/* Add Help item */}
-                    <ListItem key="Help" disablePadding>
-                        <ListItemButton
-                            sx={itemSx(false)}
-                            onClick={() => setHelpOpen(true)}
-                        >
-                            <ListItemIcon sx={{ minWidth: 34 }}>
-                                <HelpCircle size={20} />
-                            </ListItemIcon>
-                            <ListItemText primary="Help" />
-                        </ListItemButton>
-                    </ListItem>
-                </List>
+                        Settings
+                    </Typography>
+                    <List sx={{ p: 0 }}>
+                        {extraNav.map(({ text, path, icon }) => {
+                            const sel = isSelected(path);
+                            return (
+                                <ListItem key={text} disablePadding sx={{ mb: 0.5 }}>
+                                    <ListItemButton sx={itemSx(sel)} onClick={() => clickNav(path)}>
+                                        <ListItemIcon sx={{
+                                            minWidth: 28,
+                                            color: 'inherit',
+                                            '& svg': { strokeWidth: 1.5 }
+                                        }}>
+                                            {icon}
+                                        </ListItemIcon>
+                                        <ListItemText
+                                            primary={text}
+                                            sx={{
+                                                '& .MuiTypography-root': {
+                                                    fontSize: '14px',
+                                                    fontWeight: 'inherit',
+                                                }
+                                            }}
+                                        />
+                                    </ListItemButton>
+                                </ListItem>
+                            );
+                        })}
+                        {/* Help item */}
+                        <ListItem key="Help" disablePadding sx={{ mb: 0.5 }}>
+                            <ListItemButton
+                                sx={itemSx(false)}
+                                onClick={() => setHelpOpen(true)}
+                            >
+                                <ListItemIcon sx={{
+                                    minWidth: 28,
+                                    color: 'inherit',
+                                    '& svg': { strokeWidth: 1.5 }
+                                }}>
+                                    <HelpCircle size={18} />
+                                </ListItemIcon>
+                                <ListItemText
+                                    primary="Help"
+                                    sx={{
+                                        '& .MuiTypography-root': {
+                                            fontSize: '14px',
+                                            fontWeight: 'inherit',
+                                        }
+                                    }}
+                                />
+                            </ListItemButton>
+                        </ListItem>
+                    </List>
+                </Box>
 
-                {/* logout */}
-                <List sx={{ mb: 2 }}>
-                    <ListItem disablePadding>
-                        <ListItemButton
-                            onClick={() => logout({
-                                federated: true,
-                                logoutParams: {
-                                    client_id: import.meta.env.VITE_AUTH0_CLIENT_ID,
-                                    returnTo: window.location.origin + '/login',
-                                },
-                            })}
+                {/* Logout Button - Bottom */}
+                <Box sx={{ p: 2, borderTop: '1px solid rgba(255, 255, 255, 0.1)', background: 'rgba(255, 255, 255, 0.05)' }}>
+                    <ListItemButton
+                        onClick={() => logout({
+                            federated: true,
+                            logoutParams: {
+                                client_id: import.meta.env.VITE_AUTH0_CLIENT_ID,
+                                returnTo: window.location.origin + '/login',
+                            },
+                        })}
+                        sx={{
+                            ...itemSx(false),
+                            color: '#ef4444',
+                            border: '1px solid rgba(239, 68, 68, 0.3)',
+                            background: 'transparent',
+                            '&:hover': {
+                                background: 'rgba(239, 68, 68, 0.1)',
+                                color: '#ef4444',
+                                border: '1px solid rgba(239, 68, 68, 0.5)',
+                            },
+                        }}
+                    >
+                        <ListItemIcon sx={{
+                            minWidth: 28,
+                            color: 'inherit',
+                            '& svg': { strokeWidth: 1.5 }
+                        }}>
+                            <LogOut size={18} />
+                        </ListItemIcon>
+                        <ListItemText
+                            primary="Sign out"
                             sx={{
-                                ...itemSx(false),
-                                color: '#ff8a8a',
-                                '&:hover': { background: 'rgba(255,80,120,0.08)', color: '#ffc0c0' },
+                                '& .MuiTypography-root': {
+                                    fontSize: '14px',
+                                    fontWeight: 500,
+                                }
                             }}
-                        >
-                            <ListItemIcon sx={{ minWidth: 34 }}><LogOut size={20} /></ListItemIcon>
-                            <ListItemText primary="Logout" />
-                        </ListItemButton>
-                    </ListItem>
-                </List>
+                        />
+                    </ListItemButton>
+                </Box>
             </Drawer>
             <HelpModal open={helpOpen} onClose={() => setHelpOpen(false)} />
         </>

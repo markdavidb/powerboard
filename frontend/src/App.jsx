@@ -85,14 +85,21 @@ function Shell() {
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
+          marginLeft: {
+            xs: 0,
+            md: isSidebarOpen ? 0 : '-280px'
+          },
           transition: theme.transitions.create('margin', {
             easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.leavingScreen,
           }),
-          marginLeft: `-${isMobile ? 0 : isSidebarOpen ? 0 : 224}px`,
         }}
       >
-        <Header onMenuClick={handleSidebarToggle} />
+        <Header
+          onMenuClick={handleSidebarToggle}
+          sidebarOpen={isSidebarOpen}
+          isMobile={isMobile}
+        />
         <Box sx={{ flexGrow: 1, overflow: 'auto', p: { xs: 2, sm: 3 } }}>
           <Outlet />
         </Box>
