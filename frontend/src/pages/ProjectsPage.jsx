@@ -36,7 +36,6 @@ export default function ProjectsPage() {
 
     /* loading flags */
     const [loadingProjects, setLoadingProjects] = useState(true);
-    // only true if we have projects and stats are still loading
     const loadingStats = projects.length > 0 && Object.keys(btStats).length < projects.length;
     const loading = Boolean(loadingProjects || loadingStats);
 
@@ -273,32 +272,33 @@ export default function ProjectsPage() {
                             ))}
                         </Box>
                     </Box>
+
+                    {/* Create button under cards */}
+                    <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3 }}>
+                      <Tooltip title="Create Project">
+                        <IconButton
+                          onClick={() => setModalOpen(true)}
+                          sx={{
+                            background: "linear-gradient(135deg,#6C63FF,#9B78FF)",
+                            color: "#fff",
+                            p: { xs: 1.5, sm: 2 },
+                            borderRadius: 2,
+                            boxShadow: "0 6px 18px rgba(108,99,255,0.5)",
+                            "&:hover": {
+                              background: "linear-gradient(135deg,#5a50e0,#8e6cf1)",
+                              transform: "scale(1.05)",
+                            },
+                          }}
+                        >
+                          <Plus size={24} />
+                        </IconButton>
+                      </Tooltip>
+                    </Box>
+
                 </>
             )}
 
-            {/* FAB + modal */}
-            <Tooltip title="Create Project">
-                <IconButton
-                    onClick={() => setModalOpen(true)}
-                    sx={{
-                        position: "fixed",
-                        bottom: { xs: 20, sm: 32 },
-                        right: { xs: 20, sm: 32 },
-                        background: "linear-gradient(135deg,#6C63FF,#9B78FF)",
-                        color: "#fff",
-                        p: { xs: 1.5, sm: 2 },
-                        boxShadow: "0 6px 18px rgba(108,99,255,0.5)",
-                        zIndex: 1000,
-                        "&:hover": {
-                            background: "linear-gradient(135deg,#5a50e0,#8e6cf1)",
-                            transform: "scale(1.1)"
-                        },
-                    }}
-                >
-                    <Plus size={24} />
-                </IconButton>
-            </Tooltip>
-
+            {/* modal remains unchanged */}
             <CreateProjectModal
                 open={modalOpen}
                 onClose={() => setModalOpen(false)}

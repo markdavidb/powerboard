@@ -1,4 +1,3 @@
-// src/pages/Dashboard.jsx
 import React, { useEffect, useState } from 'react';
 import { API } from '../api/axios';
 import {
@@ -100,25 +99,6 @@ export default function Dashboard() {
                 color: "#fff",
             }}
         >
-            {/* Export button */}
-            <Tooltip title="Export Dashboard Data">
-                <IconButton
-                    onClick={() => setExportOpen(true)}
-                    sx={{
-                        position: 'fixed',
-                        bottom: 32,
-                        right: 32,
-                        background: 'linear-gradient(135deg,#1F8EF1,#5C9EFF)',
-                        color: '#fff',
-                        p: 2,
-                        zIndex: 10,
-                        '&:hover': { background: 'linear-gradient(135deg,#167ac6,#3b8eff)' },
-                    }}
-                >
-                    <Download />
-                </IconButton>
-            </Tooltip>
-
             {/* Metrics */}
             <Grid container spacing={{ xs: 2, md: 3 }} sx={{ mb: 5 }} justifyContent="center">
                 {metrics.map(m => (
@@ -169,6 +149,23 @@ export default function Dashboard() {
                         subtitle="Last 6 months"
                     />
                 </Box>
+            </Box>
+
+            {/* Export button under charts */}
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
+                <Tooltip title="Export Dashboard Data">
+                    <IconButton
+                        onClick={() => setExportOpen(true)}
+                        sx={{
+                            background: 'linear-gradient(135deg,#1F8EF1,#5C9EFF)',
+                            color: '#fff',
+                            p: 2,
+                            '&:hover': { background: 'linear-gradient(135deg,#167ac6,#3b8eff)' },
+                        }}
+                    >
+                        <Download />
+                    </IconButton>
+                </Tooltip>
             </Box>
 
             <DashboardExportModal

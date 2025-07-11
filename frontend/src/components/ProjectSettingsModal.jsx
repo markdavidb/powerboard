@@ -140,7 +140,7 @@ export default function ProjectSettingsModal({
                             top: '50%',
                             left: '50%',
                             transform: 'translate(-50%, -50%)',
-                            width: { xs: '100%', sm: 500 },
+                            width: { xs: '90vw',  sm: 500 },
                             bgcolor: 'rgba(24,24,30,0.85)',
                             backdropFilter: 'blur(24px)',
                             border: '1.5px solid rgba(108,99,255,0.6)',

@@ -221,20 +221,24 @@ export default function ProjectSummary() {
                 </Box>
             </Box>
 
-            {/* ─── floating export btn ──────────────────────────────────── */}
-            <Tooltip title="Export Project Summary">
-                <IconButton
-                    onClick={() => setExportOpen(true)}
-                    sx={{
-                        position: 'fixed', bottom: 32, right: 32,
-                        background: 'linear-gradient(135deg,#1F8EF1,#5C9EFF)',
-                        color: '#fff', p: 2, zIndex: 999,
-                        '&:hover': {background: 'linear-gradient(135deg,#167ac6,#3b8eff)'}
-                    }}
-                >
-                    <Download/>
-                </IconButton>
-            </Tooltip>
+            {/* ─── export button under charts ─────────────────────────────── */}
+            <Box sx={{display: 'flex', justifyContent: 'flex-end', mt: 3}}>
+                <Tooltip title="Export Project Summary">
+                    <IconButton
+                        onClick={() => setExportOpen(true)}
+                        sx={{
+                            background: 'linear-gradient(135deg,#1F8EF1,#5C9EFF)',
+                            color: '#fff',
+                            p: 2,
+                            '&:hover': {
+                                background: 'linear-gradient(135deg,#167ac6,#3b8eff)'
+                            }
+                        }}
+                    >
+                        <Download/>
+                    </IconButton>
+                </Tooltip>
+            </Box>
 
             {/* ─── modals ────────────────────────────────────────────────── */}
             <ProjectMembersModal
@@ -253,6 +257,8 @@ export default function ProjectSummary() {
                 onClose={() => setExportOpen(false)}
                 projectId={projectId}
             />
+
+
         </Box>
     );
 }

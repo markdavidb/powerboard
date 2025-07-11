@@ -44,7 +44,7 @@ const modalSx = {
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: { xs: '100%', sm: 500 },
+    width: { xs: '90vw',  sm: 500 },
     maxHeight: '80vh',
     bgcolor: '#18181E',
     border: '1px solid #6C63FF',
@@ -58,7 +58,7 @@ const modalSx = {
 
 const addModalSx = {
     ...modalSx,
-    width: { xs: '80%', sm: 360 },
+    width: { xs: '80vw', sm: 360 },
 };
 
 const ROLE_OPTIONS = ['owner', 'editor', 'viewer'];

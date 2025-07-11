@@ -1,6 +1,6 @@
 // src/components/CreateBigTaskModal.jsx
 
-import React, { useState, useRef } from 'react';
+import React, {useState, useRef} from 'react';
 import {
     Modal,
     Fade,
@@ -14,22 +14,22 @@ import {
     CircularProgress,
     Stack,
 } from '@mui/material';
-import { X as CloseIcon } from 'lucide-react';
-import { useSnackbar } from 'notistack';
-import { API } from '../api/axios';
+import {X as CloseIcon} from 'lucide-react';
+import {useSnackbar} from 'notistack';
+import {API} from '../api/axios';
 
-const statusOptions   = ['To Do', 'In Progress', 'Done'];
+const statusOptions = ['To Do', 'In Progress', 'Done'];
 const priorityOptions = ['Highest', 'High', 'Medium', 'Low', 'Lowest'];
 
-export default function CreateBigTaskModal({ open, onClose, projectId, onCreated }) {
-    const { enqueueSnackbar } = useSnackbar();
-    const [title, setTitle]             = useState('');
+export default function CreateBigTaskModal({open, onClose, projectId, onCreated}) {
+    const {enqueueSnackbar} = useSnackbar();
+    const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
-    const [dueDate, setDueDate]         = useState('');
-    const [status, setStatus]           = useState('To Do');
-    const [priority, setPriority]       = useState('Medium');
-    const [titleError, setTitleError]   = useState('');
-    const [submitting, setSubmitting]   = useState(false);
+    const [dueDate, setDueDate] = useState('');
+    const [status, setStatus] = useState('To Do');
+    const [priority, setPriority] = useState('Medium');
+    const [titleError, setTitleError] = useState('');
+    const [submitting, setSubmitting] = useState(false);
     const submittingRef = useRef(false);
 
     const resetForm = () => {
@@ -66,7 +66,7 @@ export default function CreateBigTaskModal({ open, onClose, projectId, onCreated
             })
             .catch(err => {
                 console.error(err);
-                enqueueSnackbar('Failed to create epic', { variant: 'error' });
+                enqueueSnackbar('Failed to create epic', {variant: 'error'});
             })
             .finally(() => {
                 submittingRef.current = false;
@@ -96,16 +96,16 @@ export default function CreateBigTaskModal({ open, onClose, projectId, onCreated
             open={open}
             onClose={submitting ? undefined : onClose}
             closeAfterTransition
-            BackdropProps={{ sx: { backgroundColor: 'rgba(0,0,0,0)' } }}
+            BackdropProps={{sx: {backgroundColor: 'rgba(0,0,0,0)'}}}
         >
             <Fade in={open}>
                 <Box
                     sx={{
                         position: 'absolute',
-                        top: '55%',
-                        left: '55%',
+                        top: '50%',
+                        left: '50%',
                         transform: 'translate(-50%, -50%)',
-                        width: { xs: '90%', sm: 500 },
+                        width: {xs: '90vw', sm: 500},
                         bgcolor: 'rgba(24,24,30,0.85)',
                         backdropFilter: 'blur(24px)',
                         border: '1.5px solid rgba(108,99,255,0.6)',       // purple border
@@ -119,24 +119,24 @@ export default function CreateBigTaskModal({ open, onClose, projectId, onCreated
                     }}
                 >
                     {/* Header */}
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                    <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2}}>
                         <Typography variant="h6" color="text.primary">
                             Create New Epic
                         </Typography>
                         <IconButton
                             onClick={onClose}
                             disabled={submitting}
-                            sx={{ color: 'rgba(255,255,255,0.7)' }}
+                            sx={{color: 'rgba(255,255,255,0.7)'}}
                         >
-                            <CloseIcon size={20} />
+                            <CloseIcon size={20}/>
                         </IconButton>
                     </Box>
 
                     {/* Purple‐tinted divider */}
-                    <Divider sx={{ borderColor: 'rgba(108,99,255,0.3)', mb: 2 }} />
+                    <Divider sx={{borderColor: 'rgba(108,99,255,0.3)', mb: 2}}/>
 
                     {/* Form */}
-                    <Stack spacing={2} sx={{ flex: 1, overflowY: 'auto' }}>
+                    <Stack spacing={2} sx={{flex: 1, overflowY: 'auto'}}>
                         <TextField
                             fullWidth
                             required
@@ -148,9 +148,9 @@ export default function CreateBigTaskModal({ open, onClose, projectId, onCreated
                                 setTitle(e.target.value);
                                 if (e.target.value.trim()) setTitleError('');
                             }}
-                            InputProps={{ sx: { color: '#fff' } }}
-                            InputLabelProps={{ sx: { color: '#bbb' } }}
-                            sx={{ ...inputSx }}
+                            InputProps={{sx: {color: '#fff'}}}
+                            InputLabelProps={{sx: {color: '#bbb'}}}
+                            sx={{...inputSx}}
                             disabled={submitting}
                         />
 
@@ -161,9 +161,9 @@ export default function CreateBigTaskModal({ open, onClose, projectId, onCreated
                             minRows={3}
                             value={description}
                             onChange={e => setDescription(e.target.value)}
-                            InputProps={{ sx: { color: '#fff' } }}
-                            InputLabelProps={{ sx: { color: '#bbb' } }}
-                            sx={{ ...inputSx }}
+                            InputProps={{sx: {color: '#fff'}}}
+                            InputLabelProps={{sx: {color: '#bbb'}}}
+                            sx={{...inputSx}}
                             disabled={submitting}
                         />
 
@@ -173,9 +173,9 @@ export default function CreateBigTaskModal({ open, onClose, projectId, onCreated
                             label="Due Date"
                             value={dueDate}
                             onChange={e => setDueDate(e.target.value)}
-                            InputProps={{ sx: { color: '#fff' } }}
-                            InputLabelProps={{ shrink: true, sx: { color: '#bbb' } }}
-                            sx={{ ...inputSx }}
+                            InputProps={{sx: {color: '#fff'}}}
+                            InputLabelProps={{shrink: true, sx: {color: '#bbb'}}}
+                            sx={{...inputSx}}
                             disabled={submitting}
                         />
 
@@ -185,9 +185,9 @@ export default function CreateBigTaskModal({ open, onClose, projectId, onCreated
                             label="Status"
                             value={status}
                             onChange={e => setStatus(e.target.value)}
-                            InputProps={{ sx: { color: '#fff' } }}
-                            InputLabelProps={{ sx: { color: '#bbb' } }}
-                            sx={{ ...inputSx }}
+                            InputProps={{sx: {color: '#fff'}}}
+                            InputLabelProps={{sx: {color: '#bbb'}}}
+                            sx={{...inputSx}}
                             disabled={submitting}
                         >
                             {statusOptions.map(opt => (
@@ -203,9 +203,9 @@ export default function CreateBigTaskModal({ open, onClose, projectId, onCreated
                             label="Priority"
                             value={priority}
                             onChange={e => setPriority(e.target.value)}
-                            InputProps={{ sx: { color: '#fff' } }}
-                            InputLabelProps={{ sx: { color: '#bbb' } }}
-                            sx={{ ...inputSx }}
+                            InputProps={{sx: {color: '#fff'}}}
+                            InputLabelProps={{sx: {color: '#bbb'}}}
+                            sx={{...inputSx}}
                             disabled={submitting}
                         >
                             {priorityOptions.map(opt => (
@@ -217,17 +217,17 @@ export default function CreateBigTaskModal({ open, onClose, projectId, onCreated
                     </Stack>
 
                     {/* Another purple‐tinted divider */}
-                    <Divider sx={{ borderColor: 'rgba(108,99,255,0.3)', my: 2 }} />
+                    <Divider sx={{borderColor: 'rgba(108,99,255,0.3)', my: 2}}/>
 
                     {/* Actions */}
-                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+                    <Box sx={{display: 'flex', justifyContent: 'flex-end', gap: 1}}>
                         <Button
                             onClick={onClose}
                             variant="outlined"
                             sx={{
                                 color: 'rgba(255,255,255,0.8)',
                                 borderColor: 'rgba(108,99,255,0.4)',  // purple outline
-                                '&:hover': { borderColor: 'rgba(108,99,255,0.6)' },
+                                '&:hover': {borderColor: 'rgba(108,99,255,0.6)'},
                             }}
                             disabled={submitting}
                         >
@@ -237,13 +237,13 @@ export default function CreateBigTaskModal({ open, onClose, projectId, onCreated
                             variant="contained"
                             onClick={handleSubmit}
                             disabled={!title.trim() || submitting}
-                            startIcon={submitting && <CircularProgress size={18} color="inherit" />}
+                            startIcon={submitting && <CircularProgress size={18} color="inherit"/>}
                             sx={{
                                 background: 'linear-gradient(135deg,#6C63FF,#8A78FF)', // purple gradient
                                 color: '#fff',
                                 textTransform: 'none',
                                 boxShadow: '0 6px 18px rgba(108,99,255,0.4)',
-                                '&:hover': { background: 'linear-gradient(135deg,#5b54e6,#7b68ff)' },
+                                '&:hover': {background: 'linear-gradient(135deg,#5b54e6,#7b68ff)'},
                             }}
                         >
                             {submitting ? 'Creating…' : 'Create'}
