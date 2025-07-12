@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { useAuth0 } from '@auth0/auth0-react';
 import { Box, useMediaQuery, useTheme } from '@mui/material';
+import { useLocation } from 'react-router-dom';
 
 import Sidebar         from './components/Sidebar';
 import Header          from './components/Header';
@@ -63,13 +64,21 @@ function Shell() {
     if (isMobile) {
       setSidebarOpen(false);
     } else {
-      setSidebarOpen(true);
+      setSidebarOpen(false);
     }
   }, [isMobile]);
 
   const handleSidebarToggle = () => {
     setSidebarOpen(!isSidebarOpen);
   };
+
+  const location = useLocation();
+
+
+  useEffect(() => {
+  setSidebarOpen(false); // close on route change
+}, [location.pathname]);
+
 
   return (
     <Box sx={{ display: 'flex', height: '100vh' }}>
