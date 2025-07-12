@@ -24,6 +24,7 @@ export default function ProjectLayout() {
                     mx: 'auto',
                     display: 'flex',
                     flexDirection: 'column',
+                    mt:-3,
                 }}
             >
                 <Outlet/>

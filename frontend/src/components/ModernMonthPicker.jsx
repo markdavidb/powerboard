@@ -68,7 +68,7 @@ const ModernMonthPicker = ({
         <Popper
             open={open}
             anchorEl={anchorEl}
-            placement="top-start"
+            placement = "top-start"
             transition
             sx={{ zIndex: 1300 }}
             modifiers={[
