@@ -531,7 +531,7 @@ export default function BigTasksPage() {
                     Filters
                 </Typography>
                 <Box sx={{display: 'flex', flexDirection: 'column', gap: 2}}>
-                    {/* Repeat same filters as above */}
+                    {/* Search */}
                     <TextField
                         size="small"
                         placeholder="Search epics…"
@@ -546,43 +546,64 @@ export default function BigTasksPage() {
                         }}
                         sx={filterTextFieldSx}
                     />
-                    <FormControl size="small" sx={filterSelectBoxSx}>
-                        <Select value={sortBy} onChange={e => setSortBy(e.target.value)} displayEmpty
-                                sx={filterSelectSx}>
-                            <MenuItem value="created_desc">Newest Created</MenuItem>
-                            <MenuItem value="created_asc">Oldest Created</MenuItem>
-                            <MenuItem value="due_asc">Soonest Due</MenuItem>
-                            <MenuItem value="due_desc">Latest Due</MenuItem>
-                        </Select>
-                    </FormControl>
-                    <FormControl size="small" sx={filterSelectBoxSx}>
-                        <Select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} displayEmpty
-                                sx={filterSelectSx}>
-                            <MenuItem value="">All</MenuItem>
-                            <MenuItem value="To Do">To Do</MenuItem>
-                            <MenuItem value="In Progress">In Progress</MenuItem>
-                            <MenuItem value="Done">Done</MenuItem>
-                        </Select>
-                    </FormControl>
-                    <FormControl size="small" sx={filterSelectBoxSx}>
-                        <Select value={priorityFilter} onChange={e => setPriorityFilter(e.target.value)} displayEmpty
-                                sx={filterSelectSx}>
-                            <MenuItem value="">All</MenuItem>
-                            <MenuItem value="Highest">Highest</MenuItem>
-                            <MenuItem value="High">High</MenuItem>
-                            <MenuItem value="Medium">Medium</MenuItem>
-                            <MenuItem value="Low">Low</MenuItem>
-                            <MenuItem value="Lowest">Lowest</MenuItem>
-                        </Select>
-                    </FormControl>
+
+                    {/* Sort - Modern Button */}
+                    <Button
+                        onClick={e => setSortAnchor(e.currentTarget)}
+                        variant="outlined"
+                        sx={{
+                            ...dueButtonSx,
+                            width: '100%',
+                            justifyContent: 'flex-start',
+                        }}
+                        fullWidth
+                    >
+                        {sortLabel}
+                    </Button>
+
+                    {/* Status - Modern Button */}
+                    <Button
+                        onClick={e => setStatusAnchor(e.currentTarget)}
+                        variant="outlined"
+                        sx={{
+                            ...dueButtonSx,
+                            width: '100%',
+                            justifyContent: 'flex-start',
+                        }}
+                        fullWidth
+                    >
+                        {statusLabel}
+                    </Button>
+
+                    {/* Priority - Modern Button */}
+                    <Button
+                        onClick={e => setPriorityAnchor(e.currentTarget)}
+                        variant="outlined"
+                        sx={{
+                            ...dueButtonSx,
+                            width: '100%',
+                            justifyContent: 'flex-start',
+                        }}
+                        fullWidth
+                    >
+                        {priorityLabel}
+                    </Button>
+
+                    {/* Due Date */}
                     <Button
                         onClick={e => setDueAnchor(e.currentTarget)}
                         variant="outlined"
                         startIcon={<CalendarIcon size={16}/>}
-                        sx={dueButtonSx}
+                        sx={{
+                            ...dueButtonSx,
+                            width: '100%',
+                            justifyContent: 'flex-start',
+                        }}
+                        fullWidth
                     >
                         {dueLabel}
                     </Button>
+
                     <Button
                         fullWidth
                         variant="contained"

@@ -647,34 +647,38 @@ export default function TaskBoard() {
                                 }}
                                 sx={{
                                     ...filterTextFieldSx,
-                                    width: '100%', // Full width for consistency
+                                    width: '100%',
                                 }}
                                 fullWidth
                             />
 
-                            {/* Priority */}
-                            <FormControl size="small" sx={{
-                                ...filterSelectBoxSx,
-                                width: '100%', // Full width for consistency
-                            }}>
-                                <Select
-                                    value={priorityFilter}
-                                    onChange={e => setPriorityFilter(e.target.value)}
-                                    displayEmpty
-                                    sx={{
-                                        ...filterSelectSx,
-                                        width: '100%', // Full width for consistency
-                                    }}
-                                    fullWidth
-                                >
-                                    <MenuItem value="">All Priority</MenuItem>
-                                    <MenuItem value="Highest">Highest</MenuItem>
-                                    <MenuItem value="High">High</MenuItem>
-                                    <MenuItem value="Medium">Medium</MenuItem>
-                                    <MenuItem value="Low">Low</MenuItem>
-                                    <MenuItem value="Lowest">Lowest</MenuItem>
-                                </Select>
-                            </FormControl>
+                            {/* Status - Modern Button */}
+                            <Button
+                                onClick={e => setStatusAnchor(e.currentTarget)}
+                                variant="outlined"
+                                sx={{
+                                    ...dueButtonSx,
+                                    width: '100%',
+                                    justifyContent: 'flex-start',
+                                }}
+                                fullWidth
+                            >
+                                {statusLabel}
+                            </Button>
+
+                            {/* Priority - Modern Button */}
+                            <Button
+                                onClick={e => setPriorityAnchor(e.currentTarget)}
+                                variant="outlined"
+                                sx={{
+                                    ...dueButtonSx,
+                                    width: '100%',
+                                    justifyContent: 'flex-start',
+                                }}
+                                fullWidth
+                            >
+                                {priorityLabel}
+                            </Button>
 
                             {/* Assignee */}
                             <TextField
@@ -684,7 +688,7 @@ export default function TaskBoard() {
                                 onChange={e => setAssigneeFilter(e.target.value)}
                                 sx={{
                                     ...filterTextFieldSx,
-                                    width: '100%', // Full width for consistency
+                                    width: '100%',
                                 }}
                                 fullWidth
                             />
@@ -696,8 +700,8 @@ export default function TaskBoard() {
                                 startIcon={<CalendarIcon size={16}/>}
                                 sx={{
                                     ...dueButtonSx,
-                                    width: '100%', // Full width for consistency
-                                    justifyContent: 'flex-start', // Align content to left
+                                    width: '100%',
+                                    justifyContent: 'flex-start',
                                 }}
                                 fullWidth
                             >
@@ -719,4 +723,3 @@ export default function TaskBoard() {
         </Box>
     );
 }
-
