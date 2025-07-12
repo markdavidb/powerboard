@@ -81,16 +81,17 @@ export default function ProfilePage() {
         <Box
             sx={{
                 width: '100%',
-                maxWidth: { xs: '100%', md: '1200px', xl: '1440px' },
-                minHeight: '88vh',
+                maxWidth: { xs: '100%', md: 'calc(100vw - 240px)', xl: '1800px' }, // Increased max width
+                minHeight: { xs: 'calc(100vh - 100px)', md: '90vh' }, // More height usage
                 mx: 'auto',
-                mt: { xs: 1, md: 3 },
+                mt: { xs: 0.5, md: 1 }, // Reduced top margin
                 boxSizing: 'border-box',
                 backdropFilter: 'blur(18px)',
                 background: theme => theme.palette.background.default,
                 border: '1px solid rgba(255,255,255,0.08)',
+                borderRadius: { xs: 1, md: 2 }, // Smaller border radius on mobile
                 boxShadow: '0 12px 40px rgba(0,0,0,0.4)',
-                p: { xs: 1, sm: 2, md: 4 },
+                p: { xs: 1.5, sm: 2, md: 3 }, // Optimized padding
                 display: 'flex',
                 flexDirection: 'column',
             }}

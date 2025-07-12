@@ -118,21 +118,22 @@ export default function ProjectSummary() {
     /* ─────────── JSX ─────────── */
     return (
         <Box sx={{
-            width: '100%',
-            maxWidth: {xs: '100%', md: 'calc(100vw - 240px)', xl: '1600px'},
-            mx: 'auto',
-            mt: {xs: 1, md: 0},
-            p: {xs: 1, sm: 2, md: 4},
-            // let it grow to fit all content, but never shorter than full viewport minus header/nav
-            minHeight: 'calc(100vh - 180px)',
+            display: "flex",
+            flexDirection: "column",
+            p: { xs: 1.5, sm: 2, md: 3, lg: 4 }, // Optimized padding
+            mt: { xs: 0.5, sm: 1, md: 2 }, // Reduced top margin
+            mx: { xs: 0.5, sm: 1, md: "auto" }, // MISSING - Smaller side margins on mobile
+            minHeight: { xs: "calc(100vh - 100px)", md: "90vh" }, // More height usage
+            width: { xs: "calc(100vw - 8px)", sm: "calc(100vw - 16px)", md: "100%" }, // MISSING - Use more viewport width
+            maxWidth: { xs: "100%", md: "calc(100vw - 240px)", xl: "1800px" }, // Increased max width
+            backdropFilter: "blur(18px)",
+            background: theme => theme.palette.background.default,
+            border: "1px solid rgba(255,255,255,0.08)",
+            borderRadius: { xs: 1, md: 2 }, // Smaller border radius on mobile
+            boxShadow: "0 12px 40px rgba(0,0,0,0.4)",
+            color: "#fff",
             overflowY: 'auto',
             boxSizing: 'border-box',
-            backdropFilter: 'blur(18px)',
-            background: theme => theme.palette.background.default,
-            border: '1px solid rgba(255,255,255,0.08)',
-            boxShadow: '0 12px 40px rgba(0,0,0,0.4)',
-            display: 'flex',
-            flexDirection: 'column',
         }}>
 
 

@@ -9,20 +9,13 @@ import {
     Button,
     TextField,
     FormControl,
-    InputLabel,
     Select,
     MenuItem,
     InputAdornment,
     Menu,
     Divider,
-    Tooltip,
-    IconButton,
-    Collapse,
     useMediaQuery,
     useTheme,
-    Tabs,
-    Tab,
-    Fab,
     Drawer,
 } from '@mui/material';
 import {
@@ -31,9 +24,6 @@ import {
     Search as SearchIcon,
     Calendar as CalendarIcon,
     Plus,
-    Filter,
-    ChevronDown,
-    ChevronUp,
     SlidersHorizontal,
 } from 'lucide-react';
 import JiraTaskBoard from '../components/board/JiraTaskBoard';
@@ -42,6 +32,8 @@ import CreateTaskModal from '../components/CreateTaskModal';
 import BigTaskMembersModal from '../components/BigTaskMembersModal';
 import BigTaskProgress from '../components/BigTaskProgress';
 import BigTaskDetailsModal from '../components/BigTaskDetailsModal';
+import ModernFilterMenu from '../components/ModernFilterMenu';
+import ModernSelectMenu from '../components/ModernSelectMenu';
 import {
     filterTextFieldSx,
     filterSelectBoxSx,
@@ -76,7 +68,6 @@ export default function TaskBoard() {
     const {search} = useLocation();
     const navigate = useNavigate();
     const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down('md'));
     const epicId = new URLSearchParams(search).get('epicId');
     const [openEpicModal, setOpenEpicModal] = useState(false);
 
@@ -86,7 +77,6 @@ export default function TaskBoard() {
     const [epic, setEpic] = useState(null);
 
     // Mobile-specific states
-    const [selectedStatusTab, setSelectedStatusTab] = useState(0);
     const [filtersOpen, setFiltersOpen] = useState(false);
 
     const [tasks, setTasks] = useState([]);
@@ -97,6 +87,8 @@ export default function TaskBoard() {
     const [priorityFilter, setPriorityFilter] = useState('');
     const [dueFilter, setDueFilter] = useState('');
     const [dueAnchor, setDueAnchor] = useState(null);
+    const [statusAnchor, setStatusAnchor] = useState(null);
+    const [priorityAnchor, setPriorityAnchor] = useState(null);
     const [monthYear, setMonthYear] = useState('');
     const [selectedTask, setSelectedTask] = useState(null);
     const [openTaskModal, setOpenTaskModal] = useState(false);
@@ -165,6 +157,9 @@ export default function TaskBoard() {
         setPriorityFilter('');
         setDueFilter('');
         setMonthYear('');
+        setDueAnchor(null);
+        setStatusAnchor(null);
+        setPriorityAnchor(null);
     };
 
     const filteredTasks = useMemo(() => {
@@ -228,6 +223,27 @@ export default function TaskBoard() {
         return {overdue: 'Overdue', today: 'Due Today', week: 'Next 7 Days', none: 'No Due Date'}[dueFilter];
     })();
 
+    // Status and Priority options for modern menus
+    const statusOptions = [
+        { value: '', label: 'All Statuses' },
+        { value: 'To Do', label: 'To Do' },
+        { value: 'In Progress', label: 'In Progress' },
+        { value: 'Review', label: 'Review' },
+        { value: 'Done', label: 'Done' },
+    ];
+
+    const priorityOptions = [
+        { value: '', label: 'All Priorities' },
+        { value: 'Highest', label: 'Highest' },
+        { value: 'High', label: 'High' },
+        { value: 'Medium', label: 'Medium' },
+        { value: 'Low', label: 'Low' },
+        { value: 'Lowest', label: 'Lowest' },
+    ];
+
+    const statusLabel = statusOptions.find(opt => opt.value === statusFilter)?.label || 'Status';
+    const priorityLabel = priorityOptions.find(opt => opt.value === priorityFilter)?.label || 'Priority';
+
     if (!authorized) return null;
 
     return (
@@ -235,20 +251,22 @@ export default function TaskBoard() {
             ref={boxRef}
             id="main-box"
             sx={{
-                width: '100%',
-                maxWidth: { xs: '100%', md: 'calc(100vw - 240px)', xl: '1600px' },
-                height: '87vh', // ← exactly like BigTasksPage
-                mx: 'auto',
-                mt: { xs: 1, md: 0 },
-                boxSizing: 'border-box',
-                backdropFilter: 'blur(18px)',
-                background: theme => theme.palette.background.default,
-                border: '1px solid rgba(255,255,255,0.08)',
-                boxShadow: '0 12px 40px rgba(0,0,0,0.4)',
                 display: 'flex',
                 flexDirection: 'column',
+                p: { xs: 1.5, sm: 2, md: 3, lg: 4 }, // Optimized padding
+                mt: { xs: 0.5, sm: 1, md: 2 }, // Reduced top margin
+                mx: { xs: 0.5, sm: 1, md: "auto" }, // Smaller side margins on mobile
+                minHeight: { xs: "calc(100vh - 100px)", md: "90vh" }, // More height usage
+                width: { xs: "calc(100vw - 8px)", sm: "calc(100vw - 16px)", md: "100%" }, // Use more viewport width
+                maxWidth: { xs: "100%", md: "calc(100vw - 240px)", xl: "1800px" }, // Increased max width
+                backdropFilter: "blur(18px)",
+                background: theme => theme.palette.background.default,
+                border: "1px solid rgba(255,255,255,0.08)",
+                borderRadius: { xs: 1, md: 2 }, // MISSING - Smaller border radius on mobile
+                boxShadow: "0 12px 40px rgba(0,0,0,0.4)",
+                color: "#fff",
                 overflow: 'hidden',
-                p: { xs: 3, sm: 2, md: 3 },
+                boxSizing: 'border-box',
             }}
         >
 
@@ -359,17 +377,19 @@ export default function TaskBoard() {
       0 0 8px rgba(108,99,255,0.2)
     `,
                             width: '100%',
-                            justifyContent: 'space-between',
+                            justifyContent: 'center', // Center the filters on desktop
                         }}
                     >
 
-                        {/* Desktop filters */}
+                        {/* Desktop filters - centered and compact */}
                         <Box
                             sx={{
                                 display: { xs: 'none', md: 'flex' },
-                                gap: 1.5,
+                                gap: 1, // Reduced gap to make filters closer
                                 alignItems: 'center',
+                                justifyContent: 'center',
                                 flex: 1,
+                                maxWidth: '1000px', // Limit max width for better centering
                             }}
                         >
                             {/* Search */}
@@ -386,140 +406,65 @@ export default function TaskBoard() {
                                         </InputAdornment>
                                     ),
                                 }}
-                                sx={filterTextFieldSx}
+                                sx={{
+                                    ...filterTextFieldSx,
+                                    width: 200, // Fixed width for consistency
+                                }}
                             />
 
                             {/* Status */}
-                            <FormControl size="small" sx={filterSelectBoxSx}>
-                                <Select
-                                    value={statusFilter}
-                                    onChange={e => setStatusFilter(e.target.value)}
-                                    displayEmpty
-                                    variant="outlined"
-                                    renderValue={selected =>
-                                        selected ? selected : <em>Status</em>
-                                    }
-                                    sx={filterSelectSx}
-                                    inputProps={{ 'aria-label': 'Status' }}
-                                >
-                                    <MenuItem value="">
-                                        <em>All</em>
-                                    </MenuItem>
-                                    <MenuItem value="To Do">To Do</MenuItem>
-                                    <MenuItem value="In Progress">In Progress</MenuItem>
-                                    <MenuItem value="Review">Review</MenuItem>
-                                    <MenuItem value="Done">Done</MenuItem>
-                                </Select>
-                            </FormControl>
+                            <Button
+                                onClick={e => setStatusAnchor(e.currentTarget)}
+                                variant="outlined"
+                                sx={dueButtonSx}
+                            >
+                                {statusLabel}
+                            </Button>
 
                             {/* Priority */}
-                            <FormControl size="small" sx={filterSelectBoxSx}>
-                                <Select
-                                    value={priorityFilter}
-                                    onChange={e => setPriorityFilter(e.target.value)}
-                                    displayEmpty
-                                    variant="outlined"
-                                    renderValue={selected =>
-                                        selected ? selected : <em>Priority</em>
-                                    }
-                                    sx={filterSelectSx}
-                                    inputProps={{ 'aria-label': 'Priority' }}
-                                >
-                                    <MenuItem value="">
-                                        <em>All</em>
-                                    </MenuItem>
-                                    <MenuItem value="Highest">Highest</MenuItem>
-                                    <MenuItem value="High">High</MenuItem>
-                                    <MenuItem value="Medium">Medium</MenuItem>
-                                    <MenuItem value="Low">Low</MenuItem>
-                                    <MenuItem value="Lowest">Lowest</MenuItem>
-                                </Select>
-                            </FormControl>
+                            <Button
+                                onClick={e => setPriorityAnchor(e.currentTarget)}
+                                variant="outlined"
+                                sx={dueButtonSx}
+                            >
+                                {priorityLabel}
+                            </Button>
 
                             {/* Assignee */}
                             <TextField
                                 size="small"
                                 variant="outlined"
-                                placeholder="Assignee by"
+                                placeholder="Assignee"
                                 value={assigneeFilter}
                                 onChange={(e) => setAssigneeFilter(e.target.value)}
-                                sx={{...filterTextFieldSx, width: 150}}
+                                sx={{
+                                    ...filterTextFieldSx,
+                                    width: 130, // Fixed width for consistency
+                                }}
                             />
 
-                            <Box>
-                                <Button
-                                    onClick={openDueMenu}
-                                    variant="outlined"
-                                    startIcon={<CalendarIcon size={16}/>}
-                                    sx={dueButtonSx}
-                                >
-                                    {dueLabel}
-                                </Button>
-
-                                <Menu
-                                    anchorEl={dueAnchor}
-                                    open={Boolean(dueAnchor)}
-                                    onClose={closeDueMenu}
-                                    PaperProps={{
-                                        sx: dueMenuPaperSx,
-                                    }}
-                                >
-                                    {['', 'overdue', 'today', 'week', 'none'].map(val => (
-                                        <MenuItem
-                                            key={val}
-                                            selected={dueFilter === val}
-                                            onClick={() => {
-                                                setDueFilter(val);
-                                                closeDueMenu();
-                                            }}
-                                            sx={dueMenuItemSx}
-                                        >
-                                            {{
-                                                '': 'All',
-                                                overdue: 'Overdue',
-                                                today: 'Due Today',
-                                                week: 'Next 7 Days',
-                                                none: 'No Due Date',
-                                            }[val]}
-                                        </MenuItem>
-                                    ))}
-
-                                    <Divider sx={dueDividerSx}/>
-
-                                    <Box sx={dueInputBoxSx}>
-                                        <Typography variant="subtitle2" sx={dueTypographySx}>
-                                            By Month & Year
-                                        </Typography>
-
-                                        <TextField
-                                            type="month"
-                                            value={monthYear}
-                                            onChange={e => setMonthYear(e.target.value)}
-                                            size="small"
-                                            variant="standard"
-                                            inputProps={{style: {padding: '10px 12px'}}}
-                                            InputProps={{
-                                                disableUnderline: true,
-                                                sx: dueTextFieldSx,
-                                            }}
-                                            fullWidth
-                                        />
-
-                                        <Button
-                                            onClick={applyMonthYear}
-                                            disabled={!monthYear}
-                                            fullWidth
-                                            sx={dueApplyButtonSx}
-                                        >
-                                            Apply
-                                        </Button>
-                                    </Box>
-                                </Menu>
-                            </Box>
+                            {/* Due Date */}
+                            <Button
+                                onClick={openDueMenu}
+                                variant="outlined"
+                                startIcon={<CalendarIcon size={16}/>}
+                                sx={{
+                                    ...dueButtonSx,
+                                    minWidth: 110, // Fixed width for consistency
+                                }}
+                            >
+                                {dueLabel}
+                            </Button>
                         </Box>
 
                         {/* Right actions */}
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Box sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 1,
+                            position: { xs: 'static', md: 'absolute' },
+                            right: { xs: 'auto', md: 16 }, // Position absolute on desktop
+                        }}>
                             <Button
                                 variant="outlined"
                                 startIcon={<SlidersHorizontal size={16} />}
@@ -569,6 +514,36 @@ export default function TaskBoard() {
                             </Button>
                         </Box>
                     </Box>
+
+                    {/* Modern Due Date Menu - Moved outside filter bar */}
+                    <ModernFilterMenu
+                        open={Boolean(dueAnchor)}
+                        anchorEl={dueAnchor}
+                        onClose={closeDueMenu}
+                        value={dueFilter}
+                        onChange={setDueFilter}
+                        monthYear={monthYear}
+                        setMonthYear={setMonthYear}
+                        onApplyMonthYear={applyMonthYear}
+                    />
+                    <ModernSelectMenu
+                        open={Boolean(statusAnchor)}
+                        anchorEl={statusAnchor}
+                        onClose={() => setStatusAnchor(null)}
+                        value={statusFilter}
+                        onChange={setStatusFilter}
+                        options={statusOptions}
+                        title="Filter by Status"
+                    />
+                    <ModernSelectMenu
+                        open={Boolean(priorityAnchor)}
+                        anchorEl={priorityAnchor}
+                        onClose={() => setPriorityAnchor(null)}
+                        value={priorityFilter}
+                        onChange={setPriorityFilter}
+                        options={priorityOptions}
+                        title="Filter by Priority"
+                    />
 
                     {/* Board */}
                     <Box
@@ -638,8 +613,110 @@ export default function TaskBoard() {
                             onUpdated={(updatedEpic) => setEpic(updatedEpic)}
                         />
                     )}
+
+                    {/* 📱 Mobile Filter Drawer */}
+                    <Drawer
+                        anchor="bottom"
+                        open={filtersOpen}
+                        onClose={() => setFiltersOpen(false)}
+                        PaperProps={{
+                            sx: {
+                                borderTopLeftRadius: 12,
+                                borderTopRightRadius: 12,
+                                background: theme => theme.palette.background.default,
+                                p: 3,
+                            },
+                        }}
+                    >
+                        <Typography variant="h6" fontWeight={600} textAlign="center" mb={2}>
+                            Filters
+                        </Typography>
+                        <Box sx={{display: 'flex', flexDirection: 'column', gap: 2}}>
+                            {/* Search */}
+                            <TextField
+                                size="small"
+                                placeholder="Search tasks..."
+                                value={searchTerm}
+                                onChange={e => setSearchTerm(e.target.value)}
+                                InputProps={{
+                                    startAdornment: (
+                                        <InputAdornment position="start">
+                                            <SearchIcon size={18} style={{color: '#bbb'}}/>
+                                        </InputAdornment>
+                                    ),
+                                }}
+                                sx={{
+                                    ...filterTextFieldSx,
+                                    width: '100%', // Full width for consistency
+                                }}
+                                fullWidth
+                            />
+
+                            {/* Priority */}
+                            <FormControl size="small" sx={{
+                                ...filterSelectBoxSx,
+                                width: '100%', // Full width for consistency
+                            }}>
+                                <Select
+                                    value={priorityFilter}
+                                    onChange={e => setPriorityFilter(e.target.value)}
+                                    displayEmpty
+                                    sx={{
+                                        ...filterSelectSx,
+                                        width: '100%', // Full width for consistency
+                                    }}
+                                    fullWidth
+                                >
+                                    <MenuItem value="">All Priority</MenuItem>
+                                    <MenuItem value="Highest">Highest</MenuItem>
+                                    <MenuItem value="High">High</MenuItem>
+                                    <MenuItem value="Medium">Medium</MenuItem>
+                                    <MenuItem value="Low">Low</MenuItem>
+                                    <MenuItem value="Lowest">Lowest</MenuItem>
+                                </Select>
+                            </FormControl>
+
+                            {/* Assignee */}
+                            <TextField
+                                size="small"
+                                placeholder="Filter by assignee..."
+                                value={assigneeFilter}
+                                onChange={e => setAssigneeFilter(e.target.value)}
+                                sx={{
+                                    ...filterTextFieldSx,
+                                    width: '100%', // Full width for consistency
+                                }}
+                                fullWidth
+                            />
+
+                            {/* Due Date */}
+                            <Button
+                                onClick={openDueMenu}
+                                variant="outlined"
+                                startIcon={<CalendarIcon size={16}/>}
+                                sx={{
+                                    ...dueButtonSx,
+                                    width: '100%', // Full width for consistency
+                                    justifyContent: 'flex-start', // Align content to left
+                                }}
+                                fullWidth
+                            >
+                                {dueLabel}
+                            </Button>
+
+                            <Button
+                                fullWidth
+                                variant="contained"
+                                sx={{mt: 2, background: '#6C63FF'}}
+                                onClick={() => setFiltersOpen(false)}
+                            >
+                                Apply Filters
+                            </Button>
+                        </Box>
+                    </Drawer>
                 </>
             )}
         </Box>
     );
 }
+

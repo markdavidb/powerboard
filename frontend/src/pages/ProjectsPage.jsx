@@ -126,16 +126,16 @@ export default function ProjectsPage() {
             sx={{
                 display: "flex",
                 flexDirection: "column",
-                p: {xs: 2, sm: 3, md: 4, lg: 6},
-                mt: {xs: 1, sm: 2, md: 3},
-                mx: {xs: 1, sm: 2, md: "auto"},
-                minHeight: {xs: "calc(100vh - 120px)", md: "88vh"},
-                width: {xs: "calc(100% - 16px)", sm: "calc(100% - 32px)", md: "100%"},
-                maxWidth: {xs: "100%", md: "calc(100vw - 240px)", xl: "1600px"},
+                p: { xs: 1.5, sm: 2, md: 3, lg: 4 }, // Optimized padding
+                mt: { xs: 0.5, sm: 1, md: 2 }, // Reduced top margin
+                mx: { xs: 0.5, sm: 1, md: "auto" }, // Smaller side margins on mobile
+                minHeight: { xs: "calc(100vh - 100px)", md: "90vh" }, // More height usage
+                width: { xs: "calc(100vw - 8px)", sm: "calc(100vw - 16px)", md: "100%" }, // Use more viewport width
+                maxWidth: { xs: "100%", md: "calc(100vw - 240px)", xl: "1800px" }, // Increased max width
                 backdropFilter: "blur(18px)",
                 background: (t) => t.palette.background.default,
                 border: "1px solid rgba(255,255,255,0.08)",
-                borderRadius: {xs: 2, md: 3},
+                borderRadius: { xs: 1, md: 2 }, // Smaller border radius on mobile
                 boxShadow: "0 12px 40px rgba(0,0,0,0.4)",
                 color: "#fff",
             }}

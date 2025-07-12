@@ -41,7 +41,24 @@ export default function AdminProjectsPage() {
     }
 
     return (
-        <Box sx={{ p: 3, maxWidth: 1300, mx: 'auto' }}>
+        <Box
+            sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                p: { xs: 1.5, sm: 2, md: 3, lg: 4 }, // Optimized padding
+                mt: { xs: 0.5, sm: 1, md: 2 }, // Reduced top margin
+                mx: { xs: 0.5, sm: 1, md: 'auto' }, // Smaller side margins on mobile
+                minHeight: { xs: 'calc(100vh - 100px)', md: '90vh' }, // More height usage
+                width: { xs: 'calc(100vw - 8px)', sm: 'calc(100vw - 16px)', md: '100%' }, // Use more viewport width
+                maxWidth: { xs: '100%', md: 'calc(100vw - 240px)', xl: '1800px' }, // Increased max width
+                backdropFilter: 'blur(18px)',
+                background: (theme) => theme.palette.background.default,
+                border: '1px solid rgba(255,255,255,0.08)',
+                borderRadius: { xs: 1, md: 2 }, // Smaller border radius on mobile
+                boxShadow: '0 12px 40px rgba(0,0,0,0.4)',
+                color: '#fff',
+            }}
+        >
             <Typography
                 variant="h4"
                 sx={{ fontWeight: 700, mb: 3, color: '#e4e5ed', letterSpacing: 0.5 }}

@@ -14,6 +14,8 @@ import CreateBigTaskModal from '../components/CreateBigTaskModal';
 import BigTaskDetailsModal from '../components/BigTaskDetailsModal';
 import BigTaskProgress from '../components/BigTaskProgress';
 import BigTaskCard from '../components/BigTaskCard';
+import ModernFilterMenu from '../components/ModernFilterMenu';
+import ModernSelectMenu from '../components/ModernSelectMenu';
 
 import {
     filterTextFieldSx, filterSelectBoxSx, filterSelectSx, dueButtonSx
@@ -39,8 +41,35 @@ export default function BigTasksPage() {
     const [sortBy, setSortBy] = useState('created_desc');
 
     const [dueAnchor, setDueAnchor] = useState(null);
+    const [sortAnchor, setSortAnchor] = useState(null);
+    const [statusAnchor, setStatusAnchor] = useState(null);
+    const [priorityAnchor, setPriorityAnchor] = useState(null);
+
     const [monthYear, setMonthYear] = useState('');
     const [drawerOpen, setDrawerOpen] = useState(false);
+
+    const sortOptions = [
+        { value: 'created_desc', label: 'Newest Created' },
+        { value: 'created_asc', label: 'Oldest Created' },
+        { value: 'due_asc', label: 'Soonest Due' },
+        { value: 'due_desc', label: 'Latest Due' },
+    ];
+
+    const statusOptions = [
+        { value: '', label: 'All Statuses' },
+        { value: 'To Do', label: 'To Do' },
+        { value: 'In Progress', label: 'In Progress' },
+        { value: 'Done', label: 'Done' },
+    ];
+
+    const priorityOptions = [
+        { value: '', label: 'All Priorities' },
+        { value: 'Highest', label: 'Highest' },
+        { value: 'High', label: 'High' },
+        { value: 'Medium', label: 'Medium' },
+        { value: 'Low', label: 'Low' },
+        { value: 'Lowest', label: 'Lowest' },
+    ];
 
     useEffect(() => {
         const t = setTimeout(() => setSearchTerm(rawSearch), 50);
@@ -129,6 +158,10 @@ export default function BigTasksPage() {
         return {overdue: 'Overdue', today: 'Due Today', week: 'Next 7 Days', none: 'No Due Date'}[dueFilter];
     })();
 
+    const sortLabel = sortOptions.find(opt => opt.value === sortBy)?.label || 'Sort By';
+    const statusLabel = statusOptions.find(opt => opt.value === statusFilter)?.label || 'Status';
+    const priorityLabel = priorityOptions.find(opt => opt.value === priorityFilter)?.label || 'Priority';
+
     const clearFilters = () => {
         setRawSearch('');
         setSearchTerm('');
@@ -137,6 +170,19 @@ export default function BigTasksPage() {
         setDueFilter('');
         setMonthYear('');
         setDueAnchor(null);
+        setSortAnchor(null);
+        setStatusAnchor(null);
+        setPriorityAnchor(null);
+    };
+
+    const closeDueMenu = () => {
+        setDueAnchor(null);
+        setMonthYear('');
+    };
+
+    const applyMonthYear = () => {
+        if (monthYear) setDueFilter(monthYear);
+        closeDueMenu();
     };
 
     if (loading) {
@@ -159,16 +205,16 @@ export default function BigTasksPage() {
             ref={containerRef}
             sx={{
                 display: 'flex', flexDirection: 'column',
-                p: {xs: 2, sm: 3, md: 4, lg: 6},
-                mt: {xs: 1, sm: 2, md: 3},
-                mx: {xs: 1, sm: 2, md: 'auto'},
-                minHeight: {xs: 'calc(100vh - 120px)', md: '88vh'},
-                width: {xs: 'calc(100% - 16px)', sm: 'calc(100% - 32px)', md: '100%'},
-                maxWidth: {xs: '100%', md: 'calc(100vw - 240px)', xl: '1600px'},
+                p: { xs: 1.5, sm: 2, md: 3, lg: 4 }, // Optimized padding
+                mt: { xs: 0.5, sm: 1, md: 2 }, // Reduced top margin
+                mx: { xs: 0.5, sm: 1, md: 'auto' }, // Smaller side margins on mobile
+                minHeight: { xs: 'calc(100vh - 100px)', md: '90vh' }, // More height usage
+                width: { xs: 'calc(100vw - 8px)', sm: 'calc(100vw - 16px)', md: '100%' }, // Use more viewport width
+                maxWidth: { xs: '100%', md: 'calc(100vw - 240px)', xl: '1800px' }, // Increased max width
                 backdropFilter: 'blur(18px)',
                 background: t => t.palette.background.default,
                 border: '1px solid rgba(255,255,255,0.08)',
-                borderRadius: {xs: 2, md: 3},
+                borderRadius: { xs: 1, md: 2 }, // Smaller border radius on mobile
                 boxShadow: '0 12px 40px rgba(0,0,0,0.4)',
                 color: '#fff',
             }}
@@ -186,7 +232,7 @@ export default function BigTasksPage() {
                 <Box sx={{flex: 1, minWidth: 0, mr: 1}}> {/* add right margin */}
                     <Typography
                         variant={{xs: 'subtitle1', sm: 'h5', md: 'h4'}}
-                        fontWeight={{xs: 600, sm: 700}}
+                        fontWeight={{xs: 500, sm: 800}}
                         sx={{
                             fontSize: {xs: '16px', sm: '20px', md: '24px'},
                             lineHeight: {xs: 1.3, sm: 1.4}, // slightly more space
@@ -216,6 +262,7 @@ export default function BigTasksPage() {
                     flexShrink: 0,
                     alignSelf: 'flex-start', // keep progress at top
                     position: 'relative',
+                    mt: -1,
                     zIndex: 1 // ensure it stays above other elements
                 }}>
                     <BigTaskProgress completed={doneCount} total={bigTasks.length}/>
@@ -256,35 +303,27 @@ export default function BigTasksPage() {
                         }}
                         sx={filterTextFieldSx}
                     />
-                    <FormControl size="small" sx={filterSelectBoxSx}>
-                        <Select value={sortBy} onChange={e => setSortBy(e.target.value)} displayEmpty
-                                sx={filterSelectSx}>
-                            <MenuItem value="created_desc">Newest Created</MenuItem>
-                            <MenuItem value="created_asc">Oldest Created</MenuItem>
-                            <MenuItem value="due_asc">Soonest Due</MenuItem>
-                            <MenuItem value="due_desc">Latest Due</MenuItem>
-                        </Select>
-                    </FormControl>
-                    <FormControl size="small" sx={filterSelectBoxSx}>
-                        <Select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} displayEmpty
-                                sx={filterSelectSx}>
-                            <MenuItem value="">All</MenuItem>
-                            <MenuItem value="To Do">To Do</MenuItem>
-                            <MenuItem value="In Progress">In Progress</MenuItem>
-                            <MenuItem value="Done">Done</MenuItem>
-                        </Select>
-                    </FormControl>
-                    <FormControl size="small" sx={filterSelectBoxSx}>
-                        <Select value={priorityFilter} onChange={e => setPriorityFilter(e.target.value)} displayEmpty
-                                sx={filterSelectSx}>
-                            <MenuItem value="">All</MenuItem>
-                            <MenuItem value="Highest">Highest</MenuItem>
-                            <MenuItem value="High">High</MenuItem>
-                            <MenuItem value="Medium">Medium</MenuItem>
-                            <MenuItem value="Low">Low</MenuItem>
-                            <MenuItem value="Lowest">Lowest</MenuItem>
-                        </Select>
-                    </FormControl>
+                    <Button
+                        onClick={e => setSortAnchor(e.currentTarget)}
+                        variant="outlined"
+                        sx={dueButtonSx}
+                    >
+                        {sortLabel}
+                    </Button>
+                    <Button
+                        onClick={e => setStatusAnchor(e.currentTarget)}
+                        variant="outlined"
+                        sx={dueButtonSx}
+                    >
+                        {statusLabel}
+                    </Button>
+                    <Button
+                        onClick={e => setPriorityAnchor(e.currentTarget)}
+                        variant="outlined"
+                        sx={dueButtonSx}
+                    >
+                        {priorityLabel}
+                    </Button>
                     <Button
                         onClick={e => setDueAnchor(e.currentTarget)}
                         variant="outlined"
@@ -364,6 +403,45 @@ export default function BigTasksPage() {
                     </Button>
                 </Box>
             </Box>
+
+            {/* Modern Due Date Filter Menu - Moved outside filter container */}
+            <ModernFilterMenu
+                open={Boolean(dueAnchor)}
+                anchorEl={dueAnchor}
+                onClose={closeDueMenu}
+                value={dueFilter}
+                onChange={setDueFilter}
+                monthYear={monthYear}
+                setMonthYear={setMonthYear}
+                onApplyMonthYear={applyMonthYear}
+            />
+            <ModernSelectMenu
+                open={Boolean(sortAnchor)}
+                anchorEl={sortAnchor}
+                onClose={() => setSortAnchor(null)}
+                value={sortBy}
+                onChange={setSortBy}
+                options={sortOptions}
+                title="Sort by"
+            />
+            <ModernSelectMenu
+                open={Boolean(statusAnchor)}
+                anchorEl={statusAnchor}
+                onClose={() => setStatusAnchor(null)}
+                value={statusFilter}
+                onChange={setStatusFilter}
+                options={statusOptions}
+                title="Filter by Status"
+            />
+            <ModernSelectMenu
+                open={Boolean(priorityAnchor)}
+                anchorEl={priorityAnchor}
+                onClose={() => setPriorityAnchor(null)}
+                value={priorityFilter}
+                onChange={setPriorityFilter}
+                options={priorityOptions}
+                title="Filter by Priority"
+            />
 
             {/* epic grid */}
             <Box

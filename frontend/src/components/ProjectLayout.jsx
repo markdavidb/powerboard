@@ -16,11 +16,11 @@ export default function ProjectLayout() {
                     flexGrow: 1,
                     width: '100%',            /* always span 100 % */
                     maxWidth: {
-                        xs: '100%',             /* ⬅️ no capping on xs / sm */
+                        xs: '100%',             /* no capping on xs / sm */
                         md: 'calc(100vw - 240px)', /* leave room for the sidebar ≥ md */
-                        xl: '1600px',           /* optional hard ceiling like Dashboard */
+                        xl: '1800px',           /* ← Updated to match page maxWidth */
                     },
-                    p: {xs: 1, sm: 2, md: 1},
+                    p: 0, // ← Remove padding since pages handle their own padding
                     mx: 'auto',
                     display: 'flex',
                     flexDirection: 'column',
