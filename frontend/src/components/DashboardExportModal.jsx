@@ -13,9 +13,10 @@ import {
     MenuItem,
     CircularProgress,
 } from '@mui/material';
-import {X as CloseIcon} from 'lucide-react';
+import {X as CloseIcon, ChevronDown} from 'lucide-react';
 import {useSnackbar} from 'notistack';
 import {API} from '../api/axios';
+import ModernSelectMenu from './ModernSelectMenu';
 
 const paperSx = {
     bgcolor: 'rgba(30,32,40,0.94)',
@@ -36,6 +37,11 @@ export default function DashboardExportModal({open, onClose}) {
     const [projects, setProjects] = useState([]);
     const [selectedProject, setSelectedProject] = useState('');
     const [exporting, setExporting] = useState(false);
+
+    // Modern menu anchors
+    const [exportTypeAnchor, setExportTypeAnchor] = useState(null);
+    const [projectAnchor, setProjectAnchor] = useState(null);
+    const [fileFormatAnchor, setFileFormatAnchor] = useState(null);
 
     useEffect(() => {
         if (exportType === 'summary') {
@@ -87,6 +93,28 @@ export default function DashboardExportModal({open, onClose}) {
         }
     };
 
+    // Options for modern menus
+    const exportTypeOptions = [
+        { value: 'dashboard', label: 'Dashboard (total)' },
+        { value: 'dashboard_by_project', label: 'Dashboard by Project' },
+        { value: 'summary', label: 'Project Summary' },
+    ];
+
+    const projectOptions = projects.map(proj => ({
+        value: proj.id,
+        label: proj.title,
+    }));
+
+    const fileFormatOptions = [
+        { value: 'csv', label: 'CSV' },
+        { value: 'xlsx', label: 'Excel' },
+        { value: 'json', label: 'JSON' },
+    ];
+
+    const exportTypeLabel = exportTypeOptions.find(opt => opt.value === exportType)?.label || 'Select Export Type';
+    const projectLabel = projectOptions.find(opt => opt.value === selectedProject)?.label || 'Select Project';
+    const fileFormatLabel = fileFormatOptions.find(opt => opt.value === fileFormat)?.label || 'Select Format';
+
     return (
         <Modal open={open} onClose={onClose} closeAfterTransition>
             <Fade in={open}>
@@ -115,70 +143,118 @@ export default function DashboardExportModal({open, onClose}) {
                     <Divider sx={{mb: 1, borderColor: 'rgba(120,120,140,0.10)'}}/>
                     {/* Content */}
                     <Box sx={{px: 3, pb: 1}}>
-                        <FormControl fullWidth margin="dense" sx={{mb: 2}}>
-                            <InputLabel sx={{color: '#aaa'}}>Export Type</InputLabel>
-                            <Select
-                                value={exportType}
-                                onChange={e => setExportType(e.target.value)}
-                                label="Export Type"
-                                size="small"
-                                sx={{
-                                    color: '#fff',
-                                    '.MuiOutlinedInput-notchedOutline': {borderColor: 'rgba(255,255,255,0.13)'},
-                                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: '#9494ff'},
-                                }}
+                        {/* Export Type - Modern Button */}
+                        <Box sx={{ mb: 2 }}>
+                            <Typography variant="body2" sx={{ color: '#aaa', mb: 1, fontSize: '0.875rem' }}>
+                                Export Type
+                            </Typography>
+                            <Button
+                                onClick={e => setExportTypeAnchor(e.currentTarget)}
+                                variant="outlined"
+                                endIcon={<ChevronDown size={16} />}
                                 disabled={exporting}
+                                fullWidth
+                                sx={{
+                                    justifyContent: 'space-between',
+                                    color: '#fff',
+                                    borderColor: 'rgba(255,255,255,0.13)',
+                                    textTransform: 'none',
+                                    py: 1.5,
+                                    '&:hover': {
+                                        borderColor: '#9494ff',
+                                        backgroundColor: 'rgba(255,255,255,0.05)',
+                                    },
+                                }}
                             >
-                                <MenuItem value="dashboard">Dashboard (total)</MenuItem>
-                                <MenuItem value="dashboard_by_project">Dashboard by Project</MenuItem>
-                                <MenuItem value="summary">Project Summary</MenuItem>
-                            </Select>
-                        </FormControl>
+                                {exportTypeLabel}
+                            </Button>
+                        </Box>
 
+                        {/* Project - Modern Button (conditional) */}
                         {exportType === 'summary' && (
-                            <FormControl fullWidth margin="dense" sx={{mb: 2}}>
-                                <InputLabel sx={{color: '#aaa'}}>Project</InputLabel>
-                                <Select
-                                    value={selectedProject}
-                                    onChange={e => setSelectedProject(e.target.value)}
-                                    label="Project"
-                                    size="small"
-                                    sx={{
-                                        color: '#fff',
-                                        '.MuiOutlinedInput-notchedOutline': {borderColor: 'rgba(255,255,255,0.13)'},
-                                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: '#9494ff'},
-                                    }}
+                            <Box sx={{ mb: 2 }}>
+                                <Typography variant="body2" sx={{ color: '#aaa', mb: 1, fontSize: '0.875rem' }}>
+                                    Project
+                                </Typography>
+                                <Button
+                                    onClick={e => setProjectAnchor(e.currentTarget)}
+                                    variant="outlined"
+                                    endIcon={<ChevronDown size={16} />}
                                     disabled={exporting}
+                                    fullWidth
+                                    sx={{
+                                        justifyContent: 'space-between',
+                                        color: '#fff',
+                                        borderColor: 'rgba(255,255,255,0.13)',
+                                        textTransform: 'none',
+                                        py: 1.5,
+                                        '&:hover': {
+                                            borderColor: '#9494ff',
+                                            backgroundColor: 'rgba(255,255,255,0.05)',
+                                        },
+                                    }}
                                 >
-                                    {projects.map(proj => (
-                                        <MenuItem key={proj.id} value={proj.id}>
-                                            {proj.title}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
+                                    {projectLabel}
+                                </Button>
+                            </Box>
                         )}
 
-                        <FormControl fullWidth margin="dense">
-                            <InputLabel sx={{color: '#aaa'}}>File Format</InputLabel>
-                            <Select
-                                value={fileFormat}
-                                onChange={e => setFileFormat(e.target.value)}
-                                label="File Format"
-                                size="small"
-                                sx={{
-                                    color: '#fff',
-                                    '.MuiOutlinedInput-notchedOutline': {borderColor: 'rgba(255,255,255,0.13)'},
-                                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: '#9494ff'},
-                                }}
+                        {/* File Format - Modern Button */}
+                        <Box>
+                            <Typography variant="body2" sx={{ color: '#aaa', mb: 1, fontSize: '0.875rem' }}>
+                                File Format
+                            </Typography>
+                            <Button
+                                onClick={e => setFileFormatAnchor(e.currentTarget)}
+                                variant="outlined"
+                                endIcon={<ChevronDown size={16} />}
                                 disabled={exporting}
+                                fullWidth
+                                sx={{
+                                    justifyContent: 'space-between',
+                                    color: '#fff',
+                                    borderColor: 'rgba(255,255,255,0.13)',
+                                    textTransform: 'none',
+                                    py: 1.5,
+                                    '&:hover': {
+                                        borderColor: '#9494ff',
+                                        backgroundColor: 'rgba(255,255,255,0.05)',
+                                    },
+                                }}
                             >
-                                <MenuItem value="csv">CSV</MenuItem>
-                                <MenuItem value="xlsx">Excel</MenuItem>
-                                <MenuItem value="json">JSON</MenuItem>
-                            </Select>
-                        </FormControl>
+                                {fileFormatLabel}
+                            </Button>
+                        </Box>
                     </Box>
+
+                    {/* Modern Select Menus */}
+                    <ModernSelectMenu
+                        open={Boolean(exportTypeAnchor)}
+                        anchorEl={exportTypeAnchor}
+                        onClose={() => setExportTypeAnchor(null)}
+                        value={exportType}
+                        onChange={setExportType}
+                        options={exportTypeOptions}
+                        title="Select Export Type"
+                    />
+                    <ModernSelectMenu
+                        open={Boolean(projectAnchor)}
+                        anchorEl={projectAnchor}
+                        onClose={() => setProjectAnchor(null)}
+                        value={selectedProject}
+                        onChange={setSelectedProject}
+                        options={projectOptions}
+                        title="Select Project"
+                    />
+                    <ModernSelectMenu
+                        open={Boolean(fileFormatAnchor)}
+                        anchorEl={fileFormatAnchor}
+                        onClose={() => setFileFormatAnchor(null)}
+                        value={fileFormat}
+                        onChange={setFileFormat}
+                        options={fileFormatOptions}
+                        title="Select File Format"
+                    />
                     {/* Actions */}
                     <Divider sx={{mt: 3, borderColor: 'rgba(120,120,140,0.10)'}}/>
                     <Box sx={{display: 'flex', justifyContent: 'flex-end', gap: 1, px: 3, py: 2}}>

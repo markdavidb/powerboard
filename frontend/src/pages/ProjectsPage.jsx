@@ -7,13 +7,14 @@ import {
 } from "@mui/material";
 import {
     Plus, SlidersHorizontal, Calendar as CalendarIcon,
-    Search as SearchIcon
+    Search as SearchIcon, ChevronDown
 } from "lucide-react";
 import {useNavigate} from "react-router-dom";
 import {useSnackbar} from "notistack";
 import {API} from "../api/axios";
 import CreateProjectModal from "../components/CreateProjectModal";
 import ProjectCard from "../components/ProjectCard";
+import ModernSelectMenu from "../components/ModernSelectMenu";
 
 const filterStyle = {
     backgroundColor: "rgba(255,255,255,0.05)",
@@ -40,6 +41,11 @@ export default function ProjectsPage() {
     const [filterStatus, setFilterStatus] = useState("");
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [modalOpen, setModalOpen] = useState(false);
+
+    // Modern menu anchors
+    const [monthAnchor, setMonthAnchor] = useState(null);
+    const [yearAnchor, setYearAnchor] = useState(null);
+    const [statusAnchor, setStatusAnchor] = useState(null);
 
     const navigate = useNavigate();
     const {enqueueSnackbar} = useSnackbar();
@@ -90,6 +96,27 @@ export default function ProjectsPage() {
     const yearOptions = Array.from({length: 11}, (_, i) => currentYear - 5 + i);
     const statusOptions = useMemo(() =>
         Array.from(new Set(projects.map(p => p.status))).filter(Boolean), [projects]);
+
+    // Modern menu options
+    const modernMonthOptions = [
+        { value: '', label: 'All Months' },
+        ...monthOptions
+    ];
+
+    const modernYearOptions = [
+        { value: '', label: 'All Years' },
+        ...yearOptions.map(y => ({ value: String(y), label: String(y) }))
+    ];
+
+    const modernStatusOptions = [
+        { value: '', label: 'All Statuses' },
+        ...statusOptions.map(s => ({ value: s, label: s }))
+    ];
+
+    // Labels for modern menu buttons
+    const monthLabel = modernMonthOptions.find(opt => opt.value === filterMonth)?.label || 'Month';
+    const yearLabel = modernYearOptions.find(opt => opt.value === filterYear)?.label || 'Year';
+    const statusLabel = modernStatusOptions.find(opt => opt.value === filterStatus)?.label || 'Status';
 
     const filtered = useMemo(() => {
         return projects
@@ -193,27 +220,66 @@ export default function ProjectsPage() {
                                     ),
                                 }}
                             />
-                            <TextField select label="Month" size="small" value={filterMonth}
-                                       onChange={(e) => setFilterMonth(e.target.value)} sx={filterStyle}>
-                                <MenuItem value="">All</MenuItem>
-                                {monthOptions.map((m) => (
-                                    <MenuItem key={m.value} value={m.value}>{m.label}</MenuItem>
-                                ))}
-                            </TextField>
-                            <TextField select label="Year" size="small" value={filterYear}
-                                       onChange={(e) => setFilterYear(e.target.value)} sx={filterStyle}>
-                                <MenuItem value="">All</MenuItem>
-                                {yearOptions.map((y) => (
-                                    <MenuItem key={y} value={String(y)}>{y}</MenuItem>
-                                ))}
-                            </TextField>
-                            <TextField select label="Status" size="small" value={filterStatus}
-                                       onChange={(e) => setFilterStatus(e.target.value)} sx={filterStyle}>
-                                <MenuItem value="">All</MenuItem>
-                                {statusOptions.map((s) => (
-                                    <MenuItem key={s} value={s}>{s}</MenuItem>
-                                ))}
-                            </TextField>
+
+                            {/* Month - Modern Button */}
+                            <Button
+                                onClick={e => setMonthAnchor(e.currentTarget)}
+                                variant="outlined"
+                                endIcon={<ChevronDown size={16} />}
+                                sx={{
+                                    justifyContent: 'space-between',
+                                    color: '#fff',
+                                    borderColor: 'rgba(255,255,255,0.13)',
+                                    textTransform: 'none',
+                                    backgroundColor: "rgba(255,255,255,0.05)",
+                                    '&:hover': {
+                                        borderColor: '#9494ff',
+                                        backgroundColor: 'rgba(255,255,255,0.08)',
+                                    },
+                                }}
+                            >
+                                {monthLabel}
+                            </Button>
+
+                            {/* Year - Modern Button */}
+                            <Button
+                                onClick={e => setYearAnchor(e.currentTarget)}
+                                variant="outlined"
+                                endIcon={<ChevronDown size={16} />}
+                                sx={{
+                                    justifyContent: 'space-between',
+                                    color: '#fff',
+                                    borderColor: 'rgba(255,255,255,0.13)',
+                                    textTransform: 'none',
+                                    backgroundColor: "rgba(255,255,255,0.05)",
+                                    '&:hover': {
+                                        borderColor: '#9494ff',
+                                        backgroundColor: 'rgba(255,255,255,0.08)',
+                                    },
+                                }}
+                            >
+                                {yearLabel}
+                            </Button>
+
+                            {/* Status - Modern Button */}
+                            <Button
+                                onClick={e => setStatusAnchor(e.currentTarget)}
+                                variant="outlined"
+                                endIcon={<ChevronDown size={16} />}
+                                sx={{
+                                    justifyContent: 'space-between',
+                                    color: '#fff',
+                                    borderColor: 'rgba(255,255,255,0.13)',
+                                    textTransform: 'none',
+                                    backgroundColor: "rgba(255,255,255,0.05)",
+                                    '&:hover': {
+                                        borderColor: '#9494ff',
+                                        backgroundColor: 'rgba(255,255,255,0.08)',
+                                    },
+                                }}
+                            >
+                                {statusLabel}
+                            </Button>
                         </Box>
 
                         {/* Right actions */}
@@ -263,6 +329,34 @@ export default function ProjectsPage() {
                         </Box>
                     </Box>
 
+                    {/* Modern Select Menus */}
+                    <ModernSelectMenu
+                        open={Boolean(monthAnchor)}
+                        anchorEl={monthAnchor}
+                        onClose={() => setMonthAnchor(null)}
+                        value={filterMonth}
+                        onChange={setFilterMonth}
+                        options={modernMonthOptions}
+                        title="Filter by Month"
+                    />
+                    <ModernSelectMenu
+                        open={Boolean(yearAnchor)}
+                        anchorEl={yearAnchor}
+                        onClose={() => setYearAnchor(null)}
+                        value={filterYear}
+                        onChange={setFilterYear}
+                        options={modernYearOptions}
+                        title="Filter by Year"
+                    />
+                    <ModernSelectMenu
+                        open={Boolean(statusAnchor)}
+                        anchorEl={statusAnchor}
+                        onClose={() => setStatusAnchor(null)}
+                        value={filterStatus}
+                        onChange={setFilterStatus}
+                        options={modernStatusOptions}
+                        title="Filter by Status"
+                    />
 
                     {/* ─────────────── Cards grid ─────────────── */}
                     <Box sx={{flex: 1, overflowY: "auto", pr: 1}}>
@@ -323,27 +417,73 @@ export default function ProjectsPage() {
                                     ),
                                 }}
                             />
-                            <TextField select label="Month" size="small" value={filterMonth}
-                                       onChange={(e) => setFilterMonth(e.target.value)} sx={filterStyle}>
-                                <MenuItem value="">All</MenuItem>
-                                {monthOptions.map((m) => (
-                                    <MenuItem key={m.value} value={m.value}>{m.label}</MenuItem>
-                                ))}
-                            </TextField>
-                            <TextField select label="Year" size="small" value={filterYear}
-                                       onChange={(e) => setFilterYear(e.target.value)} sx={filterStyle}>
-                                <MenuItem value="">All</MenuItem>
-                                {yearOptions.map((y) => (
-                                    <MenuItem key={y} value={String(y)}>{y}</MenuItem>
-                                ))}
-                            </TextField>
-                            <TextField select label="Status" size="small" value={filterStatus}
-                                       onChange={(e) => setFilterStatus(e.target.value)} sx={filterStyle}>
-                                <MenuItem value="">All</MenuItem>
-                                {statusOptions.map((s) => (
-                                    <MenuItem key={s} value={s}>{s}</MenuItem>
-                                ))}
-                            </TextField>
+
+                            {/* Month - Modern Button */}
+                            <Button
+                                onClick={e => setMonthAnchor(e.currentTarget)}
+                                variant="outlined"
+                                endIcon={<ChevronDown size={16} />}
+                                fullWidth
+                                sx={{
+                                    justifyContent: 'space-between',
+                                    color: '#fff',
+                                    borderColor: 'rgba(255,255,255,0.13)',
+                                    textTransform: 'none',
+                                    backgroundColor: "rgba(255,255,255,0.05)",
+                                    py: 1.5,
+                                    '&:hover': {
+                                        borderColor: '#9494ff',
+                                        backgroundColor: 'rgba(255,255,255,0.08)',
+                                    },
+                                }}
+                            >
+                                {monthLabel}
+                            </Button>
+
+                            {/* Year - Modern Button */}
+                            <Button
+                                onClick={e => setYearAnchor(e.currentTarget)}
+                                variant="outlined"
+                                endIcon={<ChevronDown size={16} />}
+                                fullWidth
+                                sx={{
+                                    justifyContent: 'space-between',
+                                    color: '#fff',
+                                    borderColor: 'rgba(255,255,255,0.13)',
+                                    textTransform: 'none',
+                                    backgroundColor: "rgba(255,255,255,0.05)",
+                                    py: 1.5,
+                                    '&:hover': {
+                                        borderColor: '#9494ff',
+                                        backgroundColor: 'rgba(255,255,255,0.08)',
+                                    },
+                                }}
+                            >
+                                {yearLabel}
+                            </Button>
+
+                            {/* Status - Modern Button */}
+                            <Button
+                                onClick={e => setStatusAnchor(e.currentTarget)}
+                                variant="outlined"
+                                endIcon={<ChevronDown size={16} />}
+                                fullWidth
+                                sx={{
+                                    justifyContent: 'space-between',
+                                    color: '#fff',
+                                    borderColor: 'rgba(255,255,255,0.13)',
+                                    textTransform: 'none',
+                                    backgroundColor: "rgba(255,255,255,0.05)",
+                                    py: 1.5,
+                                    '&:hover': {
+                                        borderColor: '#9494ff',
+                                        backgroundColor: 'rgba(255,255,255,0.08)',
+                                    },
+                                }}
+                            >
+                                {statusLabel}
+                            </Button>
+
                             <Button
                                 fullWidth
                                 variant="contained"

@@ -7,14 +7,11 @@ import {
     IconButton,
     Divider,
     Button,
-    FormControl,
-    InputLabel,
-    Select,
-    MenuItem,
     CircularProgress,
 } from '@mui/material';
-import {X as CloseIcon} from 'lucide-react';
+import {X as CloseIcon, ChevronDown} from 'lucide-react';
 import {useSnackbar} from 'notistack';
+import ModernSelectMenu from './ModernSelectMenu';
 
 const paperSx = {
     bgcolor: 'rgba(30,32,40,0.94)',
@@ -33,6 +30,9 @@ export default function ProjectSummaryExportModal({open, onClose, projectId}) {
     const {enqueueSnackbar} = useSnackbar();
     const [fileFormat, setFileFormat] = useState('csv');
     const [exporting, setExporting] = useState(false);
+
+    // Modern menu anchor
+    const [fileFormatAnchor, setFileFormatAnchor] = useState(null);
 
     const handleExport = async () => {
         if (exporting) return;
@@ -69,6 +69,15 @@ export default function ProjectSummaryExportModal({open, onClose, projectId}) {
         }
     };
 
+    // Options for modern menu
+    const fileFormatOptions = [
+        { value: 'csv', label: 'CSV' },
+        { value: 'xlsx', label: 'Excel' },
+        { value: 'json', label: 'JSON' },
+    ];
+
+    const fileFormatLabel = fileFormatOptions.find(opt => opt.value === fileFormat)?.label || 'Select Format';
+
     return (
         <Modal open={open} onClose={onClose} closeAfterTransition>
             <Fade in={open}>
@@ -97,26 +106,45 @@ export default function ProjectSummaryExportModal({open, onClose, projectId}) {
                     <Divider sx={{mb: 1, borderColor: 'rgba(120,120,140,0.10)'}}/>
                     {/* Content */}
                     <Box sx={{px: 3, pb: 1}}>
-                        <FormControl fullWidth margin="dense">
-                            <InputLabel sx={{color: '#aaa'}}>File Format</InputLabel>
-                            <Select
-                                value={fileFormat}
-                                onChange={e => setFileFormat(e.target.value)}
-                                label="File Format"
-                                size="small"
-                                sx={{
-                                    color: '#fff',
-                                    '.MuiOutlinedInput-notchedOutline': {borderColor: 'rgba(255,255,255,0.13)'},
-                                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: '#9494ff'},
-                                }}
+                        {/* File Format - Modern Button */}
+                        <Box>
+                            <Typography variant="body2" sx={{ color: '#aaa', mb: 1, fontSize: '0.875rem' }}>
+                                File Format
+                            </Typography>
+                            <Button
+                                onClick={e => setFileFormatAnchor(e.currentTarget)}
+                                variant="outlined"
+                                endIcon={<ChevronDown size={16} />}
                                 disabled={exporting}
+                                fullWidth
+                                sx={{
+                                    justifyContent: 'space-between',
+                                    color: '#fff',
+                                    borderColor: 'rgba(255,255,255,0.13)',
+                                    textTransform: 'none',
+                                    py: 1.5,
+                                    '&:hover': {
+                                        borderColor: '#9494ff',
+                                        backgroundColor: 'rgba(255,255,255,0.05)',
+                                    },
+                                }}
                             >
-                                <MenuItem value="csv">CSV</MenuItem>
-                                <MenuItem value="xlsx">Excel</MenuItem>
-                                <MenuItem value="json">JSON</MenuItem>
-                            </Select>
-                        </FormControl>
+                                {fileFormatLabel}
+                            </Button>
+                        </Box>
                     </Box>
+
+                    {/* Modern Select Menu */}
+                    <ModernSelectMenu
+                        open={Boolean(fileFormatAnchor)}
+                        anchorEl={fileFormatAnchor}
+                        onClose={() => setFileFormatAnchor(null)}
+                        value={fileFormat}
+                        onChange={setFileFormat}
+                        options={fileFormatOptions}
+                        title="Select File Format"
+                    />
+
                     {/* Actions */}
                     <Divider sx={{mt: 3, borderColor: 'rgba(120,120,140,0.10)'}}/>
                     <Box sx={{display: 'flex', justifyContent: 'flex-end', gap: 1, px: 3, py: 2}}>
