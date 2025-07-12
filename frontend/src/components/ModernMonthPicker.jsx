@@ -96,8 +96,8 @@ const ModernMonthPicker = ({
                     <Paper
                         sx={{
                             minWidth: 280,
-                            maxWidth: { xs: 'calc(100vw - 32px)', sm: 320 },
-                            maxHeight: { xs: '60vh', sm: '70vh' },
+                            maxWidth: { xs: 'calc(100vw - 32px)', sm: 320 }, // Fixed maxWidth
+                            maxHeight: { xs: '50vh', sm: '60vh' }, // Reduced height
                             display: 'flex',
                             flexDirection: 'column',
                             borderRadius: 3,
