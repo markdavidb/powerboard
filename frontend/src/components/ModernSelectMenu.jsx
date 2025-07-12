@@ -61,7 +61,7 @@ const ModernSelectMenu = ({
                         sx={{
                             minWidth: 220,
                             maxWidth: { xs: 'calc(100vw - 32px)', sm: 280 },
-                            maxHeight: { xs: '40vh', sm: '60vh' }, // Much shorter on mobile
+                            maxHeight: { xs: '50vh', sm: '70vh' }, // Increased heights
                             display: 'flex',
                             flexDirection: 'column',
                             borderRadius: 3,
@@ -129,6 +129,10 @@ const ModernSelectMenu = ({
                                     flex: 1,
                                     overflowY: 'auto',
                                     overflowX: 'hidden',
+                                    // Fix mobile scrolling
+                                    WebkitOverflowScrolling: 'touch', // iOS smooth scrolling
+                                    scrollBehavior: 'smooth',
+                                    // Custom scrollbar styles
                                     '&::-webkit-scrollbar': {
                                         width: '6px',
                                     },
@@ -143,6 +147,8 @@ const ModernSelectMenu = ({
                                             background: 'rgba(255, 255, 255, 0.3)',
                                         },
                                     },
+                                    // Ensure minimum height for scrolling
+                                    minHeight: 0,
                                 }}>
                                     {/* Options */}
                                     <Box sx={{ p: 1 }}>

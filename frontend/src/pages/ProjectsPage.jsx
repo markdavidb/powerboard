@@ -15,6 +15,8 @@ import {API} from "../api/axios";
 import CreateProjectModal from "../components/CreateProjectModal";
 import ProjectCard from "../components/ProjectCard";
 import ModernSelectMenu from "../components/ModernSelectMenu";
+import ModernYearPicker from "../components/ModernYearPicker";
+import ModernMonthPicker from "../components/ModernMonthPicker";
 
 const filterStyle = {
     backgroundColor: "rgba(255,255,255,0.05)",
@@ -93,7 +95,12 @@ export default function ProjectsPage() {
         "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     const monthOptions = monthNames.map((l, i) => ({value: String(i + 1), label: l}));
     const currentYear = new Date().getFullYear();
-    const yearOptions = Array.from({length: 11}, (_, i) => currentYear - 5 + i);
+
+    // Generate a much wider year range: from 50 years ago to 100 years in the future
+    const startYear = currentYear - 50;
+    const endYear = currentYear + 100;
+    const yearOptions = Array.from({length: endYear - startYear + 1}, (_, i) => startYear + i);
+
     const statusOptions = useMemo(() =>
         Array.from(new Set(projects.map(p => p.status))).filter(Boolean), [projects]);
 
@@ -330,22 +337,20 @@ export default function ProjectsPage() {
                     </Box>
 
                     {/* Modern Select Menus */}
-                    <ModernSelectMenu
+                    <ModernMonthPicker
                         open={Boolean(monthAnchor)}
                         anchorEl={monthAnchor}
                         onClose={() => setMonthAnchor(null)}
                         value={filterMonth}
                         onChange={setFilterMonth}
-                        options={modernMonthOptions}
                         title="Filter by Month"
                     />
-                    <ModernSelectMenu
+                    <ModernYearPicker
                         open={Boolean(yearAnchor)}
                         anchorEl={yearAnchor}
                         onClose={() => setYearAnchor(null)}
                         value={filterYear}
                         onChange={setFilterYear}
-                        options={modernYearOptions}
                         title="Filter by Year"
                     />
                     <ModernSelectMenu

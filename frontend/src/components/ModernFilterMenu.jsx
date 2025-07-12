@@ -114,7 +114,7 @@ const ModernFilterMenu = ({
                         sx={{
                             minWidth: 280,
                             maxWidth: { xs: 'calc(100vw - 32px)', sm: 320 },
-                            maxHeight: { xs: '50vh', sm: '70vh' }, // Much shorter on mobile
+                            maxHeight: { xs: '60vh', sm: '80vh' }, // Increased heights
                             display: 'flex',
                             flexDirection: 'column',
                             borderRadius: 3,
@@ -181,6 +181,10 @@ const ModernFilterMenu = ({
                                     flex: 1,
                                     overflowY: 'auto',
                                     overflowX: 'hidden',
+                                    // Fix mobile scrolling
+                                    WebkitOverflowScrolling: 'touch', // iOS smooth scrolling
+                                    scrollBehavior: 'smooth',
+                                    // Custom scrollbar styles
                                     '&::-webkit-scrollbar': {
                                         width: '6px',
                                     },
@@ -195,6 +199,8 @@ const ModernFilterMenu = ({
                                             background: 'rgba(255, 255, 255, 0.3)',
                                         },
                                     },
+                                    // Ensure minimum height for scrolling
+                                    minHeight: 0,
                                 }}>
                                     {/* Quick Options */}
                                     <Box sx={{ p: 1 }}>
