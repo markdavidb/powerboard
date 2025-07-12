@@ -2,12 +2,7 @@
 
 > A modern, real-time project and task management platform — built for teams who value clarity, collaboration, and a beautiful user experience.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)  
-[![React](https://img.shields.io/badge/React-18-blue.svg)](https://reactjs.org/)  
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.104-green.svg)](https://fastapi.tiangolo.com/)  
-[![Python](https://img.shields.io/badge/Python-3.12-blue.svg)](https://www.python.org/)  
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue.svg)](https://www.postgresql.org/)  
-[![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![React](https://img.shields.io/badge/React-18-blue.svg)](https://reactjs.org/) [![FastAPI](https://img.shields.io/badge/FastAPI-0.104-green.svg)](https://fastapi.tiangolo.com/) [![Python](https://img.shields.io/badge/Python-3.12-blue.svg)](https://www.python.org/) [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue.svg)](https://www.postgresql.org/) [![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
 
 **Live Demo:** https://powerboard.up.railway.app
 
