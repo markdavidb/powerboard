@@ -9,7 +9,7 @@ export default function BigTaskProgress({ completed, total }) {
     const percentage = total > 0 ? (completed / total) * 100 : 0;
 
     // Responsive sizing - bigger for PC
-    const radius = isMobile ? 30 : 55; // increased PC size from 32 to 40
+    const radius = isMobile ? 40 : 55; // increased PC size from 32 to 40
     const strokeWidth = isMobile ? 3 : 6; // slightly thicker stroke for PC
     const fontSize = isMobile ? '10px' : '14px'; // larger text for PC
 
