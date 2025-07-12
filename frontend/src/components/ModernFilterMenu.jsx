@@ -90,13 +90,19 @@ const ModernFilterMenu = ({
             sx={{ zIndex: 1300 }}
             modifiers={[
                 {
+                    name: 'flip',
+                    enabled: true,
+                    options: {
+                        fallbackPlacements: ['top-start', 'bottom-end', 'top-end'],
+                        boundary: 'viewport',
+                        padding: 8,
+                    },
+                },
+                {
                     name: 'preventOverflow',
                     enabled: true,
                     options: {
-                        altAxis: true,
-                        altBoundary: true,
-                        tether: false,
-                        rootBoundary: 'viewport',
+                        boundary: 'viewport',
                         padding: 8,
                     },
                 },
@@ -108,7 +114,7 @@ const ModernFilterMenu = ({
                         sx={{
                             minWidth: 280,
                             maxWidth: { xs: 'calc(100vw - 32px)', sm: 320 },
-                            maxHeight: { xs: 'calc(100vh - 120px)', sm: '80vh' }, // Limit height
+                            maxHeight: { xs: '50vh', sm: '70vh' }, // Much shorter on mobile
                             display: 'flex',
                             flexDirection: 'column',
                             borderRadius: 3,

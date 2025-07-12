@@ -37,13 +37,19 @@ const ModernSelectMenu = ({
             sx={{ zIndex: 1300 }}
             modifiers={[
                 {
+                    name: 'flip',
+                    enabled: true,
+                    options: {
+                        fallbackPlacements: ['top-start', 'bottom-end', 'top-end'],
+                        boundary: 'viewport',
+                        padding: 8,
+                    },
+                },
+                {
                     name: 'preventOverflow',
                     enabled: true,
                     options: {
-                        altAxis: true,
-                        altBoundary: true,
-                        tether: false,
-                        rootBoundary: 'viewport',
+                        boundary: 'viewport',
                         padding: 8,
                     },
                 },
@@ -55,7 +61,7 @@ const ModernSelectMenu = ({
                         sx={{
                             minWidth: 220,
                             maxWidth: { xs: 'calc(100vw - 32px)', sm: 280 },
-                            maxHeight: { xs: 'calc(100vh - 120px)', sm: '70vh' }, // Limit height
+                            maxHeight: { xs: '40vh', sm: '60vh' }, // Much shorter on mobile
                             display: 'flex',
                             flexDirection: 'column',
                             borderRadius: 3,
