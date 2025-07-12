@@ -295,7 +295,7 @@ export default function Header({ onMenuClick, sidebarOpen }) {
             top      : 64,
             left     : !isMobileView && sidebarOpen ? `${drawerWidth}px` : 0,
             right    : 0,
-            zIndex   : 1299,
+            zIndex   : theme.zIndex.appBar,
             background: 'rgba(24,25,38,0.9)',
             backdropFilter: 'blur(20px)',
             borderBottom: '1px solid rgba(255,255,255,0.1)',

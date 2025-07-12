@@ -22,20 +22,17 @@ def list_notifications(
     If `unread_only=True`, return only the unread ones,
     and immediately mark them as read in the database.
     """
-    # Step 1: fetch
     query = db.query(Notification).filter(Notification.user_id == current_user.id)
     if unread_only:
         query = query.filter(Notification.read.is_(False))
 
     notes = query.order_by(Notification.created_at.desc()).all()
 
-    # Step 2: if we're returning only unread, flip them to 'read' now
     if unread_only and notes:
         for note in notes:
             note.read = True
         db.commit()
 
-    # Step 3: serialize
     return [
         {
             "id":         n.id,
@@ -62,9 +59,40 @@ def mark_read(
         .first()
     )
     if not note:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail="Notification not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Notification not found"
+        )
 
     note.read = True
     db.commit()
     return {"detail": "marked as read"}
+
+
+@router.post("/read_all", response_model=dict)
+def mark_all_as_read(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """
+    Mark *all* unread notifications for the current user as read.
+    """
+    # fetch only unread
+    unread_notes = (
+        db.query(Notification)
+        .filter(Notification.user_id == current_user.id, Notification.read.is_(False))
+        .all()
+    )
+
+    # nothing to do
+    if not unread_notes:
+        return {"detail": "no unread notifications"}
+
+    # mark them
+    for note in unread_notes:
+        note.read = True
+    db.commit()
+
+    return {
+        "detail": f"marked {len(unread_notes)} notification(s) as read"
+    }
