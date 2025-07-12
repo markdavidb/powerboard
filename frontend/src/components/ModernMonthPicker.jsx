@@ -68,7 +68,7 @@ const ModernMonthPicker = ({
         <Popper
             open={open}
             anchorEl={anchorEl}
-            placement="bottom-start"
+            placement="top-start" // Changed from bottom-start to top-start for mobile
             transition
             sx={{ zIndex: 1300 }}
             modifiers={[
@@ -76,7 +76,7 @@ const ModernMonthPicker = ({
                     name: 'flip',
                     enabled: true,
                     options: {
-                        fallbackPlacements: ['top-start', 'bottom-end', 'top-end'],
+                        fallbackPlacements: ['bottom-start', 'top-end', 'bottom-end'], // Prefer top, fallback to bottom
                         boundary: 'viewport',
                         padding: 8,
                     },
