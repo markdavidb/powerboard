@@ -80,6 +80,8 @@ export default function CreateTaskModal({
     const [priority, setPriority] = useState('Medium');
     const [issueType, setIssueType] = useState('Task');
     const [dueDate, setDueDate] = useState('');
+    const [assigneeId, setAssigneeId] = useState('');
+    const [projectMembers, setProjectMembers] = useState([]);
     const [myId, setMyId] = useState(null);
     const [submitting, setSubmitting] = useState(false);
     const submittingRef = useRef(false);
@@ -90,6 +92,19 @@ export default function CreateTaskModal({
             .catch(() => enqueueSnackbar('Failed to fetch your user ID', {variant: 'error'}));
     }, [enqueueSnackbar]);
 
+    useEffect(() => {
+        if (open && projectId) {
+            API.project.get(`/projects/members/${projectId}/members`)
+                .then(res => {
+                    setProjectMembers(res.data);
+                })
+                .catch(err => {
+                    console.error("Failed to fetch project members", err);
+                    enqueueSnackbar('Could not load project members', {variant: 'error'});
+                });
+        }
+    }, [open, projectId, enqueueSnackbar]);
+
     const reset = () => {
         setTitle('');
         setDesc('');
@@ -97,6 +112,8 @@ export default function CreateTaskModal({
         setPriority('Medium');
         setIssueType('Task');
         setDueDate('');
+        setAssigneeId('');
+        setProjectMembers([]);
     };
 
     const handleSubmit = async e => {
@@ -119,7 +136,7 @@ export default function CreateTaskModal({
             due_date: dueDate ? new Date(dueDate).toISOString() : null,
             project_id: Number(projectId),
             big_task_id: bigTaskId ? Number(bigTaskId) : null,
-            assignee_id: myId,
+            assignee_id: assigneeId || myId,
         };
 
         try {
@@ -134,6 +151,11 @@ export default function CreateTaskModal({
             submittingRef.current = false;
             setSubmitting(false);
         }
+    };
+
+    const handleClose = () => {
+        reset();
+        onClose();
     };
 
     return (
@@ -224,6 +246,27 @@ export default function CreateTaskModal({
                                 {['Task', 'Bug', 'New Feature', 'Improvement'].map(i => (
                                     <MenuItem key={i} value={i}>
                                         {i}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                    </Box>
+
+                    <Box sx={{mb: 2}}>
+                        <Typography variant="subtitle2" sx={labelSx}>
+                            Assignee
+                        </Typography>
+                        <FormControl fullWidth sx={inputSx} disabled={submitting}>
+                            <Select
+                                value={assigneeId}
+                                onChange={e => setAssigneeId(e.target.value)}
+                            >
+                                <MenuItem value="">
+                                    <em>Unassigned (Defaults to you)</em>
+                                </MenuItem>
+                                {projectMembers.map(member => (
+                                    <MenuItem key={member.user_id} value={member.user_id}>
+                                        {member.username}
                                     </MenuItem>
                                 ))}
                             </Select>

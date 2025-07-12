@@ -13,7 +13,7 @@ import {
     IconButton,
     Tooltip,
 } from '@mui/material';
-import {Users, Settings, Download} from 'lucide-react';
+import {Users, Settings, Download, TrendingUp} from 'lucide-react';
 
 import MetricsCard from '../components/MetricsCard';
 import ChartBar from '../components/charts/ChartBar';
@@ -22,6 +22,7 @@ import ChartArea from '../components/charts/ChartArea';
 import ProjectMembersModal from '../components/ProjectMembersModal';
 import ProjectSettingsModal from '../components/ProjectSettingsModal';
 import ProjectSummaryExportModal from '../components/ProjectSummaryExportModal';
+import RiskAnalysisModal from '../components/RiskAnalysisModal';
 
 const monthNames = [
     'January', 'February', 'March', 'April', 'May', 'June',
@@ -40,6 +41,7 @@ export default function ProjectSummary() {
     const [exportOpen, setExportOpen] = useState(false);
     const [membersOpen, setMembersOpen] = useState(false);
     const [settingsOpen, setSettingsOpen] = useState(false);
+    const [riskAnalysisOpen, setRiskAnalysisOpen] = useState(false);
 
     const [userRole, setUserRole] = useState(null);
 
@@ -205,6 +207,31 @@ export default function ProjectSummary() {
                             Settings
                         </Button>
                     )}
+
+                    <Button
+                        onClick={() => setRiskAnalysisOpen(true)}
+                        startIcon={<TrendingUp size={14}/>}
+                        sx={{
+                            background: 'linear-gradient(135deg, #ff6b6b, #ee5a24)',
+                            color: '#fff',
+                            borderRadius: 1.5,
+                            textTransform: 'none',
+                            fontWeight: 500,
+                            fontSize: '13px',
+                            px: 1.5,
+                            py: 0.75,
+                            mt: 2,
+                            minHeight: 35,
+                            '&:hover': {
+                                background: 'linear-gradient(135deg, #ff5252, #d63031)',
+                                transform: 'translateY(-1px)',
+                                boxShadow: '0 4px 12px rgba(255, 107, 107, 0.3)'
+                            },
+                            transition: 'all 0.2s ease-in-out'
+                        }}
+                    >
+                        AI Risk Analysis
+                    </Button>
                 </Box>
             </Box>
 
@@ -279,8 +306,12 @@ export default function ProjectSummary() {
                 onClose={() => setExportOpen(false)}
                 projectId={projectId}
             />
-
-
+            <RiskAnalysisModal
+                open={riskAnalysisOpen}
+                onClose={() => setRiskAnalysisOpen(false)}
+                projectId={projectId}
+                projectTitle={summary.project_title}
+            />
         </Box>
     );
 }
