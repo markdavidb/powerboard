@@ -271,6 +271,8 @@ const ModernYearPicker = ({
                                         overflowX: 'hidden',
                                         WebkitOverflowScrolling: 'touch',
                                         scrollBehavior: 'smooth',
+                                        // Enhanced mobile scrolling
+                                        touchAction: 'pan-y',
                                         '&::-webkit-scrollbar': {
                                             width: '6px',
                                         },

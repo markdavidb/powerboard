@@ -217,6 +217,8 @@ const ModernMonthPicker = ({
                                         overflowX: 'hidden',
                                         WebkitOverflowScrolling: 'touch',
                                         scrollBehavior: 'smooth',
+                                        // Enhanced mobile scrolling
+                                        touchAction: 'pan-y',
                                         '&::-webkit-scrollbar': {
                                             width: '6px',
                                         },
@@ -331,51 +333,6 @@ const ModernMonthPicker = ({
                                             );
                                         })}
                                     </Box>
-                                </Box>
-
-                                {/* Action Buttons - Always visible on mobile */}
-                                <Box sx={{ px: 2, py: 1, display: { xs: 'flex', sm: 'none' }, flexDirection: 'column', gap: 1, flexShrink: 0 }}>
-                                    <Button
-                                        fullWidth
-                                        size="small"
-                                        onClick={handleCurrentMonth}
-                                        sx={{
-                                            background: 'linear-gradient(135deg, #6C63FF, #9B78FF)',
-                                            color: '#fff',
-                                            textTransform: 'none',
-                                            fontWeight: 600,
-                                            borderRadius: 2,
-                                            py: 0.75,
-                                            fontSize: '13px',
-                                            boxShadow: '0 2px 8px rgba(108, 99, 255, 0.3)',
-                                            '&:hover': {
-                                                background: 'linear-gradient(135deg, #5A50E0, #8E6CF1)',
-                                                boxShadow: '0 4px 12px rgba(108, 99, 255, 0.4)',
-                                            },
-                                        }}
-                                    >
-                                        Current Month ({getCurrentMonthName()})
-                                    </Button>
-                                    <Button
-                                        fullWidth
-                                        size="small"
-                                        onClick={() => {
-                                            onChange('');
-                                            onClose();
-                                        }}
-                                        sx={{
-                                            color: '#9CA3AF',
-                                            textTransform: 'none',
-                                            fontSize: { xs: '14px', sm: '13px' },
-                                            py: { xs: 1, sm: 0.5 },
-                                            '&:hover': {
-                                                backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                                                color: '#fff'
-                                            },
-                                        }}
-                                    >
-                                        Clear Selection (All Months)
-                                    </Button>
                                 </Box>
                             </Box>
                         </ClickAwayListener>
