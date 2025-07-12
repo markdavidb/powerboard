@@ -83,7 +83,7 @@ export default function BigTaskDetailsModal({
         setAiLoading(true);
         setAiSuggestions([]);
         try {
-            const { data } = await API.ai.post('/ai/suggest_subtasks/', {
+            const { data } = await API.ai.post('/ai/suggest_subtasks', {
                 description,
                 n: 5,
             });
