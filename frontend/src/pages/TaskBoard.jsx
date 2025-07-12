@@ -259,70 +259,86 @@ export default function TaskBoard() {
             ) : (
                 <>
                     {/* Header */}
-                    <Box sx={{
-                        display: 'flex',
-                        flexDirection: { xs: 'column', sm: 'row' },
-                        alignItems: { xs: 'flex-start', sm: 'center' },
-                        justifyContent: 'space-between',
-                        mb: 3,
-                        gap: 2,
-                    }}>
-                        <Box sx={{display: 'flex', alignItems: 'center', gap: 2}}>
+                    <Box sx={{ mb: { xs: 2, sm: 3 } }}>
+                        {/* Title and Back Button */}
+                        <Box sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            mb: { xs: 2, sm: 3 },
+                            gap: 1,
+                        }}>
                             <Button
                                 onClick={() => navigate(`/projects/${projectId}/big_tasks`)}
                                 sx={{minWidth: 0, p: 1, color: '#f1f1f1'}}
                             >
-                                <ChevronLeft size={28}/>
+                                <ChevronLeft size={24}/>
                             </Button>
-                            <Box>
-                                <Typography variant="h4" sx={{fontWeight: 600, color: '#fff'}}>
+                            <Box sx={{ flex: 1, minWidth: 0 }}>
+                                <Typography
+                                    variant={{ xs: 'subtitle1', sm: 'h5', md: 'h4' }}
+                                    sx={{
+                                        fontWeight: { xs: 600, sm: 700 },
+                                        fontSize: { xs: '16px', sm: '20px', md: '24px' },
+                                        color: '#fff',
+                                        wordBreak: 'break-word',
+                                        overflowWrap: 'break-word'
+                                    }}
+                                >
                                     {epic ? epic.title : project?.title || 'Project Board'}
                                 </Typography>
-                                <Typography variant="body2" sx={{color: '#bbb'}}>
+                                <Typography
+                                    variant="body2"
+                                    sx={{
+                                        color: '#bbb',
+                                        fontSize: { xs: '10px', sm: '12px' },
+                                        mt: { xs: 0.5, sm: 0 }
+                                    }}
+                                >
                                     {tasks.length} tasks • {tasks.filter(t => t.status === 'Done').length} done
                                 </Typography>
                             </Box>
-                        </Box>
-
-                        {/* Right side - stacks vertically on mobile */}
-                        <Box sx={{
-                            display: 'flex',
-                            flexDirection: { xs: 'column', sm: 'row' },
-                            alignItems: { xs: 'flex-start', sm: 'center' },
-                            gap: 2,
-                            width: { xs: '100%', sm: 'auto' },
-                        }}>
-                            {/* Action buttons */}
-                            {epicId && (
-                                <Box sx={{
-                                    display: 'flex',
-                                    gap: 1.5,
-                                    flexWrap: 'wrap',
-                                }}>
-                                    <Button
-                                        startIcon={<Users size={18}/>}
-                                        onClick={() => setOpenMembersModal(true)}
-                                        sx={buttonSx}
-                                    >
-                                        Members
-                                    </Button>
-                                    <Button onClick={() => setOpenEpicModal(true)} sx={buttonSx}>
-                                        Epic Details
-                                    </Button>
-                                </Box>
-                            )}
-
-                            {/* Progress indicator */}
-                            <Box sx={{
-                                alignSelf: { xs: 'center', sm: 'auto' },
-                                mt: { xs: 1, sm: 0 },
-                            }}>
+                            <Box sx={{ alignSelf: 'flex-start' }}>
                                 <BigTaskProgress
                                     completed={tasks.filter(t => t.status === 'Done').length}
                                     total={tasks.length}
                                 />
                             </Box>
                         </Box>
+
+                        {/* Action Buttons Row */}
+                        {epicId && (
+                            <Box sx={{
+                                display: 'flex',
+                                gap: { xs: 1, sm: 1.5 },
+                                mb: { xs: 2, sm: 0 },
+                                justifyContent: 'flex-start',
+                                flexWrap: 'wrap'
+                            }}>
+                                <Button
+                                    startIcon={<Users size={14}/>}
+                                    onClick={() => setOpenMembersModal(true)}
+                                    sx={{
+                                        ...buttonSx,
+                                        fontSize: { xs: '12px', sm: '14px' },
+                                        px: { xs: 1.5, sm: 2 },
+                                        py: { xs: 0.75, sm: 1 }
+                                    }}
+                                >
+                                    Members
+                                </Button>
+                                <Button
+                                    onClick={() => setOpenEpicModal(true)}
+                                    sx={{
+                                        ...buttonSx,
+                                        fontSize: { xs: '12px', sm: '14px' },
+                                        px: { xs: 1.5, sm: 2 },
+                                        py: { xs: 0.75, sm: 1 }
+                                    }}
+                                >
+                                    Epic Details
+                                </Button>
+                            </Box>
+                        )}
                     </Box>
 
                     {/* Filter Bar */}
@@ -503,7 +519,7 @@ export default function TaskBoard() {
                         </Box>
 
                         {/* Right actions */}
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                             <Button
                                 variant="outlined"
                                 startIcon={<SlidersHorizontal size={16} />}
@@ -520,6 +536,36 @@ export default function TaskBoard() {
                             <Button onClick={clearFilters} variant="text"
                                     sx={{color: '#fff', textTransform: 'none', '&:hover': {color: '#6C63FF'}}}>
                                 Clear Filters
+                            </Button>
+                            {/* Create Task Button - moved here */}
+                            <Button
+                                variant="contained"
+                                startIcon={<Plus size={18} />}
+                                onClick={() => setOpenTaskModal(true)}
+                                sx={{
+                                    background: 'linear-gradient(135deg,#6C63FF,#9B78FF)',
+                                    color: '#fff',
+                                    textTransform: 'none',
+                                    fontWeight: 600,
+                                    px: { xs: 1.5, sm: 3 },
+                                    py: { xs: 1, sm: 1.25 },
+                                    borderRadius: 2,
+                                    boxShadow: '0 4px 12px rgba(108,99,255,0.4)',
+                                    minWidth: { xs: 44, sm: 'auto' },
+                                    '&:hover': {
+                                        background: 'linear-gradient(135deg,#5a50e0,#8e6cf1)',
+                                        boxShadow: '0 6px 16px rgba(108,99,255,0.5)',
+                                        transform: 'translateY(-1px)',
+                                    },
+                                    transition: 'all 0.2s ease-in-out',
+                                    '& .MuiButton-startIcon': {
+                                        margin: { xs: 0, sm: '0 8px 0 -4px' }
+                                    }
+                                }}
+                            >
+                                <Box sx={{ display: { xs: 'none', sm: 'inline' } }}>
+                                    Create Task
+                                </Box>
                             </Button>
                         </Box>
                     </Box>
@@ -556,33 +602,6 @@ export default function TaskBoard() {
                         <JiraTaskBoard tasks={filteredTasks} onTaskClick={setSelectedTask}/>
 
 
-                    </Box>
-                    {/* Add Task Button (inside main box, under the board) */}
-                    <Box
-                        sx={{
-                            position: 'absolute',
-                            bottom: 24,
-                            right: 24,
-                            zIndex: 10,
-                        }}
-                    >
-
-                        <Tooltip title="Create Task">
-                            <IconButton
-                                onClick={() => setOpenTaskModal(true)}
-                                sx={{
-                                    background: 'linear-gradient(135deg, #6C63FF, #9B78FF)',
-                                    color: '#fff',
-                                    p: 2,
-                                    boxShadow: '0 6px 18px rgba(108,99,255,0.5)',
-                                    '&:hover': {
-                                        background: 'linear-gradient(135deg, #5a50e0, #8e6cf1)',
-                                    },
-                                }}
-                            >
-                                <Plus/>
-                            </IconButton>
-                        </Tooltip>
                     </Box>
 
                     {/* Modals */}

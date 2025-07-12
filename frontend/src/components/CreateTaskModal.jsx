@@ -9,12 +9,12 @@ import { useSnackbar } from 'notistack';
 import { API } from '../api/axios';
 
 const modalSx = {
-    width: { xs: '100vw', sm: 700 },
-    maxWidth: 700,
+    width: { xs: '95vw', sm: 600, md: 700 },
+    maxWidth: { xs: '95vw', sm: 600, md: 700 },
     bgcolor: '#18181E',
     border: '1px solid #6C63FF',
     borderRadius: 2,
-    p: 3,
+    p: { xs: 2, sm: 3 },
     position: 'absolute',
     top: '50%',
     left: '50%',
@@ -23,8 +23,15 @@ const modalSx = {
     color: '#fff',
     display: 'flex',
     flexDirection: 'column',
-    maxHeight: '90vh',
+    maxHeight: { xs: '85vh', sm: '90vh' },
     overflowY: 'auto',
+    '&::-webkit-scrollbar': {
+        width: '6px',
+    },
+    '&::-webkit-scrollbar-thumb': {
+        backgroundColor: 'rgba(108,99,255,0.4)',
+        borderRadius: '3px',
+    },
 };
 
 const inputSx = {

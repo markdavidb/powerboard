@@ -29,10 +29,13 @@ export default function JiraTaskBoard({ tasks = [], onTaskClick }) {
                         sx={{
                             '& .MuiTab-root': {
                                 color: 'rgba(255, 255, 255, 0.7)',
-                                fontWeight: 500,
-                                fontSize: '0.9rem',
+                                fontWeight: 400,
+                                fontSize: '0.70rem', // Slightly larger than 0.6rem for better readability
+                                minHeight: 30, // Reduce tab height slightly
+                                py: 1,
                                 '&.Mui-selected': {
                                     color: '#6C63FF',
+                                    fontWeight: 400,
                                 },
                             },
                             '& .MuiTabs-indicator': {
@@ -135,14 +138,16 @@ export default function JiraTaskBoard({ tasks = [], onTaskClick }) {
                 >
                     {/* Header */}
                     <Typography
-                        variant="subtitle1"
+                        variant="subtitle2"
                         sx={{
                             color: theme.palette.text.primary,
                             fontWeight: 600,
+                            fontSize: { xs: '0.875rem', md: '0.9rem' }, // Smaller, more appropriate size
                             position: 'relative',
                             mb: 2,
                             textAlign: 'center',
                             width: '100%',
+                            letterSpacing: '0.02em',
                             '&::after': {
                                 content: '""',
                                 position: 'absolute',
@@ -150,8 +155,8 @@ export default function JiraTaskBoard({ tasks = [], onTaskClick }) {
                                 left: '50%',
                                 transform: 'translateX(-50%)',
                                 width: '60%',
-                                height: 3,
-                                borderRadius: 1.5,
+                                height: 2, // Slightly thinner line
+                                borderRadius: 1,
                                 background: 'linear-gradient(90deg, #6C63FF, #887CFF)',
                             }
                         }}

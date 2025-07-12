@@ -27,7 +27,6 @@ import DeleteConfirmModal from './DeleteConfirmModal';
 
 const STATUS_OPTIONS = ['In Progress', 'Done'];
 
-// Reusable purple-accented input style
 const inputSx = {
     bgcolor: 'rgba(255,255,255,0.05)',
     borderRadius: 1,
@@ -286,7 +285,6 @@ export default function ProjectSettingsModal({
                 </Fade>
             </Modal>
 
-            {/* Delete confirmation */}
             <DeleteConfirmModal
                 open={deleteOpen}
                 onClose={() => setDeleteOpen(false)}
