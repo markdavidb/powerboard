@@ -219,8 +219,13 @@ const ModernMonthPicker = ({
                                         scrollBehavior: 'smooth',
                                         // Enhanced mobile scrolling
                                         touchAction: 'pan-y',
+                                        // Additional mobile scroll fixes
+                                        transform: 'translateZ(0)', // Hardware acceleration
+                                        willChange: 'scroll-position',
+                                        // Ensure proper touch events
                                         '&::-webkit-scrollbar': {
                                             width: '6px',
+                                            display: { xs: 'none', sm: 'block' }, // Hide scrollbar on mobile
                                         },
                                         '&::-webkit-scrollbar-track': {
                                             background: 'rgba(255, 255, 255, 0.05)',
@@ -234,6 +239,8 @@ const ModernMonthPicker = ({
                                             },
                                         },
                                         minHeight: 0,
+                                        // Add proper height calculation for mobile
+                                        maxHeight: { xs: '35vh', sm: 'none' },
                                     }}
                                 >
                                     <Box
