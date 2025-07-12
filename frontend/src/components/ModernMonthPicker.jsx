@@ -8,6 +8,7 @@ import {
     IconButton,
     Popper,
     ClickAwayListener,
+    Divider,
     Button,
 } from '@mui/material';
 import { Check, X } from 'lucide-react';
@@ -39,6 +40,16 @@ const ModernMonthPicker = ({
         { value: '12', label: 'December', short: 'Dec' },
     ];
 
+    // Auto-scroll to selected month when menu opens
+    useEffect(() => {
+        if (open && scrollRef.current) {
+            const selectedElement = scrollRef.current.querySelector(`[data-month="${value || currentMonth}"]`);
+            if (selectedElement) {
+                selectedElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+    }, [open, value, currentMonth]);
+
     const handleMonthClick = (monthValue) => {
         onChange(monthValue);
         onClose();
@@ -50,7 +61,7 @@ const ModernMonthPicker = ({
     };
 
     const getCurrentMonthName = () => {
-        return months.find(m => m.value === String(currentMonth))?.short || 'Current';
+        return months.find(m => m.value === String(currentMonth))?.label || 'Current Month';
     };
 
     return (
@@ -86,7 +97,7 @@ const ModernMonthPicker = ({
                         sx={{
                             minWidth: 280,
                             maxWidth: { xs: 'calc(100vw - 32px)', sm: 320 },
-                            height: { xs: '35vh', sm: '45vh' }, // Fixed height, smaller than year picker
+                            maxHeight: { xs: '65vh', sm: '55vh' }, // Increased height to see all items
                             display: 'flex',
                             flexDirection: 'column',
                             borderRadius: 3,
@@ -104,11 +115,15 @@ const ModernMonthPicker = ({
                         }}
                     >
                         <ClickAwayListener onClickAway={onClose}>
-                            <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-                                {/* Compact Header */}
+                            <Box sx={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                height: '100%',
+                            }}>
+                                {/* Header - More compact on mobile */}
                                 <Box sx={{
                                     px: 2,
-                                    py: 1,
+                                    py: { xs: 1, sm: 1.5 }, // Smaller padding on mobile
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'space-between',
@@ -119,7 +134,8 @@ const ModernMonthPicker = ({
                                         sx={{
                                             color: '#fff',
                                             fontWeight: 600,
-                                            fontSize: '13px',
+                                            fontSize: { xs: '13px', sm: '14px' }, // Smaller font on mobile
+                                            letterSpacing: '0.025em'
                                         }}
                                     >
                                         {title || 'Select Month'}
@@ -129,21 +145,34 @@ const ModernMonthPicker = ({
                                         onClick={onClose}
                                         sx={{
                                             color: '#9CA3AF',
-                                            width: 20,
-                                            height: 20,
+                                            p: { xs: 0.5, sm: 1 }, // Smaller padding on mobile
                                             '&:hover': {
                                                 backgroundColor: 'rgba(255, 255, 255, 0.1)',
                                                 color: '#fff'
                                             }
                                         }}
                                     >
-                                        <X size={12} />
+                                        <X size={14} />
                                     </IconButton>
                                 </Box>
 
-                                {/* Compact Action Buttons */}
-                                <Box sx={{ px: 2, py: 0.5, display: 'flex', gap: 1, flexShrink: 0 }}>
+                                <Divider sx={{
+                                    borderColor: 'rgba(255, 255, 255, 0.08)',
+                                    mx: 1,
+                                    flexShrink: 0
+                                }} />
+
+                                {/* Action Buttons - More compact on mobile */}
+                                <Box sx={{
+                                    px: 2,
+                                    py: { xs: 0.5, sm: 1 }, // Smaller padding on mobile
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    gap: { xs: 0.5, sm: 1 }, // Smaller gap on mobile
+                                    flexShrink: 0
+                                }}>
                                     <Button
+                                        fullWidth
                                         size="small"
                                         onClick={handleCurrentMonth}
                                         sx={{
@@ -151,19 +180,20 @@ const ModernMonthPicker = ({
                                             color: '#fff',
                                             textTransform: 'none',
                                             fontWeight: 600,
-                                            borderRadius: 1.5,
-                                            py: 0.5,
-                                            px: 1.5,
-                                            fontSize: '11px',
-                                            minHeight: 28,
+                                            borderRadius: 2,
+                                            py: { xs: 0.5, sm: 0.75 }, // Smaller padding on mobile
+                                            fontSize: { xs: '12px', sm: '13px' }, // Smaller font on mobile
+                                            boxShadow: '0 2px 8px rgba(108, 99, 255, 0.3)',
                                             '&:hover': {
                                                 background: 'linear-gradient(135deg, #5A50E0, #8E6CF1)',
+                                                boxShadow: '0 4px 12px rgba(108, 99, 255, 0.4)',
                                             },
                                         }}
                                     >
-                                        Current ({getCurrentMonthName()})
+                                        Current Month ({getCurrentMonthName()})
                                     </Button>
                                     <Button
+                                        fullWidth
                                         size="small"
                                         onClick={() => {
                                             onChange('');
@@ -172,21 +202,25 @@ const ModernMonthPicker = ({
                                         sx={{
                                             color: '#9CA3AF',
                                             textTransform: 'none',
-                                            fontSize: '11px',
-                                            py: 0.5,
-                                            px: 1.5,
-                                            minHeight: 28,
+                                            fontSize: { xs: '12px', sm: '13px' }, // Smaller font on mobile
+                                            py: { xs: 0.25, sm: 0.5 }, // Smaller padding on mobile
                                             '&:hover': {
                                                 backgroundColor: 'rgba(255, 255, 255, 0.05)',
                                                 color: '#fff'
                                             },
                                         }}
                                     >
-                                        Clear
+                                        Clear Selection (All Months)
                                     </Button>
                                 </Box>
 
-                                {/* Scrollable Months Grid - More space */}
+                                <Divider sx={{
+                                    borderColor: 'rgba(255, 255, 255, 0.08)',
+                                    mx: 1,
+                                    flexShrink: 0
+                                }} />
+
+                                {/* Scrollable Months Grid - Bigger items, shorter modal */}
                                 <Box
                                     ref={scrollRef}
                                     sx={{
@@ -194,29 +228,41 @@ const ModernMonthPicker = ({
                                         overflowY: 'auto',
                                         overflowX: 'hidden',
                                         WebkitOverflowScrolling: 'touch',
+                                        scrollBehavior: 'smooth',
+                                        // Critical mobile scroll fixes
                                         touchAction: 'pan-y',
+                                        position: 'relative',
                                         transform: 'translateZ(0)',
+                                        willChange: 'scroll-position',
+                                        // Prevent momentum scrolling issues
                                         '&::-webkit-scrollbar': {
-                                            width: '4px',
+                                            width: '6px',
                                             display: { xs: 'none', sm: 'block' },
                                         },
                                         '&::-webkit-scrollbar-track': {
                                             background: 'rgba(255, 255, 255, 0.05)',
-                                            borderRadius: '2px',
+                                            borderRadius: '3px',
                                         },
                                         '&::-webkit-scrollbar-thumb': {
                                             background: 'rgba(255, 255, 255, 0.2)',
-                                            borderRadius: '2px',
+                                            borderRadius: '3px',
+                                            '&:hover': {
+                                                background: 'rgba(255, 255, 255, 0.3)',
+                                            },
                                         },
-                                        minHeight: 0,
+                                        // Shorter modal with proper scrolling
+                                        minHeight: { xs: '150px', sm: '200px' },
+                                        maxHeight: { xs: '50vh', sm: '40vh' }, // Much shorter modal
                                     }}
                                 >
                                     <Box
                                         sx={{
                                             display: 'grid',
                                             gridTemplateColumns: 'repeat(2, 1fr)',
-                                            gap: 0.5,
-                                            p: 1,
+                                            gap: { xs: 1, sm: 1.5 }, // Bigger gaps
+                                            p: { xs: 1.5, sm: 2 },
+                                            minHeight: 'fit-content',
+                                            pb: { xs: 1, sm: 2 }, // Better bottom padding
                                         }}
                                     >
                                         {months.map((month) => {
@@ -236,8 +282,8 @@ const ModernMonthPicker = ({
                                                         flexDirection: 'column',
                                                         alignItems: 'center',
                                                         justifyContent: 'center',
-                                                        minHeight: 40,
-                                                        borderRadius: 1.5,
+                                                        minHeight: { xs: 50, sm: 55 }, // Much smaller items
+                                                        borderRadius: 2, // Smaller border radius
                                                         cursor: 'pointer',
                                                         position: 'relative',
                                                         backgroundColor: isSelected
@@ -248,15 +294,19 @@ const ModernMonthPicker = ({
                                                                     ? 'rgba(255, 255, 255, 0.08)'
                                                                     : 'transparent',
                                                         border: isSelected
-                                                            ? '1px solid rgba(108, 99, 255, 0.5)'
+                                                            ? '2px solid rgba(108, 99, 255, 0.5)'
                                                             : isCurrentMonth
                                                                 ? '1px solid rgba(108, 99, 255, 0.3)'
                                                                 : '1px solid transparent',
                                                         transition: 'all 0.15s ease-out',
+                                                        transform: isHovered ? 'scale(1.05)' : 'scale(1)',
+                                                        // Prevent touch delay on mobile
+                                                        WebkitTapHighlightColor: 'transparent',
+                                                        userSelect: 'none',
                                                     }}
                                                 >
                                                     <Typography
-                                                        variant="body2"
+                                                        variant="body2" // Smaller typography variant
                                                         sx={{
                                                             color: isSelected
                                                                 ? '#fff'
@@ -264,10 +314,10 @@ const ModernMonthPicker = ({
                                                                     ? '#6C63FF'
                                                                     : '#E5E7EB',
                                                             fontWeight: isSelected || isCurrentMonth ? 600 : 500,
-                                                            fontSize: '12px',
+                                                            fontSize: { xs: '14px', sm: '15px' }, // Much smaller font
                                                             textAlign: 'center',
                                                             lineHeight: 1.2,
-                                                            mb: 0.25,
+                                                            mb: 0.2, // Smaller margin
                                                         }}
                                                     >
                                                         {month.label}
@@ -280,7 +330,8 @@ const ModernMonthPicker = ({
                                                                 : isCurrentMonth
                                                                     ? 'rgba(108, 99, 255, 0.8)'
                                                                     : '#9CA3AF',
-                                                            fontSize: '10px',
+                                                            fontSize: { xs: '11px', sm: '12px' }, // Much smaller subtitle
+                                                            fontWeight: 400, // Lighter weight
                                                         }}
                                                     >
                                                         {month.short}
@@ -289,10 +340,10 @@ const ModernMonthPicker = ({
                                                         <Box
                                                             sx={{
                                                                 position: 'absolute',
-                                                                top: 2,
-                                                                right: 2,
-                                                                width: 12,
-                                                                height: 12,
+                                                                top: 8,
+                                                                right: 8,
+                                                                width: { xs: 18, sm: 20 }, // Bigger check icon
+                                                                height: { xs: 18, sm: 20 },
                                                                 borderRadius: '50%',
                                                                 backgroundColor: '#6C63FF',
                                                                 display: 'flex',
@@ -300,7 +351,7 @@ const ModernMonthPicker = ({
                                                                 justifyContent: 'center',
                                                             }}
                                                         >
-                                                            <Check size={8} color="#fff" />
+                                                            <Check size={12} color="#fff" />
                                                         </Box>
                                                     )}
                                                 </Box>

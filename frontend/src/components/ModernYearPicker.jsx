@@ -40,6 +40,16 @@ const ModernYearPicker = ({
 
     const years = generateYears(displayYear);
 
+    // Auto-scroll to selected year when menu opens
+    useEffect(() => {
+        if (open && scrollRef.current) {
+            const selectedElement = scrollRef.current.querySelector(`[data-year="${value || currentYear}"]`);
+            if (selectedElement) {
+                selectedElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+    }, [open, value, currentYear]);
+
     const handleYearClick = (year) => {
         onChange(String(year));
         onClose();
@@ -92,7 +102,7 @@ const ModernYearPicker = ({
                         sx={{
                             minWidth: 280,
                             maxWidth: { xs: 'calc(100vw - 32px)', sm: 320 },
-                            height: { xs: '40vh', sm: '50vh' }, // Fixed height instead of maxHeight
+                            maxHeight: { xs: '65vh', sm: '55vh' }, // Increased height to see all items
                             display: 'flex',
                             flexDirection: 'column',
                             borderRadius: 3,
@@ -110,11 +120,16 @@ const ModernYearPicker = ({
                         }}
                     >
                         <ClickAwayListener onClickAway={onClose}>
-                            <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-                                {/* Compact Header */}
+                            <Box sx={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                height: '100%',
+                                minHeight: 0,
+                            }}>
+                                {/* Header - More compact on mobile */}
                                 <Box sx={{
                                     px: 2,
-                                    py: 1,
+                                    py: { xs: 1, sm: 1.5 }, // Smaller padding on mobile
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'space-between',
@@ -125,7 +140,8 @@ const ModernYearPicker = ({
                                         sx={{
                                             color: '#fff',
                                             fontWeight: 600,
-                                            fontSize: '13px',
+                                            fontSize: { xs: '13px', sm: '14px' }, // Smaller font on mobile
+                                            letterSpacing: '0.025em'
                                         }}
                                     >
                                         {title || 'Select Year'}
@@ -135,25 +151,30 @@ const ModernYearPicker = ({
                                         onClick={onClose}
                                         sx={{
                                             color: '#9CA3AF',
-                                            width: 20,
-                                            height: 20,
+                                            p: { xs: 0.5, sm: 1 }, // Smaller padding on mobile
                                             '&:hover': {
                                                 backgroundColor: 'rgba(255, 255, 255, 0.1)',
                                                 color: '#fff'
                                             }
                                         }}
                                     >
-                                        <X size={12} />
+                                        <X size={14} />
                                     </IconButton>
                                 </Box>
 
-                                {/* Compact Navigation */}
+                                <Divider sx={{
+                                    borderColor: 'rgba(255, 255, 255, 0.08)',
+                                    mx: 1,
+                                    flexShrink: 0
+                                }} />
+
+                                {/* Navigation Controls - More compact on mobile */}
                                 <Box sx={{
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'space-between',
                                     px: 2,
-                                    py: 0.5,
+                                    py: { xs: 0.5, sm: 1 }, // Smaller padding on mobile
                                     flexShrink: 0
                                 }}>
                                     <IconButton
@@ -161,15 +182,14 @@ const ModernYearPicker = ({
                                         onClick={handlePrevDecade}
                                         sx={{
                                             color: '#9CA3AF',
-                                            width: 24,
-                                            height: 24,
+                                            p: { xs: 0.5, sm: 1 }, // Smaller padding on mobile
                                             '&:hover': {
                                                 backgroundColor: 'rgba(255, 255, 255, 0.1)',
                                                 color: '#fff'
                                             }
                                         }}
                                     >
-                                        <ChevronLeft size={14} />
+                                        <ChevronLeft size={16} />
                                     </IconButton>
 
                                     <Typography
@@ -177,7 +197,7 @@ const ModernYearPicker = ({
                                         sx={{
                                             color: '#fff',
                                             fontWeight: 600,
-                                            fontSize: '12px'
+                                            fontSize: { xs: '13px', sm: '14px' } // Smaller font on mobile
                                         }}
                                     >
                                         {years[0]} - {years[years.length - 1]}
@@ -188,21 +208,28 @@ const ModernYearPicker = ({
                                         onClick={handleNextDecade}
                                         sx={{
                                             color: '#9CA3AF',
-                                            width: 24,
-                                            height: 24,
+                                            p: { xs: 0.5, sm: 1 }, // Smaller padding on mobile
                                             '&:hover': {
                                                 backgroundColor: 'rgba(255, 255, 255, 0.1)',
                                                 color: '#fff'
                                             }
                                         }}
                                     >
-                                        <ChevronRight size={14} />
+                                        <ChevronRight size={16} />
                                     </IconButton>
                                 </Box>
 
-                                {/* Compact Action Buttons */}
-                                <Box sx={{ px: 2, py: 0.5, display: 'flex', gap: 1, flexShrink: 0 }}>
+                                {/* Action Buttons - More compact on mobile */}
+                                <Box sx={{
+                                    px: 2,
+                                    py: { xs: 0.5, sm: 1 }, // Smaller padding on mobile
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    gap: { xs: 0.5, sm: 1 }, // Smaller gap on mobile
+                                    flexShrink: 0
+                                }}>
                                     <Button
+                                        fullWidth
                                         size="small"
                                         onClick={handleCurrentYear}
                                         sx={{
@@ -210,19 +237,20 @@ const ModernYearPicker = ({
                                             color: '#fff',
                                             textTransform: 'none',
                                             fontWeight: 600,
-                                            borderRadius: 1.5,
-                                            py: 0.5,
-                                            px: 1.5,
-                                            fontSize: '11px',
-                                            minHeight: 28,
+                                            borderRadius: 2,
+                                            py: { xs: 0.5, sm: 0.75 }, // Smaller padding on mobile
+                                            fontSize: { xs: '12px', sm: '13px' }, // Smaller font on mobile
+                                            boxShadow: '0 2px 8px rgba(108, 99, 255, 0.3)',
                                             '&:hover': {
                                                 background: 'linear-gradient(135deg, #5A50E0, #8E6CF1)',
+                                                boxShadow: '0 4px 12px rgba(108, 99, 255, 0.4)',
                                             },
                                         }}
                                     >
-                                        Current ({currentYear})
+                                        Current Year ({currentYear})
                                     </Button>
                                     <Button
+                                        fullWidth
                                         size="small"
                                         onClick={() => {
                                             onChange('');
@@ -231,21 +259,25 @@ const ModernYearPicker = ({
                                         sx={{
                                             color: '#9CA3AF',
                                             textTransform: 'none',
-                                            fontSize: '11px',
-                                            py: 0.5,
-                                            px: 1.5,
-                                            minHeight: 28,
+                                            fontSize: { xs: '12px', sm: '13px' }, // Smaller font on mobile
+                                            py: { xs: 0.25, sm: 0.5 }, // Smaller padding on mobile
                                             '&:hover': {
                                                 backgroundColor: 'rgba(255, 255, 255, 0.05)',
                                                 color: '#fff'
                                             },
                                         }}
                                     >
-                                        Clear
+                                        Clear Selection (All Years)
                                     </Button>
                                 </Box>
 
-                                {/* Scrollable Years Grid - More space */}
+                                <Divider sx={{
+                                    borderColor: 'rgba(255, 255, 255, 0.08)',
+                                    mx: 1,
+                                    flexShrink: 0
+                                }} />
+
+                                {/* Scrollable Years Grid - Fixed with proper height constraints like MonthPicker */}
                                 <Box
                                     ref={scrollRef}
                                     sx={{
@@ -253,29 +285,40 @@ const ModernYearPicker = ({
                                         overflowY: 'auto',
                                         overflowX: 'hidden',
                                         WebkitOverflowScrolling: 'touch',
+                                        scrollBehavior: 'smooth',
+                                        // Critical mobile scroll fixes
                                         touchAction: 'pan-y',
+                                        position: 'relative',
                                         transform: 'translateZ(0)',
+                                        willChange: 'scroll-position',
+                                        // Prevent momentum scrolling issues
                                         '&::-webkit-scrollbar': {
-                                            width: '4px',
+                                            width: '6px',
                                             display: { xs: 'none', sm: 'block' },
                                         },
                                         '&::-webkit-scrollbar-track': {
                                             background: 'rgba(255, 255, 255, 0.05)',
-                                            borderRadius: '2px',
+                                            borderRadius: '3px',
                                         },
                                         '&::-webkit-scrollbar-thumb': {
                                             background: 'rgba(255, 255, 255, 0.2)',
-                                            borderRadius: '2px',
+                                            borderRadius: '3px',
+                                            '&:hover': {
+                                                background: 'rgba(255, 255, 255, 0.3)',
+                                            },
                                         },
-                                        minHeight: 0,
+                                        // Add the same height constraints as MonthPicker for PC scrolling
+                                        minHeight: { xs: '200px', sm: '250px' }, // Increased minimum height
+                                        maxHeight: { xs: '70vh', sm: '60vh' }, // Increased maximum height for all years
                                     }}
                                 >
                                     <Box
                                         sx={{
                                             display: 'grid',
                                             gridTemplateColumns: 'repeat(3, 1fr)',
-                                            gap: 0.5,
-                                            p: 1,
+                                            gap: { xs: 1, sm: 1 },
+                                            p: { xs: 1.5, sm: 2 },
+                                            minHeight: 'fit-content',
                                         }}
                                     >
                                         {years.map((year) => {
@@ -294,8 +337,8 @@ const ModernYearPicker = ({
                                                         display: 'flex',
                                                         alignItems: 'center',
                                                         justifyContent: 'center',
-                                                        minHeight: 32,
-                                                        borderRadius: 1.5,
+                                                        minHeight: { xs: 40, sm: 48 }, // Balanced item size
+                                                        borderRadius: 2,
                                                         cursor: 'pointer',
                                                         position: 'relative',
                                                         backgroundColor: isSelected
@@ -306,11 +349,14 @@ const ModernYearPicker = ({
                                                                     ? 'rgba(255, 255, 255, 0.08)'
                                                                     : 'transparent',
                                                         border: isSelected
-                                                            ? '1px solid rgba(108, 99, 255, 0.5)'
+                                                            ? '2px solid rgba(108, 99, 255, 0.5)'
                                                             : isCurrentYear
                                                                 ? '1px solid rgba(108, 99, 255, 0.3)'
                                                                 : '1px solid transparent',
                                                         transition: 'all 0.15s ease-out',
+                                                        transform: isHovered ? 'scale(1.05)' : 'scale(1)',
+                                                        WebkitTapHighlightColor: 'transparent',
+                                                        userSelect: 'none',
                                                     }}
                                                 >
                                                     <Typography
@@ -322,7 +368,7 @@ const ModernYearPicker = ({
                                                                     ? '#6C63FF'
                                                                     : '#E5E7EB',
                                                             fontWeight: isSelected || isCurrentYear ? 600 : 500,
-                                                            fontSize: '13px',
+                                                            fontSize: { xs: '14px', sm: '15px' }, // Balanced font size
                                                         }}
                                                     >
                                                         {year}
@@ -331,10 +377,10 @@ const ModernYearPicker = ({
                                                         <Box
                                                             sx={{
                                                                 position: 'absolute',
-                                                                top: 2,
-                                                                right: 2,
-                                                                width: 12,
-                                                                height: 12,
+                                                                top: 6,
+                                                                right: 6,
+                                                                width: { xs: 16, sm: 18 },
+                                                                height: { xs: 16, sm: 18 },
                                                                 borderRadius: '50%',
                                                                 backgroundColor: '#6C63FF',
                                                                 display: 'flex',
@@ -342,7 +388,7 @@ const ModernYearPicker = ({
                                                                 justifyContent: 'center',
                                                             }}
                                                         >
-                                                            <Check size={8} color="#fff" />
+                                                            <Check size={12} color="#fff" />
                                                         </Box>
                                                     )}
                                                 </Box>
