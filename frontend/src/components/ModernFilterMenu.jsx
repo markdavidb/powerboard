@@ -1,5 +1,5 @@
 // src/components/ModernFilterMenu.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Box,
     Button,
@@ -88,13 +88,29 @@ const ModernFilterMenu = ({
             placement="bottom-start"
             transition
             sx={{ zIndex: 1300 }}
+            modifiers={[
+                {
+                    name: 'preventOverflow',
+                    enabled: true,
+                    options: {
+                        altAxis: true,
+                        altBoundary: true,
+                        tether: false,
+                        rootBoundary: 'viewport',
+                        padding: 8,
+                    },
+                },
+            ]}
         >
             {({ TransitionProps }) => (
                 <Fade {...TransitionProps} timeout={200}>
                     <Paper
                         sx={{
                             minWidth: 280,
-                            maxWidth: 320,
+                            maxWidth: { xs: 'calc(100vw - 32px)', sm: 320 },
+                            maxHeight: { xs: 'calc(100vh - 120px)', sm: '80vh' }, // Limit height
+                            display: 'flex',
+                            flexDirection: 'column',
                             borderRadius: 3,
                             border: '1px solid rgba(255, 255, 255, 0.1)',
                             background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.08))',
@@ -106,18 +122,19 @@ const ModernFilterMenu = ({
                             `,
                             overflow: 'hidden',
                             padding: 1,
-                            mt: 1, // Margin top to give space from the anchor
+                            mt: 1,
                         }}
                     >
                         <ClickAwayListener onClickAway={onClose}>
-                            <Box>
-                                {/* Header */}
+                            <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+                                {/* Header - Fixed */}
                                 <Box sx={{
                                     px: 2,
                                     py: 1.5,
                                     display: 'flex',
                                     alignItems: 'center',
-                                    justifyContent: 'space-between'
+                                    justifyContent: 'space-between',
+                                    flexShrink: 0
                                 }}>
                                     <Typography
                                         variant="subtitle2"
@@ -149,218 +166,240 @@ const ModernFilterMenu = ({
 
                                 <Divider sx={{
                                     borderColor: 'rgba(255, 255, 255, 0.08)',
-                                    mx: 1
+                                    mx: 1,
+                                    flexShrink: 0
                                 }} />
 
-                                {/* Quick Options */}
-                                <Box sx={{ p: 1 }}>
-                                    {quickOptions.map((option) => {
-                                        const IconComponent = option.icon;
-                                        const isSelected = value === option.id;
-                                        const isHovered = hoveredOption === option.id;
+                                {/* Scrollable Options */}
+                                <Box sx={{
+                                    flex: 1,
+                                    overflowY: 'auto',
+                                    overflowX: 'hidden',
+                                    '&::-webkit-scrollbar': {
+                                        width: '6px',
+                                    },
+                                    '&::-webkit-scrollbar-track': {
+                                        background: 'rgba(255, 255, 255, 0.05)',
+                                        borderRadius: '3px',
+                                    },
+                                    '&::-webkit-scrollbar-thumb': {
+                                        background: 'rgba(255, 255, 255, 0.2)',
+                                        borderRadius: '3px',
+                                        '&:hover': {
+                                            background: 'rgba(255, 255, 255, 0.3)',
+                                        },
+                                    },
+                                }}>
+                                    {/* Quick Options */}
+                                    <Box sx={{ p: 1 }}>
+                                        {quickOptions.map((option) => {
+                                            const IconComponent = option.icon;
+                                            const isSelected = value === option.id;
+                                            const isHovered = hoveredOption === option.id;
 
-                                        return (
-                                            <Box
-                                                key={option.id}
-                                                onClick={() => handleOptionClick(option.id)}
-                                                onMouseEnter={() => setHoveredOption(option.id)}
-                                                onMouseLeave={() => setHoveredOption(null)}
-                                                sx={{
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    gap: 1.5,
-                                                    p: 1.5,
-                                                    borderRadius: 2,
-                                                    cursor: 'pointer',
-                                                    position: 'relative',
-                                                    backgroundColor: isSelected
-                                                        ? 'rgba(108, 99, 255, 0.15)'
-                                                        : isHovered
-                                                            ? 'rgba(255, 255, 255, 0.08)'
-                                                            : 'transparent',
-                                                    border: isSelected
-                                                        ? '1px solid rgba(108, 99, 255, 0.3)'
-                                                        : '1px solid transparent',
-                                                    transition: 'all 0.15s ease-out',
-                                                    transform: isHovered ? 'translateY(-1px)' : 'translateY(0)',
-                                                    '&:active': {
-                                                        transform: 'translateY(0)',
-                                                        transition: 'all 0.1s ease-out'
-                                                    }
-                                                }}
-                                            >
-                                                {/* Icon */}
+                                            return (
                                                 <Box
+                                                    key={option.id}
+                                                    onClick={() => handleOptionClick(option.id)}
+                                                    onMouseEnter={() => setHoveredOption(option.id)}
+                                                    onMouseLeave={() => setHoveredOption(null)}
                                                     sx={{
-                                                        width: 28,
-                                                        height: 28,
-                                                        borderRadius: 1.5,
-                                                        backgroundColor: isSelected ? option.color : option.bgColor,
                                                         display: 'flex',
                                                         alignItems: 'center',
-                                                        justifyContent: 'center',
+                                                        gap: 1.5,
+                                                        p: 1.5,
+                                                        borderRadius: 2,
+                                                        cursor: 'pointer',
+                                                        position: 'relative',
+                                                        backgroundColor: isSelected
+                                                            ? 'rgba(108, 99, 255, 0.15)'
+                                                            : isHovered
+                                                                ? 'rgba(255, 255, 255, 0.08)'
+                                                                : 'transparent',
+                                                        border: isSelected
+                                                            ? '1px solid rgba(108, 99, 255, 0.3)'
+                                                            : '1px solid transparent',
                                                         transition: 'all 0.15s ease-out',
+                                                        transform: isHovered ? 'translateY(-1px)' : 'translateY(0)',
+                                                        '&:active': {
+                                                            transform: 'translateY(0)',
+                                                            transition: 'all 0.1s ease-out'
+                                                        }
                                                     }}
                                                 >
-                                                    <IconComponent
-                                                        size={14}
-                                                        color={isSelected ? '#fff' : option.color}
-                                                    />
-                                                </Box>
-
-                                                {/* Content */}
-                                                <Box sx={{ flex: 1, minWidth: 0 }}>
-                                                    <Typography
-                                                        variant="body2"
-                                                        sx={{
-                                                            color: isSelected ? '#fff' : '#E5E7EB',
-                                                            fontWeight: isSelected ? 600 : 500,
-                                                            fontSize: '14px',
-                                                            lineHeight: 1.2,
-                                                            mb: 0.25
-                                                        }}
-                                                    >
-                                                        {option.label}
-                                                    </Typography>
-                                                    <Typography
-                                                        variant="caption"
-                                                        sx={{
-                                                            color: isSelected ? 'rgba(255, 255, 255, 0.8)' : '#9CA3AF',
-                                                            fontSize: '12px',
-                                                            lineHeight: 1.2
-                                                        }}
-                                                    >
-                                                        {option.description}
-                                                    </Typography>
-                                                </Box>
-
-                                                {/* Check mark */}
-                                                {isSelected && (
+                                                    {/* Icon */}
                                                     <Box
                                                         sx={{
-                                                            width: 18,
-                                                            height: 18,
-                                                            borderRadius: '50%',
-                                                            backgroundColor: '#6C63FF',
+                                                            width: 28,
+                                                            height: 28,
+                                                            borderRadius: 1.5,
+                                                            backgroundColor: isSelected ? option.color : option.bgColor,
                                                             display: 'flex',
                                                             alignItems: 'center',
                                                             justifyContent: 'center',
-                                                            animation: 'fadeInScale 0.2s ease-out',
-                                                            '@keyframes fadeInScale': {
-                                                                '0%': {
-                                                                    opacity: 0,
-                                                                    transform: 'scale(0.8)'
-                                                                },
-                                                                '100%': {
-                                                                    opacity: 1,
-                                                                    transform: 'scale(1)'
-                                                                }
-                                                            }
+                                                            transition: 'all 0.15s ease-out',
                                                         }}
                                                     >
-                                                        <Check size={10} color="#fff" />
+                                                        <IconComponent
+                                                            size={14}
+                                                            color={isSelected ? '#fff' : option.color}
+                                                        />
                                                     </Box>
-                                                )}
-                                            </Box>
-                                        );
-                                    })}
-                                </Box>
 
-                                <Divider sx={{
-                                    borderColor: 'rgba(255, 255, 255, 0.08)',
-                                    mx: 1,
-                                    my: 1
-                                }} />
+                                                    {/* Content */}
+                                                    <Box sx={{ flex: 1, minWidth: 0 }}>
+                                                        <Typography
+                                                            variant="body2"
+                                                            sx={{
+                                                                color: isSelected ? '#fff' : '#E5E7EB',
+                                                                fontWeight: isSelected ? 600 : 500,
+                                                                fontSize: '14px',
+                                                                lineHeight: 1.2,
+                                                                mb: 0.25
+                                                            }}
+                                                        >
+                                                            {option.label}
+                                                        </Typography>
+                                                        <Typography
+                                                            variant="caption"
+                                                            sx={{
+                                                                color: isSelected ? 'rgba(255, 255, 255, 0.8)' : '#9CA3AF',
+                                                                fontSize: '12px',
+                                                                lineHeight: 1.2
+                                                            }}
+                                                        >
+                                                            {option.description}
+                                                        </Typography>
+                                                    </Box>
 
-                                {/* Custom Date Range */}
-                                <Box sx={{ p: 2 }}>
-                                    <Typography
-                                        variant="caption"
-                                        sx={{
-                                            color: '#9CA3AF',
-                                            fontWeight: 500,
-                                            fontSize: '11px',
-                                            textTransform: 'uppercase',
-                                            letterSpacing: '0.05em',
-                                            mb: 1.5,
-                                            display: 'block'
-                                        }}
-                                    >
-                                        Custom range
-                                    </Typography>
+                                                    {/* Check mark */}
+                                                    {isSelected && (
+                                                        <Box
+                                                            sx={{
+                                                                width: 18,
+                                                                height: 18,
+                                                                borderRadius: '50%',
+                                                                backgroundColor: '#6C63FF',
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                justifyContent: 'center',
+                                                                animation: 'fadeInScale 0.2s ease-out',
+                                                                '@keyframes fadeInScale': {
+                                                                    '0%': {
+                                                                        opacity: 0,
+                                                                        transform: 'scale(0.8)'
+                                                                    },
+                                                                    '100%': {
+                                                                        opacity: 1,
+                                                                        transform: 'scale(1)'
+                                                                    }
+                                                                }
+                                                            }}
+                                                        >
+                                                            <Check size={10} color="#fff" />
+                                                        </Box>
+                                                    )}
+                                                </Box>
+                                            );
+                                        })}
+                                    </Box>
 
-                                    <TextField
-                                        type="month"
-                                        value={monthYear}
-                                        onChange={(e) => setMonthYear(e.target.value)}
-                                        size="small"
-                                        fullWidth
-                                        sx={{
-                                            '& .MuiOutlinedInput-root': {
-                                                backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                                                borderRadius: 2,
-                                                border: '1px solid rgba(255, 255, 255, 0.1)',
-                                                color: '#fff',
-                                                fontSize: '14px',
-                                                '&:hover': {
-                                                    backgroundColor: 'rgba(255, 255, 255, 0.08)',
-                                                    borderColor: 'rgba(255, 255, 255, 0.2)',
-                                                },
-                                                '&.Mui-focused': {
-                                                    backgroundColor: 'rgba(255, 255, 255, 0.08)',
-                                                    borderColor: '#6C63FF',
-                                                    boxShadow: '0 0 0 3px rgba(108, 99, 255, 0.1)',
-                                                },
-                                                '& fieldset': {
-                                                    border: 'none',
-                                                },
-                                            },
-                                            '& input': {
-                                                color: '#fff',
-                                                '&::placeholder': {
-                                                    color: '#9CA3AF',
-                                                },
-                                            },
-                                            mb: 1.5
-                                        }}
-                                    />
+                                    <Divider sx={{
+                                        borderColor: 'rgba(255, 255, 255, 0.08)',
+                                        mx: 1,
+                                        my: 1
+                                    }} />
 
-                                    <Button
-                                        fullWidth
-                                        variant="contained"
-                                        disabled={!monthYear}
-                                        onClick={() => {
-                                            onApplyMonthYear();
-                                            onClose();
-                                        }}
-                                        sx={{
-                                            background: monthYear
-                                                ? 'linear-gradient(135deg, #6C63FF, #9B78FF)'
-                                                : 'rgba(255, 255, 255, 0.1)',
-                                            color: monthYear ? '#fff' : '#9CA3AF',
-                                            textTransform: 'none',
-                                            fontWeight: 600,
-                                            borderRadius: 2,
-                                            py: 1,
-                                            fontSize: '14px',
-                                            border: 'none',
-                                            boxShadow: monthYear ? '0 4px 12px rgba(108, 99, 255, 0.3)' : 'none',
-                                            '&:hover': {
+                                    {/* Custom Date Range */}
+                                    <Box sx={{ p: 2 }}>
+                                        <Typography
+                                            variant="caption"
+                                            sx={{
+                                                color: '#9CA3AF',
+                                                fontWeight: 500,
+                                                fontSize: '11px',
+                                                textTransform: 'uppercase',
+                                                letterSpacing: '0.05em',
+                                                mb: 1.5,
+                                                display: 'block'
+                                            }}
+                                        >
+                                            Custom range
+                                        </Typography>
+
+                                        <TextField
+                                            type="month"
+                                            value={monthYear}
+                                            onChange={(e) => setMonthYear(e.target.value)}
+                                            size="small"
+                                            fullWidth
+                                            sx={{
+                                                '& .MuiOutlinedInput-root': {
+                                                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                                                    borderRadius: 2,
+                                                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                                                    color: '#fff',
+                                                    fontSize: '14px',
+                                                    '&:hover': {
+                                                        backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                                                        borderColor: 'rgba(255, 255, 255, 0.2)',
+                                                    },
+                                                    '&.Mui-focused': {
+                                                        backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                                                        borderColor: '#6C63FF',
+                                                        boxShadow: '0 0 0 3px rgba(108, 99, 255, 0.1)',
+                                                    },
+                                                    '& fieldset': {
+                                                        border: 'none',
+                                                    },
+                                                },
+                                                '& input': {
+                                                    color: '#fff',
+                                                    '&::placeholder': {
+                                                        color: '#9CA3AF',
+                                                    },
+                                                },
+                                                mb: 1.5
+                                            }}
+                                        />
+
+                                        <Button
+                                            fullWidth
+                                            variant="contained"
+                                            disabled={!monthYear}
+                                            onClick={() => {
+                                                onApplyMonthYear();
+                                                onClose();
+                                            }}
+                                            sx={{
                                                 background: monthYear
-                                                    ? 'linear-gradient(135deg, #5A50E0, #8E6CF1)'
-                                                    : 'rgba(255, 255, 255, 0.15)',
-                                                boxShadow: monthYear ? '0 6px 16px rgba(108, 99, 255, 0.4)' : 'none',
-                                                transform: monthYear ? 'translateY(-1px)' : 'none',
-                                            },
-                                            '&:disabled': {
-                                                background: 'rgba(255, 255, 255, 0.05)',
-                                                color: '#6B7280',
-                                            },
-                                            transition: 'all 0.15s ease-out'
-                                        }}
-                                    >
-                                        Apply custom range
-                                    </Button>
+                                                    ? 'linear-gradient(135deg, #6C63FF, #9B78FF)'
+                                                    : 'rgba(255, 255, 255, 0.1)',
+                                                color: monthYear ? '#fff' : '#9CA3AF',
+                                                textTransform: 'none',
+                                                fontWeight: 600,
+                                                borderRadius: 2,
+                                                py: 1,
+                                                fontSize: '14px',
+                                                border: 'none',
+                                                boxShadow: monthYear ? '0 4px 12px rgba(108, 99, 255, 0.3)' : 'none',
+                                                '&:hover': {
+                                                    background: monthYear
+                                                        ? 'linear-gradient(135deg, #5A50E0, #8E6CF1)'
+                                                        : 'rgba(255, 255, 255, 0.15)',
+                                                    boxShadow: monthYear ? '0 6px 16px rgba(108, 99, 255, 0.4)' : 'none',
+                                                    transform: monthYear ? 'translateY(-1px)' : 'none',
+                                                },
+                                                '&:disabled': {
+                                                    background: 'rgba(255, 255, 255, 0.05)',
+                                                    color: '#6B7280',
+                                                },
+                                                transition: 'all 0.15s ease-out'
+                                            }}
+                                        >
+                                            Apply custom range
+                                        </Button>
+                                    </Box>
                                 </Box>
                             </Box>
                         </ClickAwayListener>
