@@ -7,12 +7,11 @@ import {
     Typography,
     IconButton,
     Chip,
-    Menu,
-    MenuItem,
     Divider,
     TextField,
     Button,
     CircularProgress,
+    Tooltip,
 } from '@mui/material';
 import {
     X as CloseIcon,
@@ -34,6 +33,7 @@ import {
 import { useParams, useNavigate } from 'react-router-dom';
 import { API } from '../api/axios';
 import DeleteConfirmModal from './DeleteConfirmModal';
+import ModernSelectMenu from './ModernSelectMenu';
 
 const statusConfig = Object.freeze({
     'To Do':       { icon: <ClipboardList size={18} />, color: '#6c6c6c' },
@@ -48,6 +48,47 @@ const priorityConfig = Object.freeze({
     Low:     { icon: <ChevronDown  size={18} />, color: '#43a047' },
     Lowest:  { icon: <ChevronsDown size={18} />, color: '#757575' },
 });
+
+const statusOptions = [
+    { value: 'To Do', label: 'To Do', icon: ClipboardList },
+    { value: 'In Progress', label: 'In Progress', icon: RefreshCcw },
+    { value: 'Review', label: 'Review', icon: Search },
+    { value: 'Done', label: 'Done', icon: CheckCircle }
+];
+
+const priorityOptions = [
+    { value: 'Highest', label: 'Highest', icon: ChevronsUp },
+    { value: 'High', label: 'High', icon: ChevronUp },
+    { value: 'Medium', label: 'Medium', icon: Minus },
+    { value: 'Low', label: 'Low', icon: ChevronDown },
+    { value: 'Lowest', label: 'Lowest', icon: ChevronsDown }
+];
+
+const inputSx = {
+    '& .MuiOutlinedInput-root': {
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        borderRadius: 2,
+        '& fieldset': {
+            borderColor: 'rgba(108,99,255,0.3)',
+        },
+        '&:hover fieldset': {
+            borderColor: 'rgba(108,99,255,0.5)',
+        },
+        '&.Mui-focused fieldset': {
+            borderColor: '#6C63FF',
+            borderWidth: '2px',
+        },
+    },
+    '& .MuiInputBase-input': {
+        color: '#fff',
+    },
+    '& .MuiInputLabel-root': {
+        color: '#bbb',
+        '&.Mui-focused': {
+            color: '#6C63FF',
+        },
+    },
+};
 
 const CommentsSection = React.lazy(() => import('./CommentsSection'));
 
@@ -74,8 +115,9 @@ function TaskDetailsModal({
     const [deleteModalOpen, setDeleteOpen] = useState(false);
     const [deleting,        setDeleting]   = useState(false);
 
-    const [anchorEl,         setAnchorEl]        = useState(null);
-    const [anchorPriorityEl, setAnchorPriorityEl]= useState(null);
+    // Menu states for ModernSelectMenu
+    const [statusAnchorEl, setStatusAnchorEl] = useState(null);
+    const [priorityAnchorEl, setPriorityAnchorEl] = useState(null);
 
     /* ─── lifecycle ─────────────────────────────────────────── */
     useEffect(() => {
@@ -89,11 +131,8 @@ function TaskDetailsModal({
     useEffect(() => { if (!open) setIsEditing(false); }, [open]);
 
     /* ─── helpers ───────────────────────────────────────────── */
-    const statusOptions   = useMemo(() => Object.entries(statusConfig)  , []);
-    const priorityOptions = useMemo(() => Object.entries(priorityConfig), []);
-
     const toggleMenu = setter => e => setter(a => (a ? null : e.currentTarget));
-    const closeMenus = () => { setAnchorEl(null); setAnchorPriorityEl(null); };
+    const closeMenus = () => { setStatusAnchorEl(null); setPriorityAnchorEl(null); };
 
     const handleCancel = () => {
         if (task) {
@@ -162,56 +201,128 @@ function TaskDetailsModal({
             <Modal
                 open={open}
                 onClose={() => { handleCancel(); onClose(); }}
-                container={container}
+                container={undefined}
                 closeAfterTransition
-                BackdropProps={{ sx:{ backgroundColor:'rgba(0,0,0,0)' } }}
+                BackdropProps={{ sx: { backgroundColor: 'rgba(0,0,0,0)' } }}
             >
                 <Fade in={open}>
-                    <Box sx={{
-                        position:'absolute', top:'50%', left:'50%',
-                        transform:'translate(-50%,-50%)',
-                        width:{ xs:'100%', sm:700, md:700 },
-                        bgcolor:'rgba(24,24,30,0.85)', backdropFilter:'blur(24px)',
-                        border:'1.5px solid rgba(108,99,255,0.6)',
-                        boxShadow:'0 4px 28px rgba(20,20,30,0.13)',
-                        borderRadius:2, p:3, maxHeight:'80vh',
-                        display:'flex', flexDirection:'column',
-                    }}>
-                        {/* header */}
-                        <Box sx={{ display:'flex', justifyContent:'space-between', alignItems:'center', mb:2 }}>
-                            <Typography variant="h6">{task.title}</Typography>
-                            <Box sx={{ display:'flex', gap:1 }}>
-                                <IconButton
-                                    onClick={() => isEditing ? handleCancel() : setIsEditing(true)}
-                                    sx={{ color:'rgba(255,255,255,0.7)' }}
-                                >
-                                    {isEditing ? <ArrowLeft size={20}/> : <Pencil size={20}/> }
-                                </IconButton>
-                                <IconButton onClick={() => setDeleteOpen(true)} sx={{ color:'#F25757' }}>
-                                    <TrashIcon size={20}/>
-                                </IconButton>
-                                <IconButton onClick={() => { handleCancel(); onClose(); }} sx={{ color:'rgba(255,255,255,0.7)' }}>
-                                    <CloseIcon size={20}/>
-                                </IconButton>
+                    <Box
+                        sx={{
+                            position: 'absolute',
+                            top: '50%',
+                            left: '50%',
+                            transform: 'translate(-50%, -50%)',
+                            width: { xs: '95%', sm: '90%', md: 700 },
+                            maxWidth: { xs: '100vw', sm: '600px', md: '700px' },
+                            bgcolor: 'rgba(28, 28, 32, 0.85)',
+                            backdropFilter: 'blur(20px)',
+                            border: '1px solid rgba(255, 255, 255, 0.12)',
+                            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(108,99,255,0.1)',
+                            borderRadius: 3,
+                            outline: 'none',
+                            p: 0,
+                            maxHeight: { xs: '85vh', md: '90vh' },
+                            display: 'flex',
+                            flexDirection: 'column',
+                            overflow: 'hidden',
+                        }}
+                    >
+                        {/* Header */}
+                        <Box sx={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            p: { xs: 2, md: 3 },
+                            pb: { xs: 1.5, md: 2 },
+                            background: 'linear-gradient(135deg, rgba(108,99,255,0.08), rgba(147,115,255,0.04))',
+                            borderBottom: '1px solid rgba(255,255,255,0.08)'
+                        }}>
+                            <Typography variant="h5" sx={{
+                                fontWeight: 600,
+                                fontSize: { xs: '1.1rem', md: '1.3rem' },
+                                color: '#fff',
+                                flex: 1,
+                                mr: 2,
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap'
+                            }}>
+                                {task.title}
+                            </Typography>
+                            <Box sx={{ display: 'flex', gap: 0.5 }}>
+                                {!isEditing && (
+                                    <Tooltip title="Edit Task">
+                                        <IconButton
+                                            onClick={() => setIsEditing(true)}
+                                            sx={{
+                                                color: '#aaa',
+                                                p: { xs: 1, md: 1 },
+                                                '&:hover': {
+                                                    color: '#6C63FF',
+                                                    backgroundColor: 'rgba(108,99,255,0.1)'
+                                                }
+                                            }}
+                                        >
+                                            <Pencil size={18} />
+                                        </IconButton>
+                                    </Tooltip>
+                                )}
+                                <Tooltip title="Delete Task">
+                                    <IconButton
+                                        onClick={() => setDeleteOpen(true)}
+                                        sx={{
+                                            color: '#aaa',
+                                            p: { xs: 1, md: 1 },
+                                            '&:hover': {
+                                                color: '#FF5555',
+                                                backgroundColor: 'rgba(255,85,85,0.1)'
+                                            }
+                                        }}
+                                    >
+                                        <TrashIcon size={18} />
+                                    </IconButton>
+                                </Tooltip>
+                                <Tooltip title="Close">
+                                    <IconButton
+                                        onClick={() => { handleCancel(); onClose(); }}
+                                        sx={{
+                                            color: '#aaa',
+                                            p: { xs: 1, md: 1 },
+                                            '&:hover': {
+                                                color: '#fff',
+                                                backgroundColor: 'rgba(255,255,255,0.1)'
+                                            }
+                                        }}
+                                    >
+                                        <CloseIcon size={18} />
+                                    </IconButton>
+                                </Tooltip>
                             </Box>
                         </Box>
 
-                        <Divider sx={{ borderColor:'rgba(255,255,255,0.1)', mb:2 }}/>
-
-                        {/* body */}
-                        <Box sx={{ flex:1, overflowY:'auto', pr:1 }}>
+                        {/* Body */}
+                        <Box sx={{ flex: 1, overflowY: 'auto', p: { xs: 2, md: 3 } }}>
                             {/* Epic link – hidden while editing */}
-                            {!isEditing && (
-                                <Box display="flex" mb={3}>
+                            {!isEditing && task.big_task_id && (
+                                <Box sx={{ mb: 3 }}>
                                     <Button
                                         size="small"
-                                        startIcon={<FolderKanban size={16}/>}
+                                        startIcon={<FolderKanban size={16} />}
                                         onClick={() => navigate(`/projects/${projectId}/board?epicId=${task.big_task_id}`)}
                                         sx={{
-                                            textTransform:'none', color:'rgba(255,255,255,0.8)',
-                                            border:'1px solid rgba(255,255,255,0.2)',
-                                            borderRadius:2,
-                                            '&:hover':{ background:'rgba(255,255,255,0.06)' },
+                                            textTransform: 'none',
+                                            fontWeight: 500,
+                                            fontSize: { xs: '0.75rem', md: '0.85rem' },
+                                            background: 'linear-gradient(135deg, #6C63FF, #887CFF)',
+                                            boxShadow: '0 2px 8px rgba(108,99,255,0.3)',
+                                            px: { xs: 1.5, md: 2 },
+                                            py: { xs: 0.5, md: 0.75 },
+                                            '&:hover': {
+                                                background: 'linear-gradient(135deg, #5a50e0, #7b6ae0)',
+                                                transform: 'translateY(-1px)',
+                                                boxShadow: '0 4px 12px rgba(108,99,255,0.4)',
+                                            },
+                                            transition: 'all 0.2s ease'
                                         }}
                                     >
                                         Open Epic Board
@@ -219,75 +330,115 @@ function TaskDetailsModal({
                                 </Box>
                             )}
 
-                            {/* status + priority chips (editable chips always shown) */}
-                            {[
-                                {
-                                    label:'Status', value:currentStatus,
-                                    options:statusOptions, anchor:anchorEl,
-                                    toggle:toggleMenu(setAnchorEl), setLocal:setCurrentStatus,
-                                    cfgMap:statusConfig,
-                                },
-                                {
-                                    label:'Priority', value:currentPriority,
-                                    options:priorityOptions, anchor:anchorPriorityEl,
-                                    toggle:toggleMenu(setAnchorPriorityEl), setLocal:setCurrentPriority,
-                                    cfgMap:priorityConfig,
-                                },
-                            ].map(({label,value,options,anchor,toggle,setLocal,cfgMap}) => (
-                                <Box key={label} mb={3}>
-                                    <Typography variant="subtitle2" fontWeight="bold" mb={1}>{label}</Typography>
-                                    <Chip
-                                        onClick={isEditing ? toggle : undefined}
-                                        label={value}
-                                        variant="outlined"
-                                        sx={{
-                                            px:2, py:1, borderRadius:2,
-                                            cursor:isEditing ? 'pointer' : 'default',
-                                            border:`1px solid ${cfgMap[value].color}`,
-                                            backgroundColor:`${cfgMap[value].color}22`,
-                                            color:'#fff', fontWeight:'bold',
-                                        }}
-                                    />
-                                    <Menu
-                                        anchorEl={anchor}
-                                        open={isEditing && Boolean(anchor)}
-                                        onClose={closeMenus}
-                                        PaperProps={{ sx:{ bgcolor:'#1e1e2f', borderRadius:2, boxShadow:'0 4px 20px rgba(0,0,0,0.3)' } }}
-                                    >
-                                        {options.map(([opt,cfg]) => (
-                                            <MenuItem
-                                                key={opt} selected={opt===value}
-                                                onClick={() => { setLocal(opt); closeMenus(); }}
-                                                sx={{
-                                                    display:'flex', gap:1.5, color:cfg.color, borderRadius:2,
-                                                    mx:1, my:0.5,
-                                                    '&.Mui-selected':{ bgcolor:`${cfg.color}22` },
-                                                    '&:hover':       { bgcolor:`${cfg.color}33` },
-                                                }}
-                                            >
-                                                {cfg.icon}
-                                                <Typography variant="body2" fontWeight="bold">{opt}</Typography>
-                                            </MenuItem>
-                                        ))}
-                                    </Menu>
+                            {/* Status & Priority Chips */}
+                            <Box sx={{ mb: 3, display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                                {/* Status Chip */}
+                                <Box>
+                                    <Typography variant="body2" sx={{
+                                        color: '#888',
+                                        fontWeight: 500,
+                                        textTransform: 'uppercase',
+                                        fontSize: '0.7rem',
+                                        letterSpacing: '0.5px',
+                                        mb: 1
+                                    }}>
+                                        Status
+                                    </Typography>
+                                    {isEditing ? (
+                                        <Button
+                                            variant="outlined"
+                                            onClick={(e) => setStatusAnchorEl(e.currentTarget)}
+                                            startIcon={statusConfig[currentStatus]?.icon}
+                                            sx={{
+                                                justifyContent: 'flex-start',
+                                                textTransform: 'none',
+                                                backgroundColor: `${statusConfig[currentStatus]?.color}22`,
+                                                border: `1px solid ${statusConfig[currentStatus]?.color}`,
+                                                color: statusConfig[currentStatus]?.color,
+                                                fontWeight: 500,
+                                                minWidth: 120,
+                                                '&:hover': {
+                                                    backgroundColor: `${statusConfig[currentStatus]?.color}33`,
+                                                },
+                                            }}
+                                        >
+                                            {currentStatus}
+                                        </Button>
+                                    ) : (
+                                        <Chip
+                                            icon={statusConfig[currentStatus]?.icon}
+                                            label={currentStatus}
+                                            sx={{
+                                                backgroundColor: `${statusConfig[currentStatus]?.color}22`,
+                                                border: `1px solid ${statusConfig[currentStatus]?.color}`,
+                                                color: statusConfig[currentStatus]?.color,
+                                                fontWeight: 500,
+                                            }}
+                                        />
+                                    )}
                                 </Box>
-                            ))}
 
-                            <Divider sx={{ borderColor:'rgba(255,255,255,0.1)', mb:3 }}/>
+                                {/* Priority Chip */}
+                                <Box>
+                                    <Typography variant="body2" sx={{
+                                        color: '#888',
+                                        fontWeight: 500,
+                                        textTransform: 'uppercase',
+                                        fontSize: '0.7rem',
+                                        letterSpacing: '0.5px',
+                                        mb: 1
+                                    }}>
+                                        Priority
+                                    </Typography>
+                                    {isEditing ? (
+                                        <Button
+                                            variant="outlined"
+                                            onClick={(e) => setPriorityAnchorEl(e.currentTarget)}
+                                            startIcon={priorityConfig[currentPriority]?.icon}
+                                            sx={{
+                                                justifyContent: 'flex-start',
+                                                textTransform: 'none',
+                                                backgroundColor: `${priorityConfig[currentPriority]?.color}22`,
+                                                border: `1px solid ${priorityConfig[currentPriority]?.color}`,
+                                                color: priorityConfig[currentPriority]?.color,
+                                                fontWeight: 500,
+                                                minWidth: 120,
+                                                '&:hover': {
+                                                    backgroundColor: `${priorityConfig[currentPriority]?.color}33`,
+                                                },
+                                            }}
+                                        >
+                                            {currentPriority}
+                                        </Button>
+                                    ) : (
+                                        <Chip
+                                            icon={priorityConfig[currentPriority]?.icon}
+                                            label={currentPriority}
+                                            sx={{
+                                                backgroundColor: `${priorityConfig[currentPriority]?.color}22`,
+                                                border: `1px solid ${priorityConfig[currentPriority]?.color}`,
+                                                color: priorityConfig[currentPriority]?.color,
+                                                fontWeight: 500,
+                                            }}
+                                        />
+                                    )}
+                                </Box>
+                            </Box>
 
-                            {/* description + dates */}
+                            <Divider sx={{ borderColor: 'rgba(255,255,255,0.05)', mb: 3 }} />
+
+                            {/* Task Details */}
                             {isEditing ? (
-                                <>
+                                <Box sx={{ mb: 3 }}>
                                     <TextField
                                         label="Description"
-                                        multiline rows={4} fullWidth
+                                        multiline
+                                        minRows={4}
+                                        fullWidth
                                         value={editedDescription}
                                         onChange={e => setEditedDesc(e.target.value)}
-                                        sx={{
-                                            mb:2, bgcolor:'rgba(255,255,255,0.05)', borderRadius:2,
-                                            '& .MuiInputBase-input':{ color:'#fff' },
-                                        }}
-                                        InputLabelProps={{ sx:{ color:'#bbb' } }}
+                                        sx={{ ...inputSx, mb: 2 }}
+                                        InputLabelProps={{ sx: { color: '#bbb' } }}
                                     />
                                     <TextField
                                         label="Due Date"
@@ -295,74 +446,150 @@ function TaskDetailsModal({
                                         fullWidth
                                         value={editedDueDate}
                                         onChange={e => setEditedDueDate(e.target.value)}
-                                        sx={{
-                                            bgcolor:'rgba(255,255,255,0.05)', borderRadius:2,
-                                            '& .MuiInputBase-input':{ color:'#fff' },
-                                        }}
-                                        InputLabelProps={{ shrink:true, sx:{ color:'#bbb' } }}
+                                        sx={inputSx}
+                                        InputLabelProps={{ shrink: true, sx: { color: '#bbb' } }}
                                     />
-                                </>
+                                </Box>
                             ) : (
-                                <Box>
-                                    <Typography mb={2}><strong>Status:</strong> {currentStatus}</Typography>
-                                    <Typography mb={2}><strong>Created:</strong> {formattedCreated}</Typography>
-                                    <Typography mb={2}><strong>Due:</strong> {formattedDue}</Typography>
-                                    <Typography mb={2}><strong>Description:</strong> {task.description || 'N/A'}</Typography>
+                                <Box sx={{
+                                    background: 'rgba(255,255,255,0.02)',
+                                    borderRadius: 2,
+                                    p: { xs: 2, md: 3 },
+                                    border: '1px solid rgba(255,255,255,0.05)',
+                                    mb: 3
+                                }}>
+                                    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '120px 1fr' }, gap: { xs: 1, sm: 2 }, alignItems: 'start', mb: 2 }}>
+                                        <Typography variant="body2" sx={{ color: '#888', fontWeight: 500, textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: '0.5px' }}>
+                                            Created
+                                        </Typography>
+                                        <Typography variant="body2" sx={{ color: '#e0e0e0', fontSize: { xs: '0.8rem', md: '0.875rem' } }}>
+                                            {formattedCreated}
+                                        </Typography>
+                                    </Box>
+                                    <Divider sx={{ borderColor: 'rgba(255,255,255,0.05)', my: 1.5 }} />
+                                    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '120px 1fr' }, gap: { xs: 1, sm: 2 }, alignItems: 'start', mb: 2 }}>
+                                        <Typography variant="body2" sx={{ color: '#888', fontWeight: 500, textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: '0.5px' }}>
+                                            Due Date
+                                        </Typography>
+                                        <Typography variant="body2" sx={{ color: '#e0e0e0', fontSize: { xs: '0.8rem', md: '0.875rem' } }}>
+                                            {formattedDue}
+                                        </Typography>
+                                    </Box>
+                                    <Divider sx={{ borderColor: 'rgba(255,255,255,0.05)', my: 1.5 }} />
+                                    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '120px 1fr' }, gap: { xs: 1, sm: 2 }, alignItems: 'start' }}>
+                                        <Typography variant="body2" sx={{ color: '#888', fontWeight: 500, textTransform: 'uppercase', fontSize: '0.7rem', letterSpacing: '0.5px' }}>
+                                            Description
+                                        </Typography>
+                                        <Typography variant="body2" sx={{ color: '#e0e0e0', lineHeight: 1.6, whiteSpace: 'pre-wrap', fontSize: { xs: '0.8rem', md: '0.875rem' } }}>
+                                            {task.description || 'No description provided'}
+                                        </Typography>
+                                    </Box>
                                 </Box>
                             )}
 
-                            {/* comments – hidden while editing */}
+                            {/* Comments – hidden while editing */}
                             {!isEditing && (
-                                <Box mt={4}>
-                                    <Suspense fallback={<Typography color="gray">Loading comments…</Typography>}>
-                                        <CommentsSection taskId={task.id}/>
-                                    </Suspense>
-                                </Box>
+                                <Suspense fallback={
+                                    <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
+                                        <CircularProgress size={24} sx={{ color: '#6C63FF' }} />
+                                    </Box>
+                                }>
+                                    <CommentsSection taskId={task.id} />
+                                </Suspense>
                             )}
                         </Box>
 
-                        {/* bottom action bar (only in edit mode) */}
+                        {/* Footer - only in edit mode */}
                         {isEditing && (
-                            <>
-                                <Divider sx={{ borderColor:'rgba(255,255,255,0.1)', my:2 }}/>
-                                <Box display="flex" justifyContent="flex-end" gap={1}>
-                                    <Button
-                                        onClick={handleCancel}
-                                        variant="outlined"
-                                        sx={{ color:'rgba(255,255,255,0.8)', borderColor:'rgba(255,255,255,0.2)' }}
-                                    >
-                                        Cancel
-                                    </Button>
-                                    <Button
-                                        onClick={handleSave}
-                                        variant="contained"
-                                        startIcon={!loading && <SaveIcon size={16}/>}
-                                        disabled={loading}
-                                        sx={{
-                                            background:'linear-gradient(135deg,#6C63FF,#8A78FF)',
-                                            textTransform:'none',
-                                            boxShadow:'0 6px 18px rgba(108,99,255,0.4)',
-                                            '&:hover':{ background:'linear-gradient(135deg,#5b54e6,#7b68ff)' },
-                                        }}
-                                    >
-                                        {loading ? <CircularProgress size={20} color="inherit"/> : 'Save'}
-                                    </Button>
-                                </Box>
-                            </>
+                            <Box sx={{
+                                p: { xs: 2, md: 3 },
+                                pt: { xs: 1.5, md: 2 },
+                                background: 'rgba(255,255,255,0.02)',
+                                borderTop: '1px solid rgba(255,255,255,0.05)',
+                                display: 'flex',
+                                flexDirection: { xs: 'column', sm: 'row' },
+                                justifyContent: 'space-between',
+                                gap: { xs: 1.5, sm: 2 }
+                            }}>
+                                <Button
+                                    onClick={handleCancel}
+                                    variant="outlined"
+                                    fullWidth={{ xs: true, sm: false }}
+                                    sx={{
+                                        color: '#ddd',
+                                        borderColor: 'rgba(255,255,255,0.3)',
+                                        px: 3,
+                                        order: { xs: 2, sm: 1 },
+                                        '&:hover': {
+                                            borderColor: '#fff',
+                                            backgroundColor: 'rgba(255,255,255,0.05)'
+                                        }
+                                    }}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    onClick={handleSave}
+                                    variant="contained"
+                                    startIcon={!loading && <SaveIcon size={16} />}
+                                    disabled={loading}
+                                    fullWidth={{ xs: true, sm: false }}
+                                    sx={{
+                                        textTransform: 'none',
+                                        fontWeight: 600,
+                                        px: { xs: 3, md: 4 },
+                                        background: 'linear-gradient(135deg, #6C63FF, #887CFF)',
+                                        boxShadow: '0 4px 12px rgba(108,99,255,0.3)',
+                                        order: { xs: 1, sm: 2 },
+                                        '&:hover': {
+                                            background: 'linear-gradient(135deg, #5a50e0, #7b6ae0)',
+                                            transform: 'translateY(-1px)',
+                                            boxShadow: '0 6px 16px rgba(108,99,255,0.4)',
+                                        },
+                                        '&:disabled': {
+                                            background: 'rgba(108,99,255,0.3)'
+                                        },
+                                        transition: 'all 0.2s ease'
+                                    }}
+                                >
+                                    {loading ? <CircularProgress color="inherit" size={20} /> : 'Save Changes'}
+                                </Button>
+                            </Box>
                         )}
+
+                        {/* Status Select Menu */}
+                        <ModernSelectMenu
+                            open={Boolean(statusAnchorEl)}
+                            anchorEl={statusAnchorEl}
+                            onClose={() => setStatusAnchorEl(null)}
+                            value={currentStatus}
+                            onChange={setCurrentStatus}
+                            options={statusOptions}
+                            title="Select Status"
+                        />
+
+                        {/* Priority Select Menu */}
+                        <ModernSelectMenu
+                            open={Boolean(priorityAnchorEl)}
+                            anchorEl={priorityAnchorEl}
+                            onClose={() => setPriorityAnchorEl(null)}
+                            value={currentPriority}
+                            onChange={setCurrentPriority}
+                            options={priorityOptions}
+                            title="Select Priority"
+                        />
                     </Box>
                 </Fade>
             </Modal>
 
-            {/* delete confirm modal */}
+            {/* Delete confirm modal */}
             <DeleteConfirmModal
                 open={deleteModalOpen}
                 onClose={() => setDeleteOpen(false)}
                 onDelete={handleDeleteTask}
                 loading={deleting}
                 title="Delete this task?"
-                subtitle="This action can’t be undone. Are you sure?"
-                container={container}
+                subtitle="This action can't be undone. Are you sure?"
             />
         </>
     );

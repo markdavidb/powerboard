@@ -109,10 +109,13 @@ export default function JiraTaskBoard({ tasks = [], onTaskClick }) {
                 ml: 2,
                 display: 'flex',
                 gap: 2,
-                p: 2,
-                overflowX: 'auto',
-                height: '60vh',
+                p: 1,
+                overflowX: 'hidden', // Changed from 'auto' to 'hidden'
+                mt: 1,
+                height: '54vh',
                 alignItems: 'flex-start',
+                outline: '1px solid rgba(255, 255, 255, 0.1)',
+                width: '100%', // Ensure full width usage
                 '&::-webkit-scrollbar': { height: 3 },
                 '&::-webkit-scrollbar-thumb': {
                     backgroundColor: 'rgba(108,99,255,0.4)',
@@ -124,9 +127,9 @@ export default function JiraTaskBoard({ tasks = [], onTaskClick }) {
                 <Box
                     key={status}
                     sx={{
-                        minWidth: 320,
-                        maxWidth: 320,
-                        width: 300,
+                        flex: 1, // Use flex: 1 to distribute space equally
+                        minWidth: 0, // Allow shrinking below content size
+                        maxWidth: 'none', // Remove max width constraint
                         flexShrink: 0,
                         display: 'flex',
                         flexDirection: 'column',

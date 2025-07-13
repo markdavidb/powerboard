@@ -3,68 +3,71 @@
 import React, {useState, useEffect, useRef} from 'react';
 import {
     Modal,
+    Fade,
     Box,
     Button,
     TextField,
     Typography,
-    FormControl,
-    Select,
-    MenuItem,
-    Divider,
     CircularProgress,
+    IconButton,
+    Stack,
+    Tooltip,
 } from '@mui/material';
+import { X as CloseIcon, Plus as PlusIcon, ClipboardList, RefreshCcw, Search, CheckCircle, ChevronsUp, ChevronUp, Minus, ChevronDown, ChevronsDown, Bug, Lightbulb, Wrench, User } from 'lucide-react';
 import {useSnackbar} from 'notistack';
 import {API} from '../api/axios';
+import ModernSelectMenu from './ModernSelectMenu';
 
-const modalSx = {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-};
+const statusOptions = [
+    { value: 'To Do', label: 'To Do', icon: ClipboardList },
+    { value: 'In Progress', label: 'In Progress', icon: RefreshCcw },
+    { value: 'Review', label: 'Review', icon: Search },
+    { value: 'Done', label: 'Done', icon: CheckCircle }
+];
 
-const paperSx = {
-    width: {xs: '95vw', sm: 500},
-    maxHeight: {xs: '55vh', sm: '75vh'},
-    bgcolor: '#18181E',
-    border: '1px solid #6C63FF',
-    borderRadius: 2,
-    p: 3,
-    boxShadow: '0 4px 28px rgba(0,0,0,0.3)',
-    color: '#fff',
-    display: 'flex',
-    flexDirection: 'column',
+const priorityOptions = [
+    { value: 'Highest', label: 'Highest', icon: ChevronsUp },
+    { value: 'High', label: 'High', icon: ChevronUp },
+    { value: 'Medium', label: 'Medium', icon: Minus },
+    { value: 'Low', label: 'Low', icon: ChevronDown },
+    { value: 'Lowest', label: 'Lowest', icon: ChevronsDown }
+];
 
-    // ← add the scroll here:
-    overflowY: 'auto',
-    // ← move your custom scrollbar styles up here:
-    '&::-webkit-scrollbar': {width: '4px'},
-    '&::-webkit-scrollbar-thumb': {
-        backgroundColor: 'rgba(108,99,255,0.4)',
-        borderRadius: '3px',
-    },
-    '&::-webkit-scrollbar-track': {
-        backgroundColor: 'rgba(255,255,255,0.1)',
-        borderRadius: '3px',
-    },
-};
-
-
-const scrollAreaSx = {
-    flex: 1,
-    mb: 2,
-};
-
+const issueTypeOptions = [
+    { value: 'Task', label: 'Task', icon: ClipboardList },
+    { value: 'Bug', label: 'Bug', icon: Bug },
+    { value: 'New Feature', label: 'New Feature', icon: Lightbulb },
+    { value: 'Improvement', label: 'Improvement', icon: Wrench }
+];
 
 const inputSx = {
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    borderRadius: 1,
-    '& .MuiOutlinedInput-notchedOutline': {borderColor: 'rgba(108,99,255,0.3)'},
-    '&:hover .MuiOutlinedInput-notchedOutline': {borderColor: 'rgba(108,99,255,0.5)'},
-    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {borderColor: '#6C63FF'},
-    '& .MuiInputBase-input': {color: '#fff'},
+    '& .MuiOutlinedInput-root': {
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        borderRadius: 2,
+        '& fieldset': {
+            borderColor: 'rgba(108,99,255,0.3)',
+        },
+        '&:hover fieldset': {
+            borderColor: 'rgba(108,99,255,0.5)',
+        },
+        '&.Mui-focused fieldset': {
+            borderColor: '#6C63FF',
+            borderWidth: '2px',
+        },
+    },
+    '& .MuiInputBase-input': {
+        color: '#fff',
+    },
+    '& .MuiInputLabel-root': {
+        color: '#bbb',
+        '&.Mui-focused': {
+            color: '#6C63FF',
+        },
+    },
+    '& .MuiSelect-icon': {
+        color: '#aaa',
+    },
 };
-
-const labelSx = {color: '#bbb', mb: 1};
 
 export default function CreateTaskModal({
                                             open,
@@ -84,7 +87,14 @@ export default function CreateTaskModal({
     const [projectMembers, setProjectMembers] = useState([]);
     const [myId, setMyId] = useState(null);
     const [submitting, setSubmitting] = useState(false);
+    const [titleError, setTitleError] = useState('');
     const submittingRef = useRef(false);
+
+    // Menu states
+    const [statusAnchorEl, setStatusAnchorEl] = useState(null);
+    const [priorityAnchorEl, setPriorityAnchorEl] = useState(null);
+    const [issueTypeAnchorEl, setIssueTypeAnchorEl] = useState(null);
+    const [assigneeAnchorEl, setAssigneeAnchorEl] = useState(null);
 
     useEffect(() => {
         API.user.get('/users/me')
@@ -114,10 +124,21 @@ export default function CreateTaskModal({
         setDueDate('');
         setAssigneeId('');
         setProjectMembers([]);
+        setTitleError('');
+    };
+
+    const handleClose = () => {
+        if (submitting) return;
+        reset();
+        onClose();
     };
 
     const handleSubmit = async e => {
         e.preventDefault();
+        if (!title.trim()) {
+            setTitleError('Title is required');
+            return;
+        }
         if (submittingRef.current) return;
         if (myId == null) {
             enqueueSnackbar('Still loading your user ID…', {variant: 'warning'});
@@ -128,7 +149,7 @@ export default function CreateTaskModal({
         setSubmitting(true);
 
         const payload = {
-            title,
+            title: title.trim(),
             description,
             status,
             issue_type: issueType,
@@ -153,177 +174,374 @@ export default function CreateTaskModal({
         }
     };
 
-    const handleClose = () => {
-        reset();
-        onClose();
-    };
+    // Create assignee options from project members
+    const assigneeOptions = [
+        { value: '', label: 'Unassigned (Defaults to you)', icon: User },
+        ...projectMembers.map(member => ({
+            value: member.user_id,
+            label: member.username,
+            icon: User
+        }))
+    ];
 
     return (
         <Modal
             open={open}
-            onClose={() => {
-                if (!submitting) {
-                    reset();
-                    onClose();
-                }
-            }}
-            BackdropProps={{sx: {backgroundColor: 'transparent'}}}
-            sx={modalSx}
+            onClose={handleClose}
+            closeAfterTransition
+            BackdropProps={{sx: {backgroundColor: 'rgba(0,0,0,0)'}}}
         >
-            <Box component="form" onSubmit={handleSubmit} sx={paperSx}>
-                {/* Header */}
-                <Typography variant="h6" fontWeight="bold" sx={{color: '#e0e0e0', mb: 2}}>
-                    Create New Task
-                </Typography>
-
-                {/* Scrollable content */}
-                <Box sx={scrollAreaSx}>
-                    <Box sx={{mb: 2}}>
-                        <Typography variant="subtitle2" sx={labelSx}>
-                            Title
-                        </Typography>
-                        <TextField
-                            value={title}
-                            onChange={e => setTitle(e.target.value)}
-                            fullWidth
-                            required
-                            sx={inputSx}
-                            disabled={submitting}
-                        />
-                    </Box>
-
-                    <Box sx={{mb: 2}}>
-                        <Typography variant="subtitle2" sx={labelSx}>
-                            Description
-                        </Typography>
-                        <TextField
-                            value={description}
-                            onChange={e => setDesc(e.target.value)}
-                            fullWidth
-                            multiline
-                            rows={3}
-                            sx={inputSx}
-                            disabled={submitting}
-                        />
-                    </Box>
-
-                    <Box sx={{mb: 2}}>
-                        <Typography variant="subtitle2" sx={labelSx}>
-                            Status
-                        </Typography>
-                        <FormControl fullWidth sx={inputSx} disabled={submitting}>
-                            <Select value={status} onChange={e => setStatus(e.target.value)}>
-                                {['To Do', 'In Progress', 'Review', 'Done'].map(s => (
-                                    <MenuItem key={s} value={s}>
-                                        {s}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                    </Box>
-
-                    <Box sx={{mb: 2}}>
-                        <Typography variant="subtitle2" sx={labelSx}>
-                            Priority
-                        </Typography>
-                        <FormControl fullWidth sx={inputSx} disabled={submitting}>
-                            <Select value={priority} onChange={e => setPriority(e.target.value)}>
-                                {['Highest', 'High', 'Medium', 'Low', 'Lowest'].map(p => (
-                                    <MenuItem key={p} value={p}>
-                                        {p}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                    </Box>
-
-                    <Box sx={{mb: 2}}>
-                        <Typography variant="subtitle2" sx={labelSx}>
-                            Issue Type
-                        </Typography>
-                        <FormControl fullWidth sx={inputSx} disabled={submitting}>
-                            <Select value={issueType} onChange={e => setIssueType(e.target.value)}>
-                                {['Task', 'Bug', 'New Feature', 'Improvement'].map(i => (
-                                    <MenuItem key={i} value={i}>
-                                        {i}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                    </Box>
-
-                    <Box sx={{mb: 2}}>
-                        <Typography variant="subtitle2" sx={labelSx}>
-                            Assignee
-                        </Typography>
-                        <FormControl fullWidth sx={inputSx} disabled={submitting}>
-                            <Select
-                                value={assigneeId}
-                                onChange={e => setAssigneeId(e.target.value)}
-                            >
-                                <MenuItem value="">
-                                    <em>Unassigned (Defaults to you)</em>
-                                </MenuItem>
-                                {projectMembers.map(member => (
-                                    <MenuItem key={member.user_id} value={member.user_id}>
-                                        {member.username}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                    </Box>
-
-                    <Box>
-                        <Typography variant="subtitle2" sx={labelSx}>
-                            Due Date
-                        </Typography>
-                        <TextField
-                            type="datetime-local"
-                            value={dueDate}
-                            onChange={e => setDueDate(e.target.value)}
-                            fullWidth
-                            sx={{
-                                ...inputSx,
-                                '& input[type="datetime-local"]::-webkit-calendar-picker-indicator': {
-                                    filter: 'invert(1)',
-                                },
-                            }}
-                            disabled={submitting}
-                        />
-                    </Box>
-                </Box>
-
-                <Divider sx={{borderColor: '#6C63FF', mb: 2}}/>
-
-                {/* Footer */}
-                <Box sx={{display: 'flex', justifyContent: 'flex-end', gap: 1}}>
-                    <Button
-                        onClick={() => {
-                            reset();
-                            onClose();
-                        }}
-                        disabled={submitting}
-                        sx={{color: '#bbb', textTransform: 'none', '&:hover': {color: '#fff'}}}
-                    >
-                        Cancel
-                    </Button>
-                    <Button
-                        type="submit"
-                        variant="contained"
-                        disabled={submitting || !title.trim() || myId == null}
-                        sx={{
-                            backgroundColor: '#6C63FF',
+            <Fade in={open}>
+                <Box
+                    component="form"
+                    onSubmit={handleSubmit}
+                    sx={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        width: { xs: '95%', sm: '90%', md: 500 },
+                        maxWidth: { xs: '100vw', sm: '500px', md: '500px' },
+                        bgcolor: 'rgba(28, 28, 32, 0.85)',
+                        backdropFilter: 'blur(20px)',
+                        border: '1px solid rgba(255, 255, 255, 0.12)',
+                        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(108,99,255,0.1)',
+                        borderRadius: 3,
+                        outline: 'none',
+                        p: 0,
+                        maxHeight: { xs: '85vh', md: '90vh' },
+                        display: 'flex',
+                        flexDirection: 'column',
+                        overflow: 'hidden',
+                    }}
+                >
+                    {/* Header */}
+                    <Box sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        p: { xs: 2, md: 3 },
+                        pb: { xs: 1.5, md: 2 },
+                        background: 'linear-gradient(135deg, rgba(108,99,255,0.08), rgba(147,115,255,0.04))',
+                        borderBottom: '1px solid rgba(255,255,255,0.08)'
+                    }}>
+                        <Typography variant="h5" sx={{
+                            fontWeight: 600,
+                            fontSize: { xs: '1.2rem', md: '1.5rem' },
                             color: '#fff',
-                            textTransform: 'none',
-                            boxShadow: '0 6px 18px rgba(108,99,255,0.2)',
-                            '&:hover': {backgroundColor: '#554FE6', boxShadow: '0 8px 24px rgba(108,99,255,0.3)'},
-                        }}
-                        startIcon={submitting && <CircularProgress size={18}/>}
-                    >
-                        {submitting ? 'Creating…' : 'Create Task'}
-                    </Button>
+                            background: 'linear-gradient(135deg, #6C63FF, #9B73FF)',
+                            backgroundClip: 'text',
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent',
+                        }}>
+                            Create New Task
+                        </Typography>
+                        <Tooltip title="Close">
+                            <IconButton
+                                onClick={handleClose}
+                                disabled={submitting}
+                                sx={{
+                                    color: '#aaa',
+                                    p: { xs: 1, md: 1 },
+                                    '&:hover': {
+                                        color: '#fff',
+                                        backgroundColor: 'rgba(255,255,255,0.1)'
+                                    }
+                                }}
+                            >
+                                <CloseIcon size={18} />
+                            </IconButton>
+                        </Tooltip>
+                    </Box>
+
+                    {/* Body */}
+                    <Box sx={{ flex: 1, overflowY: 'auto', p: { xs: 2, md: 3 } }}>
+                        <Stack spacing={{ xs: 2, md: 2.5 }}>
+                            <TextField
+                                value={title}
+                                onChange={e => {
+                                    setTitle(e.target.value);
+                                    if (e.target.value.trim()) setTitleError('');
+                                }}
+                                fullWidth
+                                required
+                                label="Title"
+                                error={!!titleError}
+                                helperText={titleError}
+                                sx={inputSx}
+                                disabled={submitting}
+                                InputLabelProps={{ sx: { color: '#bbb' } }}
+                            />
+
+                            <TextField
+                                value={description}
+                                onChange={e => setDesc(e.target.value)}
+                                fullWidth
+                                multiline
+                                minRows={3}
+                                label="Description"
+                                sx={inputSx}
+                                disabled={submitting}
+                                InputLabelProps={{ sx: { color: '#bbb' } }}
+                            />
+
+                            <Box sx={{
+                                display: 'grid',
+                                gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' },
+                                gap: 2
+                            }}>
+                                <Box>
+                                    <Typography variant="body2" sx={{
+                                        color: '#bbb',
+                                        fontWeight: 500,
+                                        fontSize: '0.75rem',
+                                        mb: 0.5,
+                                        ml: 1
+                                    }}>
+                                        Status
+                                    </Typography>
+                                    <Button
+                                        fullWidth
+                                        variant="outlined"
+                                        onClick={(e) => setStatusAnchorEl(e.currentTarget)}
+                                        disabled={submitting}
+                                        sx={{
+                                            justifyContent: 'flex-start',
+                                            textTransform: 'none',
+                                            backgroundColor: 'rgba(255,255,255,0.05)',
+                                            borderColor: 'rgba(108,99,255,0.3)',
+                                            color: '#fff',
+                                            py: 1.5,
+                                            '&:hover': {
+                                                backgroundColor: 'rgba(255,255,255,0.08)',
+                                                borderColor: 'rgba(108,99,255,0.5)',
+                                            }
+                                        }}
+                                    >
+                                        {statusOptions.find(opt => opt.value === status)?.label || status}
+                                    </Button>
+                                </Box>
+
+                                <Box>
+                                    <Typography variant="body2" sx={{
+                                        color: '#bbb',
+                                        fontWeight: 500,
+                                        fontSize: '0.75rem',
+                                        mb: 0.5,
+                                        ml: 1
+                                    }}>
+                                        Priority
+                                    </Typography>
+                                    <Button
+                                        fullWidth
+                                        variant="outlined"
+                                        onClick={(e) => setPriorityAnchorEl(e.currentTarget)}
+                                        disabled={submitting}
+                                        sx={{
+                                            justifyContent: 'flex-start',
+                                            textTransform: 'none',
+                                            backgroundColor: 'rgba(255,255,255,0.05)',
+                                            borderColor: 'rgba(108,99,255,0.3)',
+                                            color: '#fff',
+                                            py: 1.5,
+                                            '&:hover': {
+                                                backgroundColor: 'rgba(255,255,255,0.08)',
+                                                borderColor: 'rgba(108,99,255,0.5)',
+                                            }
+                                        }}
+                                    >
+                                        {priorityOptions.find(opt => opt.value === priority)?.label || priority}
+                                    </Button>
+                                </Box>
+                            </Box>
+
+                            <Box>
+                                <Typography variant="body2" sx={{
+                                    color: '#bbb',
+                                    fontWeight: 500,
+                                    fontSize: '0.75rem',
+                                    mb: 0.5,
+                                    ml: 1
+                                }}>
+                                    Issue Type
+                                </Typography>
+                                <Button
+                                    fullWidth
+                                    variant="outlined"
+                                    onClick={(e) => setIssueTypeAnchorEl(e.currentTarget)}
+                                    disabled={submitting}
+                                    sx={{
+                                        justifyContent: 'flex-start',
+                                        textTransform: 'none',
+                                        backgroundColor: 'rgba(255,255,255,0.05)',
+                                        borderColor: 'rgba(108,99,255,0.3)',
+                                        color: '#fff',
+                                        py: 1.5,
+                                        '&:hover': {
+                                            backgroundColor: 'rgba(255,255,255,0.08)',
+                                            borderColor: 'rgba(108,99,255,0.5)',
+                                        }
+                                    }}
+                                >
+                                    {issueTypeOptions.find(opt => opt.value === issueType)?.label || issueType}
+                                </Button>
+                            </Box>
+
+                            <Box>
+                                <Typography variant="body2" sx={{
+                                    color: '#bbb',
+                                    fontWeight: 500,
+                                    fontSize: '0.75rem',
+                                    mb: 0.5,
+                                    ml: 1
+                                }}>
+                                    Assignee
+                                </Typography>
+                                <Button
+                                    fullWidth
+                                    variant="outlined"
+                                    onClick={(e) => setAssigneeAnchorEl(e.currentTarget)}
+                                    disabled={submitting}
+                                    sx={{
+                                        justifyContent: 'flex-start',
+                                        textTransform: 'none',
+                                        backgroundColor: 'rgba(255,255,255,0.05)',
+                                        borderColor: 'rgba(108,99,255,0.3)',
+                                        color: '#fff',
+                                        py: 1.5,
+                                        '&:hover': {
+                                            backgroundColor: 'rgba(255,255,255,0.08)',
+                                            borderColor: 'rgba(108,99,255,0.5)',
+                                        }
+                                    }}
+                                >
+                                    {assigneeOptions.find(opt => opt.value === assigneeId)?.label || 'Unassigned (Defaults to you)'}
+                                </Button>
+                            </Box>
+
+                            <TextField
+                                type="datetime-local"
+                                value={dueDate}
+                                onChange={e => setDueDate(e.target.value)}
+                                fullWidth
+                                label="Due Date"
+                                InputLabelProps={{
+                                    shrink: true,
+                                    sx: { color: '#bbb' }
+                                }}
+                                sx={{
+                                    ...inputSx,
+                                    '& input[type="datetime-local"]::-webkit-calendar-picker-indicator': {
+                                        filter: 'invert(1)',
+                                    },
+                                }}
+                                disabled={submitting}
+                            />
+                        </Stack>
+                    </Box>
+
+                    {/* Footer */}
+                    <Box sx={{
+                        p: { xs: 2, md: 3 },
+                        pt: { xs: 1.5, md: 2 },
+                        background: 'rgba(255,255,255,0.02)',
+                        borderTop: '1px solid rgba(255,255,255,0.05)',
+                        display: 'flex',
+                        flexDirection: { xs: 'column', sm: 'row' },
+                        justifyContent: 'space-between',
+                        gap: { xs: 1.5, sm: 2 }
+                    }}>
+                        <Button
+                            onClick={handleClose}
+                            variant="outlined"
+                            disabled={submitting}
+                            fullWidth={{ xs: true, sm: false }}
+                            sx={{
+                                color: '#ddd',
+                                borderColor: 'rgba(255,255,255,0.3)',
+                                px: 3,
+                                order: { xs: 2, sm: 1 },
+                                '&:hover': {
+                                    borderColor: '#fff',
+                                    backgroundColor: 'rgba(255,255,255,0.05)'
+                                }
+                            }}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            type="submit"
+                            variant="contained"
+                            disabled={submitting || !title.trim() || myId == null}
+                            startIcon={!submitting && <PlusIcon size={16} />}
+                            fullWidth={{ xs: true, sm: false }}
+                            sx={{
+                                textTransform: 'none',
+                                fontWeight: 600,
+                                px: { xs: 3, md: 4 },
+                                background: 'linear-gradient(135deg, #6C63FF, #887CFF)',
+                                boxShadow: '0 4px 12px rgba(108,99,255,0.3)',
+                                order: { xs: 1, sm: 2 },
+                                '&:hover': {
+                                    background: 'linear-gradient(135deg, #5a50e0, #7b6ae0)',
+                                    transform: 'translateY(-1px)',
+                                    boxShadow: '0 6px 16px rgba(108,99,255,0.4)',
+                                },
+                                '&:disabled': {
+                                    background: 'rgba(108,99,255,0.3)'
+                                },
+                                transition: 'all 0.2s ease'
+                            }}
+                        >
+                            {submitting ? <CircularProgress color="inherit" size={20} /> : 'Create Task'}
+                        </Button>
+                    </Box>
+
+                    {/* Status Select Menu */}
+                    <ModernSelectMenu
+                        open={Boolean(statusAnchorEl)}
+                        anchorEl={statusAnchorEl}
+                        onClose={() => setStatusAnchorEl(null)}
+                        value={status}
+                        onChange={setStatus}
+                        options={statusOptions}
+                        title="Select Status"
+                    />
+
+                    {/* Priority Select Menu */}
+                    <ModernSelectMenu
+                        open={Boolean(priorityAnchorEl)}
+                        anchorEl={priorityAnchorEl}
+                        onClose={() => setPriorityAnchorEl(null)}
+                        value={priority}
+                        onChange={setPriority}
+                        options={priorityOptions}
+                        title="Select Priority"
+                    />
+
+                    {/* Issue Type Select Menu */}
+                    <ModernSelectMenu
+                        open={Boolean(issueTypeAnchorEl)}
+                        anchorEl={issueTypeAnchorEl}
+                        onClose={() => setIssueTypeAnchorEl(null)}
+                        value={issueType}
+                        onChange={setIssueType}
+                        options={issueTypeOptions}
+                        title="Select Issue Type"
+                    />
+
+                    {/* Assignee Select Menu */}
+                    <ModernSelectMenu
+                        open={Boolean(assigneeAnchorEl)}
+                        anchorEl={assigneeAnchorEl}
+                        onClose={() => setAssigneeAnchorEl(null)}
+                        value={assigneeId}
+                        onChange={setAssigneeId}
+                        options={assigneeOptions}
+                        title="Select Assignee"
+                    />
                 </Box>
-            </Box>
+            </Fade>
         </Modal>
     );
 }

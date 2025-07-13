@@ -12,9 +12,11 @@ import {
     TextField,
     Divider,
     Chip,
+    IconButton,
 } from '@mui/material';
 import { useSnackbar } from 'notistack';
 import { API } from '../api/axios';
+import { Plus, X, Crown } from 'lucide-react'; // Import icons
 
 /* ─────────────── Shared design tokens (copied from ProjectMembersModal) ─────────────── */
 const inputSx = {
@@ -41,12 +43,12 @@ const modalSx = {
     transform: 'translate(-50%, -50%)',
     width: { xs: '90%', sm: 500 },
     maxHeight: '80vh',
-    bgcolor: '#18181E',
-    border: '1px solid #6C63FF',
-    boxShadow: '0 4px 28px rgba(0,0,0,0.3)',
-    borderRadius: 2,
-    color: '#fff',
-    p: 3,
+    bgcolor: 'rgba(28, 28, 32, 0.75)', // Slightly more transparent
+    backdropFilter: 'blur(8px)', // Reduced blur
+    border: '1px solid rgba(255, 255, 255, 0.1)',
+    borderRadius: 3,
+    boxShadow: '0 4px 16px rgba(0,0,0,0.2)', // Softer shadow
+    p: { xs: 2, sm: 3 },
     display: 'flex',
     flexDirection: 'column',
 };
@@ -132,41 +134,59 @@ export default function BigTaskMembersModal({ open, onClose, bigTaskId, containe
                 open={open}
                 onClose={onClose}
                 container={container}
-                BackdropProps={{ sx: { backgroundColor: 'transparent' } }}
+                BackdropProps={{ sx: { backgroundColor: 'transparent' } }} // Removed dark backdrop
             >
                 <Box sx={modalSx}>
-                    <Typography variant="h6" sx={{ mb: 2, textAlign: 'center' }}>
+                    <Typography variant="h6" sx={{ mb: 2, textAlign: 'center', fontWeight: 600 }}>
                         Epic Members
                     </Typography>
 
                     <Button
                         fullWidth
                         variant="contained"
+                        startIcon={<Plus size={16} />}
                         onClick={() => setShowAdd(true)}
-                        sx={{ mb: 2, textTransform: 'none', backgroundColor: '#6C63FF' }}
+                        sx={{
+                            mb: 2,
+                            textTransform: 'none',
+                            background: 'linear-gradient(135deg, #6C63FF, #887CFF)',
+                            boxShadow: '0 4px 12px rgba(108,99,255,0.3)',
+                            '&:hover': {
+                                background: 'linear-gradient(135deg, #5a50e0, #7b6ae0)',
+                            }
+                        }}
                     >
                         Add Member
                     </Button>
 
-                    <Divider sx={{ borderColor: '#6C63FF', mb: 2 }} />
+                    <Divider sx={{ borderColor: 'rgba(255,255,255,0.1)', mb: 1, mt: 1 }} />
 
                     {loading ? (
-                        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-                            <CircularProgress size={24} sx={{ color: '#ccc' }} />
+                        <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
+                            <CircularProgress size={24} sx={{ color: '#6C63FF' }} />
                         </Box>
                     ) : (
-                        <List sx={{ overflowY: 'auto' }}>
+                        <List sx={{ overflowY: 'auto', p: 0 }}>
                             {/* Owner first */}
                             {ownerUsername && (
-                                <ListItem>
+                                <ListItem sx={{
+                                    bgcolor: 'rgba(108,99,255,0.1)',
+                                    borderRadius: 2,
+                                    mb: 1
+                                }}>
                                     <ListItemText
                                         primary={ownerUsername}
-                                        primaryTypographyProps={{ color: '#fff', fontWeight: 700 }}
+                                        primaryTypographyProps={{ color: '#fff', fontWeight: 600 }}
                                     />
                                     <Chip
+                                        icon={<Crown size={14} />}
                                         label="Owner"
                                         size="small"
-                                        sx={{ backgroundColor: '#6C63FF', color: '#fff' }}
+                                        sx={{
+                                            backgroundColor: '#6C63FF',
+                                            color: '#fff',
+                                            fontWeight: 500,
+                                        }}
                                     />
                                 </ListItem>
                             )}
@@ -177,25 +197,31 @@ export default function BigTaskMembersModal({ open, onClose, bigTaskId, containe
                                 .map((m, i) => (
                                     <ListItem
                                         key={i}
+                                        sx={{
+                                            borderRadius: 2,
+                                            '&:hover': {
+                                                bgcolor: 'rgba(255,255,255,0.05)'
+                                            }
+                                        }}
                                         secondaryAction={
-                                            <Button
-                                                size="small"
+                                            <IconButton
+                                                edge="end"
+                                                aria-label="delete"
                                                 onClick={() => removeMember(m.username)}
-                                                sx={{ textTransform: 'none', color: '#FF5555' }}
                                             >
-                                                Remove
-                                            </Button>
+                                                <X size={16} color="#FF5555" />
+                                            </IconButton>
                                         }
                                     >
                                         <ListItemText
                                             primary={m.username}
-                                            primaryTypographyProps={{ color: '#fff' }}
+                                            primaryTypographyProps={{ color: '#e0e0e0' }}
                                         />
                                     </ListItem>
                                 ))}
 
                             {!members.length && !ownerUsername && (
-                                <Typography textAlign="center" sx={{ color: '#aaa' }}>
+                                <Typography textAlign="center" sx={{ color: '#aaa', p: 2 }}>
                                     No members yet.
                                 </Typography>
                             )}
@@ -209,16 +235,17 @@ export default function BigTaskMembersModal({ open, onClose, bigTaskId, containe
                 open={showAdd}
                 onClose={() => setShowAdd(false)}
                 container={container}
-                BackdropProps={{ sx: { backgroundColor: 'transparent' } }}
+                BackdropProps={{ sx: { backgroundColor: 'transparent' } }} // Removed dark backdrop
             >
                 <Box sx={addModalSx}>
-                    <Typography variant="h6" sx={{ mb: 2, textAlign: 'center' }}>
+                    <Typography variant="h6" sx={{ mb: 2, textAlign: 'center', fontWeight: 600 }}>
                         Add Member
                     </Typography>
 
                     <TextField
                         label="Username"
                         fullWidth
+                        variant="outlined" // Ensure variant is set
                         value={newUsername}
                         onChange={(e) => setNewUsername(e.target.value)}
                         sx={{ ...inputSx, mb: 2 }}
@@ -231,7 +258,13 @@ export default function BigTaskMembersModal({ open, onClose, bigTaskId, containe
                             variant="contained"
                             onClick={addMember}
                             disabled={adding || !newUsername.trim()}
-                            sx={{ textTransform: 'none', backgroundColor: '#6C63FF' }}
+                            sx={{
+                                textTransform: 'none',
+                                background: 'linear-gradient(135deg, #6C63FF, #887CFF)',
+                                '&:hover': {
+                                    background: 'linear-gradient(135deg, #5a50e0, #7b6ae0)',
+                                }
+                            }}
                         >
                             {adding ? 'Adding…' : 'Add'}
                         </Button>
@@ -240,7 +273,15 @@ export default function BigTaskMembersModal({ open, onClose, bigTaskId, containe
                             variant="outlined"
                             onClick={() => setShowAdd(false)}
                             disabled={adding}
-                            sx={{ textTransform: 'none', borderColor: '#6C63FF', color: '#6C63FF' }}
+                            sx={{
+                                textTransform: 'none',
+                                borderColor: 'rgba(255,255,255,0.3)',
+                                color: '#fff',
+                                '&:hover': {
+                                    borderColor: '#6C63FF',
+                                    bgcolor: 'rgba(108,99,255,0.1)'
+                                }
+                            }}
                         >
                             Cancel
                         </Button>

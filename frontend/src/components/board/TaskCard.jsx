@@ -49,8 +49,7 @@ export default function TaskCard({ task, onClick }) {
                 cursor: 'pointer',
                 transition: 'transform 0.2s, box-shadow 0.2s',
                 boxShadow: '0 1.5px 4px rgba(0,0,0,0.16)',
-                maxWidth: 320,            // Increased from 280
-                width: '100%',
+                width: '100%',            // Use full available width
                 minHeight: 140,           // Increased from 120
                 '&:hover': {
                     transform: 'translateY(-2px)',

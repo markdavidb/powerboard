@@ -102,8 +102,9 @@ const ModernYearPicker = ({
                         sx={{
                             minWidth: 280,
                             maxWidth: { xs: 'calc(100vw - 32px)', sm: 320 },
-                            maxHeight: {xs: '50vh', sm: '40vh'},
+                            maxHeight: {xs: '40vh', sm: '46vh'},
                             display: 'flex',
+                            overflowX: 'hidden',
                             flexDirection: 'column',
                             borderRadius: 3,
                             border: '1px solid rgba(255, 255, 255, 0.1)',

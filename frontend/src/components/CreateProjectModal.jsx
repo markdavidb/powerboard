@@ -10,34 +10,77 @@ import {
     Divider,
     TextField,
     Button,
-    MenuItem,
     Stack,
     CircularProgress,
+    Tooltip,
 } from '@mui/material';
-import { X as CloseIcon } from 'lucide-react';
+import { X as CloseIcon, Plus as PlusIcon, CheckCircle, Clock } from 'lucide-react';
+import { useSnackbar } from 'notistack';
 import { API } from '../api/axios';
+import ModernSelectMenu from './ModernSelectMenu';
 
-const statusOptions = ['In Progress', 'Done'];
+const statusOptions = [
+    { value: 'In Progress', label: 'In Progress', icon: Clock },
+    { value: 'Done', label: 'Done', icon: CheckCircle }
+];
+
+const statusColors = {
+    'In Progress': '#2196f3',
+    'Done': '#4caf50'
+};
+
+const inputSx = {
+    '& .MuiOutlinedInput-root': {
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        borderRadius: 2,
+        '& fieldset': {
+            borderColor: 'rgba(108,99,255,0.3)',
+        },
+        '&:hover fieldset': {
+            borderColor: 'rgba(108,99,255,0.5)',
+        },
+        '&.Mui-focused fieldset': {
+            borderColor: '#6C63FF',
+            borderWidth: '2px',
+        },
+    },
+    '& .MuiInputBase-input': {
+        color: '#fff',
+    },
+    '& .MuiInputLabel-root': {
+        color: '#bbb',
+        '&.Mui-focused': {
+            color: '#6C63FF',
+        },
+    },
+    '& .MuiSelect-icon': {
+        color: '#aaa',
+    },
+};
 
 export default function CreateProjectModal({
-                                               open,
-                                               onClose,
-                                               onProjectCreated,
-                                               container,
-                                           }) {
+    open,
+    onClose,
+    onProjectCreated,
+    container,
+}) {
+    const { enqueueSnackbar } = useSnackbar();
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [status, setStatus] = useState('In Progress');
     const [dueDate, setDueDate] = useState('');
-    const [error, setError] = useState(null);
+    const [titleError, setTitleError] = useState('');
     const [loading, setLoading] = useState(false);
+
+    // Status menu state
+    const [statusAnchorEl, setStatusAnchorEl] = useState(null);
 
     const resetForm = () => {
         setTitle('');
         setDescription('');
         setStatus('In Progress');
         setDueDate('');
-        setError(null);
+        setTitleError('');
     };
 
     const handleClose = () => {
@@ -48,7 +91,13 @@ export default function CreateProjectModal({
 
     const handleCreate = async e => {
         e.preventDefault();
-        setError(null);
+        if (!title.trim()) {
+            setTitleError('Title is required');
+            return;
+        }
+        if (loading) return;
+
+        setTitleError('');
         setLoading(true);
 
         try {
@@ -59,28 +108,14 @@ export default function CreateProjectModal({
                 due_date: dueDate || null,
             });
             onProjectCreated(res.data);
+            enqueueSnackbar('Project created successfully!', { variant: 'success' });
             handleClose();
         } catch (err) {
             console.error(err);
-            setError('Failed to create project. Please try again.');
+            enqueueSnackbar('Failed to create project. Please try again.', { variant: 'error' });
         } finally {
             setLoading(false);
         }
-    };
-
-    // purple‐accented input style
-    const inputSx = {
-        bgcolor: 'rgba(255,255,255,0.05)',
-        borderRadius: 1,
-        '& .MuiOutlinedInput-notchedOutline': {
-            borderColor: 'rgba(108,99,255,0.3)',
-        },
-        '&:hover .MuiOutlinedInput-notchedOutline': {
-            borderColor: 'rgba(108,99,255,0.5)',
-        },
-        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-            borderColor: '#6C63FF',
-        },
     };
 
     return (
@@ -100,127 +135,170 @@ export default function CreateProjectModal({
                         top: '50%',
                         left: '50%',
                         transform: 'translate(-50%, -50%)',
-                        width: { xs: '90%', sm: 500 },
-                        bgcolor: 'rgba(24,24,30,0.85)',
-                        backdropFilter: 'blur(24px)',
-                        border: '1.5px solid rgba(108,99,255,0.6)',
-                        boxShadow: '0 4px 28px rgba(20,20,30,0.13)',
-                        borderRadius: 2,
+                        width: { xs: '95%', sm: '90%', md: 500 },
+                        maxWidth: { xs: '100vw', sm: '500px', md: '500px' },
+                        bgcolor: 'rgba(28, 28, 32, 0.85)',
+                        backdropFilter: 'blur(20px)',
+                        border: '1px solid rgba(255, 255, 255, 0.12)',
+                        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(108,99,255,0.1)',
+                        borderRadius: 3,
                         outline: 'none',
-                        p: 3,
-                        maxHeight: '90vh',
+                        p: 0,
+                        maxHeight: { xs: '85vh', md: '90vh' },
                         display: 'flex',
                         flexDirection: 'column',
+                        overflow: 'hidden',
                     }}
                 >
                     {/* Header */}
-                    <Box
-                        sx={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            mb: 2,
-                        }}
-                    >
-                        <Typography variant="h6" color="text.primary">
+                    <Box sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        p: { xs: 2, md: 3 },
+                        pb: { xs: 1.5, md: 2 },
+                        background: 'linear-gradient(135deg, rgba(108,99,255,0.08), rgba(147,115,255,0.04))',
+                        borderBottom: '1px solid rgba(255,255,255,0.08)'
+                    }}>
+                        <Typography variant="h5" sx={{
+                            fontWeight: 600,
+                            fontSize: { xs: '1.2rem', md: '1.5rem' },
+                            color: '#fff',
+                            background: 'linear-gradient(135deg, #6C63FF, #9B73FF)',
+                            backgroundClip: 'text',
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent',
+                        }}>
                             Create New Project
                         </Typography>
-                        <IconButton
-                            onClick={handleClose}
-                            disabled={loading}
-                            sx={{ color: 'rgba(255,255,255,0.7)' }}
-                        >
-                            <CloseIcon size={20} />
-                        </IconButton>
+                        <Tooltip title="Close">
+                            <IconButton
+                                onClick={handleClose}
+                                disabled={loading}
+                                sx={{
+                                    color: '#aaa',
+                                    p: { xs: 1, md: 1 },
+                                    '&:hover': {
+                                        color: '#fff',
+                                        backgroundColor: 'rgba(255,255,255,0.1)'
+                                    }
+                                }}
+                            >
+                                <CloseIcon size={18} />
+                            </IconButton>
+                        </Tooltip>
                     </Box>
 
-                    {/* Divider */}
-                    <Divider sx={{ borderColor: 'rgba(108,99,255,0.3)', mb: 2 }} />
+                    {/* Body */}
+                    <Box sx={{ flex: 1, overflowY: 'auto', p: { xs: 2, md: 3 } }}>
+                        <Stack spacing={{ xs: 2, md: 3 }}>
+                            <TextField
+                                fullWidth
+                                required
+                                label="Project Title"
+                                value={title}
+                                onChange={e => {
+                                    setTitle(e.target.value);
+                                    if (e.target.value.trim()) setTitleError('');
+                                }}
+                                error={!!titleError}
+                                helperText={titleError}
+                                sx={inputSx}
+                                disabled={loading}
+                                InputLabelProps={{ sx: { color: '#bbb' } }}
+                            />
 
-                    {/* Form Fields */}
-                    <Stack spacing={2} sx={{ flex: 1, overflowY: 'auto' }}>
-                        <TextField
-                            fullWidth
-                            required
-                            label="Project Title"
-                            value={title}
-                            onChange={e => setTitle(e.target.value)}
-                            InputProps={{ sx: { color: '#fff' } }}
-                            InputLabelProps={{ sx: { color: '#bbb' } }}
-                            sx={inputSx}
-                            disabled={loading}
-                        />
+                            <TextField
+                                fullWidth
+                                label="Project Description"
+                                multiline
+                                minRows={4}
+                                value={description}
+                                onChange={e => setDescription(e.target.value)}
+                                sx={inputSx}
+                                disabled={loading}
+                                InputLabelProps={{ sx: { color: '#bbb' } }}
+                            />
 
-                        <TextField
-                            fullWidth
-                            label="Project Description"
-                            multiline
-                            minRows={3}
-                            value={description}
-                            onChange={e => setDescription(e.target.value)}
-                            InputProps={{ sx: { color: '#fff' } }}
-                            InputLabelProps={{ sx: { color: '#bbb' } }}
-                            sx={inputSx}
-                            disabled={loading}
-                        />
+                            <Box sx={{
+                                display: 'grid',
+                                gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' },
+                                gap: 2
+                            }}>
+                                <TextField
+                                    fullWidth
+                                    type="date"
+                                    label="Due Date"
+                                    value={dueDate}
+                                    onChange={e => setDueDate(e.target.value)}
+                                    InputLabelProps={{
+                                        shrink: true,
+                                        sx: { color: '#bbb' }
+                                    }}
+                                    sx={inputSx}
+                                    disabled={loading}
+                                />
 
-                        <TextField
-                            select
-                            fullWidth
-                            label="Status"
-                            value={status}
-                            onChange={e => setStatus(e.target.value)}
-                            InputProps={{ sx: { color: '#fff' } }}
-                            InputLabelProps={{ sx: { color: '#bbb' } }}
-                            sx={inputSx}
-                            disabled={loading}
-                        >
-                            {statusOptions.map(opt => (
-                                <MenuItem key={opt} value={opt}>
-                                    {opt}
-                                </MenuItem>
-                            ))}
-                        </TextField>
+                                <Box>
+                                    <Typography variant="body2" sx={{
+                                        color: '#bbb',
+                                        fontWeight: 500,
+                                        fontSize: '0.75rem',
+                                        mb: 0.5,
+                                        ml: 1
+                                    }}>
+                                        Status
+                                    </Typography>
+                                    <Button
+                                        fullWidth
+                                        variant="outlined"
+                                        onClick={(e) => setStatusAnchorEl(e.currentTarget)}
+                                        disabled={loading}
+                                        sx={{
+                                            justifyContent: 'flex-start',
+                                            textTransform: 'none',
+                                            backgroundColor: 'rgba(255,255,255,0.05)',
+                                            borderColor: 'rgba(108,99,255,0.3)',
+                                            color: '#fff',
+                                            py: 1.5,
+                                            '&:hover': {
+                                                backgroundColor: 'rgba(255,255,255,0.08)',
+                                                borderColor: 'rgba(108,99,255,0.5)',
+                                            }
+                                        }}
+                                    >
+                                        {statusOptions.find(opt => opt.value === status)?.label || status}
+                                    </Button>
+                                </Box>
+                            </Box>
+                        </Stack>
+                    </Box>
 
-                        <TextField
-                            fullWidth
-                            type="date"
-                            label="Due Date"
-                            value={dueDate}
-                            onChange={e => setDueDate(e.target.value)}
-                            InputProps={{ sx: { color: '#fff' } }}
-                            InputLabelProps={{ shrink: true, sx: { color: '#bbb' } }}
-                            sx={inputSx}
-                            disabled={loading}
-                        />
-                    </Stack>
-
-                    {/* Error Message */}
-                    {error && (
-                        <Typography
-                            color="error"
-                            variant="body2"
-                            fontWeight={500}
-                            sx={{ mt: 2 }}
-                        >
-                            {error}
-                        </Typography>
-                    )}
-
-                    {/* Divider */}
-                    <Divider sx={{ borderColor: 'rgba(108,99,255,0.3)', my: 2 }} />
-
-                    {/* Actions */}
-                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+                    {/* Footer */}
+                    <Box sx={{
+                        p: { xs: 2, md: 3 },
+                        pt: { xs: 1.5, md: 2 },
+                        background: 'rgba(255,255,255,0.02)',
+                        borderTop: '1px solid rgba(255,255,255,0.05)',
+                        display: 'flex',
+                        flexDirection: { xs: 'column', sm: 'row' },
+                        justifyContent: 'space-between',
+                        gap: { xs: 1.5, sm: 2 }
+                    }}>
                         <Button
                             onClick={handleClose}
                             variant="outlined"
                             disabled={loading}
+                            fullWidth={{ xs: true, sm: false }}
                             sx={{
-                                color: 'rgba(255,255,255,0.8)',
-                                borderColor: 'rgba(108,99,255,0.4)',
-                                '&:hover': { borderColor: 'rgba(108,99,255,0.6)' },
-                                textTransform: 'none',
+                                color: '#ddd',
+                                borderColor: 'rgba(255,255,255,0.3)',
+                                px: 3,
+                                order: { xs: 2, sm: 1 },
+                                '&:hover': {
+                                    borderColor: '#fff',
+                                    backgroundColor: 'rgba(255,255,255,0.05)'
+                                }
                             }}
                         >
                             Cancel
@@ -229,22 +307,40 @@ export default function CreateProjectModal({
                             type="submit"
                             variant="contained"
                             disabled={!title.trim() || loading}
-                            startIcon={
-                                loading && <CircularProgress size={18} color="inherit" />
-                            }
+                            startIcon={!loading && <PlusIcon size={16} />}
+                            fullWidth={{ xs: true, sm: false }}
                             sx={{
-                                background: 'linear-gradient(135deg,#6C63FF,#8A78FF)',
-                                color: '#fff',
                                 textTransform: 'none',
-                                boxShadow: '0 6px 18px rgba(108,99,255,0.4)',
+                                fontWeight: 600,
+                                px: { xs: 3, md: 4 },
+                                background: 'linear-gradient(135deg, #6C63FF, #887CFF)',
+                                boxShadow: '0 4px 12px rgba(108,99,255,0.3)',
+                                order: { xs: 1, sm: 2 },
                                 '&:hover': {
-                                    background: 'linear-gradient(135deg,#5b54e6,#7b68ff)',
+                                    background: 'linear-gradient(135deg, #5a50e0, #7b6ae0)',
+                                    transform: 'translateY(-1px)',
+                                    boxShadow: '0 6px 16px rgba(108,99,255,0.4)',
                                 },
+                                '&:disabled': {
+                                    background: 'rgba(108,99,255,0.3)'
+                                },
+                                transition: 'all 0.2s ease'
                             }}
                         >
-                            {loading ? 'Creating…' : 'Create'}
+                            {loading ? <CircularProgress color="inherit" size={20} /> : 'Create Project'}
                         </Button>
                     </Box>
+
+                    {/* Status Select Menu */}
+                    <ModernSelectMenu
+                        open={Boolean(statusAnchorEl)}
+                        anchorEl={statusAnchorEl}
+                        onClose={() => setStatusAnchorEl(null)}
+                        value={status}
+                        onChange={setStatus}
+                        options={statusOptions}
+                        title="Select Status"
+                    />
                 </Box>
             </Fade>
         </Modal>

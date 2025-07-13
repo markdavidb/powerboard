@@ -389,7 +389,7 @@ export default function TaskBoard() {
                                 alignItems: 'center',
                                 justifyContent: 'center',
                                 flex: 1,
-                                maxWidth: '1000px', // Limit max width for better centering
+                                maxWidth: '100%', // Use full available width instead of reducing it
                             }}
                         >
                             {/* Search */}
@@ -552,6 +552,10 @@ export default function TaskBoard() {
                             overflowY: 'auto',
                             pr: 1,
                             mt: -2,
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'flex-start',
+                            width: '100%',
 
                             // Scrollbar style
                             '&::-webkit-scrollbar': {
@@ -573,10 +577,13 @@ export default function TaskBoard() {
                             scrollbarColor: 'rgba(108,99,255,0.4) transparent',
                         }}
                     >
-
-                        <JiraTaskBoard tasks={filteredTasks} onTaskClick={setSelectedTask}/>
-
-
+                        <Box sx={{
+                            width: '100%',
+                            maxWidth: '100%', // Use full available width instead of reducing it
+                            px: { xs:2, sm: 2, md: 2, lg: 2, xl: 2 } // Minimal padding to not waste space
+                        }}>
+                            <JiraTaskBoard tasks={filteredTasks} onTaskClick={setSelectedTask}/>
+                        </Box>
                     </Box>
 
                     {/* Modals */}

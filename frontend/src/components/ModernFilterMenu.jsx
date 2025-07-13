@@ -114,7 +114,7 @@ const ModernFilterMenu = ({
                         sx={{
                             minWidth: 280,
                             maxWidth: { xs: 'calc(100vw - 32px)', sm: 320 },
-                            maxHeight: { xs: '60vh', sm: '80vh' }, // Increased heights
+                            maxHeight: { xs: '40vh', sm: '50vh' }, // Reduced heights
                             display: 'flex',
                             flexDirection: 'column',
                             borderRadius: 3,
@@ -126,9 +126,24 @@ const ModernFilterMenu = ({
                                 0 8px 32px rgba(0, 0, 0, 0.32),
                                 0 24px 64px rgba(0, 0, 0, 0.24)
                             `,
-                            overflow: 'hidden',
+                            overflow: 'auto', // Added this to enable scrolling
                             padding: 1,
                             mt: 1,
+                            // Custom scrollbar styling for better UX
+                            '&::-webkit-scrollbar': {
+                                width: '6px',
+                            },
+                            '&::-webkit-scrollbar-track': {
+                                background: 'rgba(255, 255, 255, 0.1)',
+                                borderRadius: '3px',
+                            },
+                            '&::-webkit-scrollbar-thumb': {
+                                background: 'rgba(255, 255, 255, 0.3)',
+                                borderRadius: '3px',
+                                '&:hover': {
+                                    background: 'rgba(255, 255, 255, 0.5)',
+                                },
+                            },
                         }}
                     >
                         <ClickAwayListener onClickAway={onClose}>

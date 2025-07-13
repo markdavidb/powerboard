@@ -58,27 +58,22 @@ function Protected({ children }) {
 function Shell() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  const [isSidebarOpen, setSidebarOpen] = useState(!isMobile);
+  // Initialize as closed to prevent the open/close flicker on page load.
+  const [isSidebarOpen, setSidebarOpen] = useState(false);
 
+  const location = useLocation();
+
+  // This single useEffect handles closing the sidebar on mobile
+  // when the screen size changes or when the user navigates.
   useEffect(() => {
     if (isMobile) {
       setSidebarOpen(false);
-    } else {
-      setSidebarOpen(false);
     }
-  }, [isMobile]);
+  }, [isMobile, location.pathname]);
 
   const handleSidebarToggle = () => {
     setSidebarOpen(!isSidebarOpen);
   };
-
-  const location = useLocation();
-
-
-  useEffect(() => {
-  setSidebarOpen(false); // close on route change
-}, [location.pathname]);
-
 
   return (
     <Box sx={{ display: 'flex', height: '100vh' }}>

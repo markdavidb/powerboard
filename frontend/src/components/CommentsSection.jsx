@@ -7,6 +7,8 @@ import {
     Button,
     Divider,
     Avatar,
+    IconButton,
+    CircularProgress,
 } from '@mui/material';
 import { Send, Edit3, Trash2, Save, X } from 'lucide-react';
 import { useAuth0 } from '@auth0/auth0-react';
@@ -14,28 +16,85 @@ import { API } from '../api/axios';
 
 const accent = '#6C63FF';
 
-const gradientStyles = {
-    submit: { border: `1px solid ${accent}`, color: accent },
-    edit: { border: '1px solid #60a5fa', color: '#60a5fa' },
-    delete: { border: '1px solid #f87171', color: '#f87171' },
-    save: { border: '1px solid #facc15', color: '#facc15' },
-    cancel: { border: `1px solid ${accent}`, color: accent },
+const inputSx = {
+    '& .MuiOutlinedInput-root': {
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        borderRadius: 2,
+        '& fieldset': {
+            borderColor: 'rgba(108,99,255,0.3)',
+        },
+        '&:hover fieldset': {
+            borderColor: 'rgba(108,99,255,0.5)',
+        },
+        '&.Mui-focused fieldset': {
+            borderColor: '#6C63FF',
+            borderWidth: '2px',
+        },
+    },
+    '& .MuiInputBase-input, & textarea': {
+        color: '#fff',
+    },
+    '& .MuiInputLabel-root': {
+        color: '#bbb',
+        '&.Mui-focused': {
+            color: '#6C63FF',
+        },
+    },
+};
+
+const buttonStyles = {
+    submit: {
+        background: `linear-gradient(135deg, ${accent}, #887CFF)`,
+        boxShadow: '0 4px 12px rgba(108,99,255,0.3)',
+        '&:hover': {
+            background: 'linear-gradient(135deg, #5a50e0, #7b6ae0)',
+            transform: 'translateY(-1px)',
+            boxShadow: '0 6px 16px rgba(108,99,255,0.4)',
+        },
+    },
+    edit: {
+        border: '1px solid #60a5fa',
+        color: '#60a5fa',
+        '&:hover': {
+            backgroundColor: 'rgba(96,165,250,0.1)',
+            borderColor: '#93c5fd',
+        },
+    },
+    delete: {
+        border: '1px solid #f87171',
+        color: '#f87171',
+        '&:hover': {
+            backgroundColor: 'rgba(248,113,113,0.1)',
+            borderColor: '#fca5a5',
+        },
+    },
+    save: {
+        border: '1px solid #facc15',
+        color: '#facc15',
+        '&:hover': {
+            backgroundColor: 'rgba(250,204,21,0.1)',
+            borderColor: '#fde047',
+        },
+    },
+    cancel: {
+        border: `1px solid ${accent}`,
+        color: accent,
+        '&:hover': {
+            backgroundColor: `rgba(108,99,255,0.1)`,
+            borderColor: '#887CFF',
+        },
+    },
 };
 
 const baseButton = {
-    fontSize: 13,
+    fontSize: { xs: '0.75rem', md: '0.8rem' },
     fontWeight: 500,
-    px: 2.5,
-    py: 0.75,
+    px: { xs: 1.5, md: 2 },
+    py: { xs: 0.5, md: 0.75 },
     textTransform: 'none',
     borderRadius: 2,
     transition: 'all 0.2s ease-in-out',
-    color: '#fff',
-    boxShadow: '0 2px 10px rgba(0,0,0,0.25)',
-    '&:hover': {
-        transform: 'translateY(-1px)',
-        boxShadow: '0 4px 14px rgba(0,0,0,0.4)',
-    },
+    minHeight: { xs: '28px', md: '32px' },
 };
 
 export default function CommentsSection({ taskId, onCommentAdded }) {
@@ -142,161 +201,204 @@ export default function CommentsSection({ taskId, onCommentAdded }) {
     };
 
     return (
-        <Box mt={4}>
-            <Typography variant="h6" fontWeight="bold" color="#fff" gutterBottom>
+        <Box>
+            <Typography variant="h6" sx={{
+                fontWeight: 600,
+                color: '#fff',
+                mb: 3,
+                fontSize: { xs: '1rem', md: '1.125rem' }
+            }}>
                 Comments
             </Typography>
 
-            {/* input row */}
-            <Box display="flex" gap={1} mb={3}>
+            {/* Add comment input */}
+            <Box sx={{
+                display: 'flex',
+                gap: { xs: 1, md: 1.5 },
+                mb: 3,
+                flexDirection: { xs: 'column', sm: 'row' }
+            }}>
                 <TextField
                     placeholder="Write a comment…"
                     variant="outlined"
                     fullWidth
                     size="small"
                     multiline
+                    minRows={2}
                     value={newComment}
                     onChange={e => setNewComment(e.target.value)}
-                    sx={{
-                        bgcolor: 'rgba(24,24,30,0.85)',
-                        borderRadius: 2,
-                        '& .MuiOutlinedInput-notchedOutline': {
-                            borderColor: 'rgba(108,99,255,0.3)',
-                        },
-                        '&:hover .MuiOutlinedInput-notchedOutline': {
-                            borderColor: 'rgba(108,99,255,0.5)',
-                        },
-                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                            borderColor: accent,
-                        },
-                        '& textarea': { color: '#fff' },
-                    }}
+                    sx={inputSx}
                 />
                 <Button
                     onClick={handleAdd}
-                    startIcon={<Send size={16} />}
+                    startIcon={submitting ? <CircularProgress size={14} color="inherit" /> : <Send size={16} />}
                     disabled={submitting || !newComment.trim()}
-                    sx={{ ...baseButton, ...gradientStyles.submit }}
+                    variant="contained"
+                    sx={{
+                        ...baseButton,
+                        ...buttonStyles.submit,
+                        alignSelf: { xs: 'stretch', sm: 'flex-start' },
+                        minWidth: { xs: 'auto', sm: '100px' }
+                    }}
                 >
-                    {submitting ? 'Submitting…' : 'Submit'}
+                    {submitting ? 'Posting…' : 'Post'}
                 </Button>
             </Box>
 
-            <Divider sx={{ borderColor: 'rgba(255,255,255,0.1)', mb: 3 }} />
+            <Divider sx={{ borderColor: 'rgba(255,255,255,0.05)', mb: 3 }} />
 
             {loading ? (
-                <Typography mt={2} color="#aaa">
-                    Loading comments…
-                </Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+                    <CircularProgress size={24} sx={{ color: accent }} />
+                </Box>
             ) : comments.length ? (
-                comments.map(c => (
-                    <Box
-                        key={c.id}
-                        sx={{
-                            bgcolor: 'rgba(24,24,30,0.85)',
-                            backdropFilter: 'blur(10px)',
-                            borderRadius: 3,
-                            p: 2,
-                            mb: 2,
-                            border: '1px solid rgba(108,99,255,0.15)',
-                            '&:hover': { borderColor: 'rgba(108,99,255,0.35)' },
-                        }}
-                    >
-                        {/* header (avatar + user + date) */}
-                        <Box display="flex" alignItems="center" justifyContent="space-between">
-                            <Box display="flex" alignItems="center" gap={1}>
-                                <Avatar
-                                    src={c.avatar_url || undefined}
-                                    alt={c.username}
-                                    sx={{ width: 30, height: 30 }}
-                                />
-                                <Typography fontWeight="bold" color="#fff">
-                                    {c.username}
-                                </Typography>
-                            </Box>
-                            <Typography variant="caption" color="#aaa">
-                                {new Date(c.created_at).toLocaleString()}
-                            </Typography>
-                        </Box>
-
-                        {/* content / edit box */}
-                        {editingId === c.id ? (
-                            <Box mt={2}>
-                                <TextField
-                                    fullWidth
-                                    multiline
-                                    size="small"
-                                    value={editedText}
-                                    onChange={e => setEdited(e.target.value)}
-                                    sx={{
-                                        mt: 1,
-                                        bgcolor: 'rgba(24,24,30,0.85)',
-                                        borderRadius: 2,
-                                        '& .MuiOutlinedInput-notchedOutline': {
-                                            borderColor: 'rgba(108,99,255,0.3)',
-                                        },
-                                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                                            borderColor: accent,
-                                        },
-                                        '& textarea': { color: '#fff' },
-                                    }}
-                                />
-                                <Box display="flex" gap={1} mt={1}>
-                                    <Button
-                                        onClick={handleSave}
-                                        startIcon={<Save size={16} />}
-                                        sx={{ ...baseButton, ...gradientStyles.save }}
-                                    >
-                                        Save
-                                    </Button>
-                                    <Button
-                                        onClick={() => {
-                                            setEditing(null);
-                                            setEdited('');
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    {comments.map(c => (
+                        <Box
+                            key={c.id}
+                            sx={{
+                                background: 'rgba(255,255,255,0.02)',
+                                borderRadius: 2,
+                                p: { xs: 2, md: 2.5 },
+                                border: '1px solid rgba(255,255,255,0.05)',
+                                transition: 'all 0.2s ease',
+                                '&:hover': {
+                                    borderColor: 'rgba(108,99,255,0.2)',
+                                    backgroundColor: 'rgba(255,255,255,0.03)'
+                                },
+                            }}
+                        >
+                            {/* Comment header */}
+                            <Box sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                mb: editingId === c.id ? 0 : 1.5
+                            }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                                    <Avatar
+                                        src={c.avatar_url || undefined}
+                                        alt={c.username}
+                                        sx={{
+                                            width: { xs: 28, md: 32 },
+                                            height: { xs: 28, md: 32 },
+                                            bgcolor: accent
                                         }}
-                                        startIcon={<X size={16} />}
-                                        sx={{ ...baseButton, ...gradientStyles.cancel }}
-                                    >
-                                        Cancel
-                                    </Button>
+                                    />
+                                    <Typography sx={{
+                                        fontWeight: 600,
+                                        color: '#fff',
+                                        fontSize: { xs: '0.85rem', md: '0.9rem' }
+                                    }}>
+                                        {c.username}
+                                    </Typography>
                                 </Box>
-                            </Box>
-                        ) : (
-                            <Box>
-                                <Typography mt={1} color="#ccc" whiteSpace="pre-wrap">
-                                    {c.content}
+                                <Typography variant="caption" sx={{
+                                    color: '#888',
+                                    fontSize: { xs: '0.7rem', md: '0.75rem' }
+                                }}>
+                                    {new Date(c.created_at).toLocaleString()}
                                 </Typography>
-                                {canModify(c) && (
-                                    <Box display="flex" gap={1} mt={1}>
+                            </Box>
+
+                            {/* Comment content / edit form */}
+                            {editingId === c.id ? (
+                                <Box sx={{ mt: 2 }}>
+                                    <TextField
+                                        fullWidth
+                                        multiline
+                                        minRows={3}
+                                        size="small"
+                                        value={editedText}
+                                        onChange={e => setEdited(e.target.value)}
+                                        sx={{ ...inputSx, mb: 2 }}
+                                    />
+                                    <Box sx={{
+                                        display: 'flex',
+                                        gap: 1,
+                                        flexDirection: { xs: 'column', sm: 'row' }
+                                    }}>
                                         <Button
-                                            size="small"
-                                            startIcon={<Edit3 size={16} />}
-                                            onClick={() => {
-                                                setEditing(c.id);
-                                                setEdited(c.content);
-                                            }}
-                                            sx={{ ...baseButton, ...gradientStyles.edit }}
+                                            onClick={handleSave}
+                                            startIcon={<Save size={16} />}
+                                            variant="outlined"
+                                            sx={{ ...baseButton, ...buttonStyles.save }}
                                         >
-                                            Edit
+                                            Save
                                         </Button>
                                         <Button
-                                            size="small"
-                                            startIcon={<Trash2 size={16} />}
-                                            onClick={() => handleDelete(c.id)}
-                                            sx={{ ...baseButton, ...gradientStyles.delete }}
+                                            onClick={() => {
+                                                setEditing(null);
+                                                setEdited('');
+                                            }}
+                                            startIcon={<X size={16} />}
+                                            variant="outlined"
+                                            sx={{ ...baseButton, ...buttonStyles.cancel }}
                                         >
-                                            Delete
+                                            Cancel
                                         </Button>
                                     </Box>
-                                )}
-                            </Box>
-                        )}
-                    </Box>
-                ))
+                                </Box>
+                            ) : (
+                                <>
+                                    <Typography sx={{
+                                        color: '#e0e0e0',
+                                        whiteSpace: 'pre-wrap',
+                                        lineHeight: 1.6,
+                                        fontSize: { xs: '0.85rem', md: '0.9rem' },
+                                        mb: canModify(c) ? 2 : 0
+                                    }}>
+                                        {c.content}
+                                    </Typography>
+                                    {canModify(c) && (
+                                        <Box sx={{
+                                            display: 'flex',
+                                            gap: 1,
+                                            flexDirection: { xs: 'column', sm: 'row' }
+                                        }}>
+                                            <Button
+                                                startIcon={<Edit3 size={16} />}
+                                                onClick={() => {
+                                                    setEditing(c.id);
+                                                    setEdited(c.content);
+                                                }}
+                                                variant="outlined"
+                                                size="small"
+                                                sx={{ ...baseButton, ...buttonStyles.edit }}
+                                            >
+                                                Edit
+                                            </Button>
+                                            <Button
+                                                startIcon={<Trash2 size={16} />}
+                                                onClick={() => handleDelete(c.id)}
+                                                variant="outlined"
+                                                size="small"
+                                                sx={{ ...baseButton, ...buttonStyles.delete }}
+                                            >
+                                                Delete
+                                            </Button>
+                                        </Box>
+                                    )}
+                                </>
+                            )}
+                        </Box>
+                    ))}
+                </Box>
             ) : (
-                <Typography mt={2} color="#aaa">
-                    No comments yet.
-                </Typography>
+                <Box sx={{
+                    textAlign: 'center',
+                    p: 4,
+                    background: 'rgba(255,255,255,0.02)',
+                    borderRadius: 2,
+                    border: '1px solid rgba(255,255,255,0.05)'
+                }}>
+                    <Typography sx={{
+                        color: '#888',
+                        fontSize: { xs: '0.85rem', md: '0.9rem' }
+                    }}>
+                        No comments yet. Be the first to comment!
+                    </Typography>
+                </Box>
             )}
         </Box>
     );
