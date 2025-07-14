@@ -1,14 +1,16 @@
 // src/components/DeleteConfirmModal.jsx
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-    Dialog,
+    Modal,
+    Fade,
     Box,
     Typography,
     IconButton,
     Button,
     CircularProgress,
+    TextField,
 } from '@mui/material';
-import { X as CloseIcon, Trash2 as TrashIcon } from 'lucide-react';
+import { X as CloseIcon, Trash2 as TrashIcon, AlertTriangle } from 'lucide-react';
 
 export default function DeleteConfirmModal({
                                                open,
@@ -17,104 +19,225 @@ export default function DeleteConfirmModal({
                                                loading = false,
                                                title = 'Delete task?',
                                                subtitle = 'This action can’t be undone.',
+                                               project,
+                                               itemName, // New prop for the name to confirm
                                            }) {
+    const [confirmText, setConfirmText] = useState('');
+
+    useEffect(() => {
+        if (open) {
+            setConfirmText('');
+        }
+    }, [open]);
+
     const safeOnDelete = async () => {
         try { await onDelete?.(); } catch (err) {
-            // eslint-disable-next-line no-console
             console.error('Delete failed:', err);
         }
     };
 
+    // Get the name to confirm - either project title or itemName
+    const nameToConfirm = project?.title || itemName || 'delete';
+    const canProceed = confirmText === nameToConfirm;
+
     return (
-        <Dialog
+        <Modal
             open={open}
             onClose={onClose}
-            maxWidth="xs"
-            sx={{ zIndex: theme => theme.zIndex.modal + 200 }}
-            PaperProps={{
-                sx: {
-                    position: 'absolute',
-                    top: '55%', left: '53.3%',
-                    transform: 'translate(-50%, -50%)',
-                    minWidth: 340,
-                    px: 4, py: 3,
-                    borderRadius: 4,
-                    background: 'rgba(34,36,51,0.97)',
-                    border: '1.5px solid rgba(255,255,255,0.08)',
-                    boxShadow: '0 8px 40px 4px rgba(45,41,84,0.32)',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
+            container={undefined}
+            closeAfterTransition
+            slotProps={{
+                backdrop: {
+                    sx: {
+                        backgroundColor: 'rgba(0,0,0,0.4)',
+                    },
                 },
             }}
-            BackdropProps={{ sx: { backgroundColor: 'rgba(0,0,0,0)' } }}
+            sx={{ zIndex: (theme) => theme.zIndex.modal + 200 }}
         >
-            <IconButton
-                onClick={onClose}
-                sx={{ position: 'absolute', right: 14, top: 14, color: '#aaa' }}
-            >
-                <CloseIcon size={22} />
-            </IconButton>
-
-            <Box mt={2} mb={1}>
-                <TrashIcon size={36} color="#F25757" />
-            </Box>
-
-            <Typography
-                variant="h6"
-                fontWeight={700}
-                mb={1}
-                color="#fff"
-                align="center"
-            >
-                {title}
-            </Typography>
-
-            <Typography color="#aaa" mb={3} fontSize={15} align="center">
-                {subtitle}
-            </Typography>
-
-            <Box display="flex" gap={2}>
-                <Button
-                    variant="contained"
-                    color="error"
-                    onClick={safeOnDelete}
-                    startIcon={
-                        loading ? (
-                            <CircularProgress size={18} sx={{ color: '#fff' }} />
-                        ) : (
-                            <TrashIcon size={18} />
-                        )
-                    }
-                    disabled={loading}
+            <Fade in={open}>
+                <Box
                     sx={{
-                        borderRadius: 3,
-                        px: 3,
-                        textTransform: 'none',
-                        fontWeight: 600,
-                        background: 'linear-gradient(90deg,#f85b5b 30%,#fe8383 100%)',
-                        boxShadow: '0 2px 12px rgba(255,82,82,0.12)',
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        width: { xs: '90%', sm: 340 },
+                        maxWidth: 'calc(100vw - 32px)',
+                        bgcolor: 'rgba(28, 28, 32, 0.9)',
+                        backdropFilter: 'blur(16px)',
+                        border: '1px solid rgba(255, 85, 85, 0.2)',
+                        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255,85,85,0.15)',
+                        borderRadius: 2.5,
+                        outline: 'none',
+                        p: { xs: 2, sm: 2.5 },
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        textAlign: 'center',
                     }}
                 >
-                    Delete
-                </Button>
-                <Button
-                    variant="outlined"
-                    onClick={onClose}
-                    disabled={loading}
-                    sx={{
-                        borderRadius: 3,
-                        borderColor: '#aaa',
-                        color: '#aaa',
-                        px: 3,
-                        textTransform: 'none',
-                        fontWeight: 600,
-                        background: 'rgba(255,255,255,0.03)',
-                    }}
-                >
-                    Cancel
-                </Button>
-            </Box>
-        </Dialog>
+                    <IconButton
+                        onClick={onClose}
+                        sx={{
+                            position: 'absolute',
+                            right: 8,
+                            top: 8,
+                            color: '#aaa',
+                            p: 0.5,
+                            '&:hover': {
+                                color: '#fff',
+                                backgroundColor: 'rgba(255,255,255,0.1)'
+                            }
+                        }}
+                    >
+                        <CloseIcon size={16} />
+                    </IconButton>
+
+                    <Box sx={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: '50%',
+                        background: 'rgba(255, 85, 85, 0.1)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        mb: 1.5,
+                        border: '1px solid rgba(255, 85, 85, 0.2)',
+                    }}>
+                        <TrashIcon size={18} color="#FF5555" />
+                    </Box>
+
+                    <Typography
+                        variant="h6"
+                        sx={{
+                            fontWeight: 600,
+                            mb: 0.5,
+                            color: '#fff',
+                            fontSize: '1rem'
+                        }}
+                    >
+                        {title}
+                    </Typography>
+
+                    <Typography sx={{
+                        color: 'rgba(255,255,255,0.7)',
+                        mb: 2.5,
+                        fontSize: '0.85rem',
+                        lineHeight: 1.4,
+                    }}>
+                        {subtitle}
+                    </Typography>
+
+                    <Box sx={{ width: '100%', mb: 2 }}>
+                        <Typography variant="body2" sx={{
+                            color: '#FFC107',
+                            mb: 1,
+                            textAlign: 'center',
+                            fontSize: '0.8rem',
+                            fontWeight: 500
+                        }}>
+                            Type "{nameToConfirm}" to confirm
+                        </Typography>
+                        <TextField
+                            fullWidth
+                            autoFocus
+                            size="small"
+                            value={confirmText}
+                            onChange={(e) => setConfirmText(e.target.value)}
+                            placeholder={nameToConfirm}
+                            sx={{
+                                '& .MuiOutlinedInput-root': {
+                                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                                    borderRadius: 1.5,
+                                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                                    color: '#fff',
+                                    fontSize: '0.875rem',
+                                    '&.Mui-focused': {
+                                        borderColor: '#FF5555',
+                                        boxShadow: '0 0 0 2px rgba(255, 85, 85, 0.2)',
+                                    },
+                                },
+                                '& input': { textAlign: 'center', py: 1 },
+                            }}
+                        />
+                    </Box>
+
+                    <Typography variant="caption" sx={{
+                        color: 'rgba(255, 193, 7, 0.8)',
+                        mb: 2,
+                        fontSize: '0.75rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 0.5
+                    }}>
+                        <AlertTriangle size={14} color="#FFC107" />
+                        All data will be permanently removed
+                    </Typography>
+
+                    <Box sx={{
+                        display: 'grid',
+                        gridTemplateColumns: '1fr 1fr',
+                        gap: 1.5,
+                        width: '100%'
+                    }}>
+                        <Button
+                            variant="outlined"
+                            onClick={onClose}
+                            disabled={loading}
+                            sx={{
+                                color: '#ddd',
+                                borderColor: 'rgba(255,255,255,0.3)',
+                                textTransform: 'none',
+                                fontWeight: 500,
+                                borderRadius: 1.5,
+                                py: 1,
+                                fontSize: '0.875rem',
+                                '&:hover': {
+                                    borderColor: '#fff',
+                                    backgroundColor: 'rgba(255,255,255,0.1)'
+                                }
+                            }}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            variant="contained"
+                            color="error"
+                            onClick={safeOnDelete}
+                            startIcon={
+                                loading ? (
+                                    <CircularProgress size={16} color="inherit" />
+                                ) : (
+                                    <TrashIcon size={14} />
+                                )
+                            }
+                            disabled={loading || !canProceed}
+                            sx={{
+                                textTransform: 'none',
+                                fontWeight: 600,
+                                borderRadius: 1.5,
+                                py: 1,
+                                fontSize: '0.875rem',
+                                background: 'linear-gradient(135deg, #E53935, #C62828)',
+                                boxShadow: '0 4px 12px rgba(229, 57, 53, 0.3)',
+                                '&:hover': {
+                                    background: 'linear-gradient(135deg, #D32F2F, #B71C1C)',
+                                    transform: 'translateY(-1px)',
+                                    boxShadow: '0 6px 16px rgba(229, 57, 53, 0.4)',
+                                },
+                                '&:disabled': {
+                                    background: 'rgba(229, 57, 53, 0.3)',
+                                    color: 'rgba(255,255,255,0.5)'
+                                },
+                                transition: 'all 0.2s ease'
+                            }}
+                        >
+                            {loading ? 'Deleting...' : 'Delete'}
+                        </Button>
+                    </Box>
+                </Box>
+            </Fade>
+        </Modal>
     );
 }

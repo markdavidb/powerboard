@@ -552,6 +552,7 @@ export default function ProjectSettingsModal({
                 loading={deleting}
                 title="Delete this project?"
                 subtitle="This action can't be undone and all project data will be removed."
+                project={{ title }}
             />
         </>
     );
