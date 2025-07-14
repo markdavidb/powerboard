@@ -43,7 +43,7 @@ export default function CalendarShell({
                 p: { xs: 1.5, sm: 2, md: 3, lg: 4 },
                 mt: { xs: 0.5, sm: 1, md: 2 },
                 mx: { xs: 0.5, sm: 1, md: "auto" },
-                height: { xs: "calc(100vh - 100px)", md: "90vh" }, // Fixed height instead of minHeight
+                height: { xs: "calc(100vh - 100px)", md: "85vh" }, // Fixed height instead of minHeight
                 width: { xs: "calc(100vw - 8px)", sm: "calc(100vw - 16px)", md: "100%" },
                 maxWidth: { xs: "100%", md: "calc(100vw - 240px)", xl: "1800px" },
                 backdropFilter: "blur(18px)",

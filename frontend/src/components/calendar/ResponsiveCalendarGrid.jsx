@@ -1,10 +1,19 @@
 // src/components/calendar/ResponsiveCalendarGrid.jsx
 import React from 'react';
-import { Box, Typography, Chip } from '@mui/material';
-import { format, isSameMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameDay, startOfMonth, endOfMonth } from 'date-fns';
+import {Box, Typography, Chip} from '@mui/material';
+import {
+    format,
+    isSameMonth,
+    startOfWeek,
+    endOfWeek,
+    eachDayOfInterval,
+    isSameDay,
+    startOfMonth,
+    endOfMonth
+} from 'date-fns';
 import CalendarCell from './CalendarCell';
-import { buildWeeks } from './calendarUtils';
-import { Briefcase, Flag, ClipboardList } from 'lucide-react';
+import {buildWeeks} from './calendarUtils';
+import {Briefcase, Flag, ClipboardList} from 'lucide-react';
 
 const dayHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -15,16 +24,16 @@ const COLOR = {
 };
 
 const ICON = {
-    project: <Briefcase size={14} />,
-    epic: <Flag size={14} />,
-    task: <ClipboardList size={14} />,
+    project: <Briefcase size={14}/>,
+    epic: <Flag size={14}/>,
+    task: <ClipboardList size={14}/>,
 };
 
 // Mobile Agenda View - Full Month View
-function MobileAgendaView({ currentDate, dueMap, onSelect }) {
+function MobileAgendaView({currentDate, dueMap, onSelect}) {
     const monthStart = startOfMonth(currentDate);
     const monthEnd = endOfMonth(currentDate);
-    const monthDays = eachDayOfInterval({ start: monthStart, end: monthEnd });
+    const monthDays = eachDayOfInterval({start: monthStart, end: monthEnd});
 
     return (
         <Box sx={{
@@ -70,7 +79,7 @@ function MobileAgendaView({ currentDate, dueMap, onSelect }) {
                             alignItems: 'center',
                             mb: items.length > 0 ? 2 : 0
                         }}>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                            <Box sx={{display: 'flex', alignItems: 'center', gap: 2}}>
                                 <Typography sx={{
                                     fontSize: '1.1rem',
                                     fontWeight: today ? 700 : 600,
@@ -116,13 +125,15 @@ function MobileAgendaView({ currentDate, dueMap, onSelect }) {
 
                         {/* Items List */}
                         {items.length > 0 && (
-                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                            <Box sx={{display: 'flex', flexDirection: 'column', gap: 1}}>
                                 {items.slice(0, 4).map((item, idx) => (
                                     <Box
                                         key={idx}
                                         sx={{
                                             display: 'flex',
                                             alignItems: 'center',
+                                            outline: 'red solid 1px',
+
                                             gap: 1.5,
                                             p: 1.5,
                                             background: `${COLOR[item.type]}20`,
@@ -139,10 +150,11 @@ function MobileAgendaView({ currentDate, dueMap, onSelect }) {
                                             color: COLOR[item.type],
                                             display: 'flex',
                                             alignItems: 'center'
+
                                         }}>
                                             {ICON[item.type]}
                                         </Box>
-                                        <Box sx={{ flex: 1, minWidth: 0 }}>
+                                        <Box sx={{flex: 1, minWidth: 0}}>
                                             <Typography sx={{
                                                 color: '#fff',
                                                 fontSize: '0.875rem',
@@ -174,7 +186,7 @@ function MobileAgendaView({ currentDate, dueMap, onSelect }) {
                                                 fontSize: '0.6rem',
                                                 fontWeight: 600,
                                                 height: 18,
-                                                '& .MuiChip-label': { px: 1 }
+                                                '& .MuiChip-label': {px: 1}
                                             }}
                                         />
                                     </Box>
@@ -199,7 +211,7 @@ function MobileAgendaView({ currentDate, dueMap, onSelect }) {
 }
 
 // Desktop Grid View - FIXED WITH TALLER CELLS!
-function DesktopGridView({ monthStart, dueMap, onSelect }) {
+function DesktopGridView({monthStart, dueMap, onSelect}) {
     const weeks = buildWeeks(monthStart);
 
     return (
@@ -244,6 +256,7 @@ function DesktopGridView({ monthStart, dueMap, onSelect }) {
             {/* Calendar Grid - MADE MUCH TALLER! */}
             <Box
                 sx={{
+                    p:2,
                     flex: 1,
                     width: '100%',
                     display: 'grid',
@@ -285,14 +298,14 @@ function DesktopGridView({ monthStart, dueMap, onSelect }) {
                         );
                     }
 
-                    return <CalendarCell key={iso} day={day} items={items} onSelect={onSelect} />;
+                    return <CalendarCell key={iso} day={day} items={items} onSelect={onSelect}/>;
                 })}
             </Box>
         </Box>
     );
 }
 
-export default function ResponsiveCalendarGrid({ monthStart, dueMap, onSelect, isMobile }) {
+export default function ResponsiveCalendarGrid({monthStart, dueMap, onSelect, isMobile}) {
     return isMobile ? (
         <MobileAgendaView
             currentDate={monthStart}
