@@ -1,10 +1,10 @@
 // src/components/CalendarShell.jsx
 
 import React, { useState, useRef } from 'react';
-import { Box, CircularProgress } from '@mui/material';
+import { Box, CircularProgress, Typography, useMediaQuery, useTheme } from '@mui/material';
 import { addMonths, subMonths } from 'date-fns';
 import CalendarHeader from './CalendarHeader';
-import CalendarGrid from './CalendarGrid';
+import ResponsiveCalendarGrid from './ResponsiveCalendarGrid';
 import DayDetailsModal from './DayDetailsModal';
 
 export default function CalendarShell({
@@ -16,93 +16,140 @@ export default function CalendarShell({
     const [currentDate, setCurrentDate] = useState(new Date());
     const [selectedDay, setSelectedDay] = useState(null);
     const containerRef = useRef(null);
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('md')); // Changed to 'md' for better tablet experience
 
     const [dueMap, reload, loading] = useDataHook(currentDate);
 
+    const handlePrev = () => {
+        setCurrentDate(d => subMonths(d, 1)); // Always navigate by months now
+    };
+
+    const handleNext = () => {
+        setCurrentDate(d => addMonths(d, 1)); // Always navigate by months now
+    };
+
+    const handleDateChange = (newDate) => {
+        setCurrentDate(newDate);
+    };
+
     return (
-            <Box
-                ref={containerRef}
-                id="main-box"
-                sx={{
-                    width: '100%',
-                    maxWidth: { xs: '100%', md: 'calc(100vw - 240px)', xl: '1600px' },
-                    height: '88vh', // strict height, exactly like your project page
-                    mx: 'auto',
-                    mt: { xs: 1, md: -0 },
-                    boxSizing: 'border-box',
-                    backdropFilter: 'blur(18px)',
-                    background: theme => theme.palette.background.default,  // ← use your theme
-                    border: '1px solid rgba(255,255,255,0.08)',
-                    boxShadow: '0 12px 40px rgba(0,0,0,0.4)',
-                    overflow: 'hidden',
-                    userSelect: 'none',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: loading ? 'center' : 'flex-start',
-                    alignItems: loading ? 'center' : 'stretch',
-                    p: { xs: 1, sm: 2, md: 4 }, // exact padding as project page
-                    // Scrollbar theme inside each cell in case there are > MAX_ITEMS
-                    overflowY: 'auto',
-                    overflowX: 'hidden',
-                    '&::-webkit-scrollbar': {
-                        width: '6px',
-                    },
-                    '&::-webkit-scrollbar-track': {
-                        background: 'transparent',
-                    },
-                    '&::-webkit-scrollbar-thumb': {
-                        backgroundColor: 'rgba(108,99,255,0.4)',
-                        borderRadius: '8px',
-                        border: '2px solid transparent',
-                        backgroundClip: 'content-box',
-                    },
-                    '&::-webkit-scrollbar-thumb:hover': {
-                        backgroundColor: 'rgba(108,99,255,0.7)',
-                    },
-                    scrollbarWidth: 'thin',
-                    scrollbarColor: 'rgba(108,99,255,0.4) transparent',
-                }}
-            >
-                {loading ? (
-                    <CircularProgress sx={{ color: '#6C63FF' }} />
-                ) : (
-                    <>
-                        <CalendarHeader
-                            date={currentDate}
-                            onPrev={() => setCurrentDate((d) => subMonths(d, 1))}
-                            onNext={() => setCurrentDate((d) => addMonths(d, 1))}
+        <Box
+            ref={containerRef}
+            id="main-box"
+            sx={{
+                display: "flex",
+                flexDirection: "column",
+                p: { xs: 1.5, sm: 2, md: 3, lg: 4 },
+                mt: { xs: 0.5, sm: 1, md: 2 },
+                mx: { xs: 0.5, sm: 1, md: "auto" },
+                height: { xs: "calc(100vh - 100px)", md: "90vh" }, // Fixed height instead of minHeight
+                width: { xs: "calc(100vw - 8px)", sm: "calc(100vw - 16px)", md: "100%" },
+                maxWidth: { xs: "100%", md: "calc(100vw - 240px)", xl: "1800px" },
+                backdropFilter: "blur(18px)",
+                background: (t) => t.palette.background.default,
+                border: "1px solid rgba(255,255,255,0.08)",
+                borderRadius: { xs: 1, md: 2 },
+                boxShadow: "0 12px 40px rgba(0,0,0,0.4)",
+                color: "#fff",
+                overflow: 'hidden', // Prevent main container from scrolling
+            }}
+        >
+            {loading ? (
+                <Box sx={{
+                    flex: 1,
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    gap: 3
+                }}>
+                    <CircularProgress
+                        sx={{
+                            color: "#6C63FF",
+                            '& .MuiCircularProgress-circle': {
+                                strokeLinecap: 'round',
+                            }
+                        }}
+                        size={48}
+                        thickness={3}
+                    />
+                    <Typography sx={{
+                        color: 'rgba(255,255,255,0.8)',
+                        fontSize: '0.875rem',
+                        fontWeight: 500
+                    }}>
+                        Loading calendar...
+                    </Typography>
+                </Box>
+            ) : (
+                <>
+                    <CalendarHeader
+                        date={currentDate}
+                        onPrev={handlePrev}
+                        onNext={handleNext}
+                        onDateChange={handleDateChange}
+                        isMobile={isMobile}
+                    />
+
+                    <Box sx={{
+                        flex: 1,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        overflow: 'hidden',
+                        mt: 2,
+                        minHeight: 0 // Important for flex child to shrink
+                    }}>
+                        <ResponsiveCalendarGrid
+                            monthStart={currentDate}
+                            dueMap={dueMap}
+                            onSelect={(date, items) => setSelectedDay({ date, items })}
+                            isMobile={isMobile}
                         />
-                        <Box sx={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', mt: 2 }}>
-                            <CalendarGrid
-                                monthStart={currentDate}
-                                dueMap={dueMap}
-                                onSelect={(date, items) => setSelectedDay({ date, items })}
-                            />
-                        </Box>
-                        <Box sx={{ mt: 1, display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
+                    </Box>
+
+                    {/* Simplified Legend - Only show on desktop */}
+                    {!isMobile && (
+                        <Box sx={{
+                            mt: 2,
+                            display: 'flex',
+                            gap: 2,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            flexShrink: 0 // Prevent legend from shrinking
+                        }}>
                             {[
-                                { label: 'Project', color: '#ff007f' },
-                                { label: 'Epic', color: '#f7b32b' },
-                                { label: 'Task', color: '#1e90ff' },
+                                { label: 'Projects', color: '#ff007f' },
+                                { label: 'Epics', color: '#f7b32b' },
+                                { label: 'Tasks', color: '#1e90ff' },
                             ].map((item) => (
-                                <Box key={item.label} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <Box key={item.label} sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 1
+                                }}>
                                     <Box
                                         sx={{
-                                            width: 16,
-                                            height: 16,
+                                            width: 12,
+                                            height: 12,
                                             borderRadius: '50%',
                                             backgroundColor: item.color,
-                                            boxShadow: '0 0 4px rgba(255,255,255,0.3)',
+                                            boxShadow: `0 0 6px ${item.color}60`,
                                         }}
                                     />
-                                    <Box component="span" sx={{ color: '#eee', fontSize: 14 }}>
+                                    <Typography sx={{
+                                        color: 'rgba(255,255,255,0.9)',
+                                        fontSize: '0.8rem',
+                                        fontWeight: 500
+                                    }}>
                                         {item.label}
-                                    </Box>
+                                    </Typography>
                                 </Box>
                             ))}
                         </Box>
-                    </>
-                )}
+                    )}
+                </>
+            )}
 
             {!loading && selectedDay && (
                 <DayDetailsModal
