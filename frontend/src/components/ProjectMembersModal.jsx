@@ -1,5 +1,4 @@
 // src/components/ProjectMembersModal.jsx
-
 import React, { useEffect, useState } from 'react';
 import {
     Modal,
@@ -17,11 +16,13 @@ import {
     MenuItem,
     Divider,
     Chip,
+    IconButton,
 } from '@mui/material';
 import { useSnackbar } from 'notistack';
 import { useAuth0 } from '@auth0/auth0-react';
 import { API } from '../api/axios';
 
+/* ─────────────── Shared design tokens (matching BigTaskMembersModal) ─────────────── */
 const inputSx = {
     bgcolor: 'rgba(255,255,255,0.05)',
     borderRadius: 1,
@@ -44,26 +45,26 @@ const modalSx = {
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: { xs: '90vw',  sm: 500 },
+    width: { xs: '90%', sm: 500 },
     maxHeight: '80vh',
-    bgcolor: '#18181E',
-    border: '1px solid #6C63FF',
-    boxShadow: '0 4px 28px rgba(0,0,0,0.3)',
-    borderRadius: 2,
-    color: '#fff',
-    p: 3,
+    bgcolor: 'rgba(28, 28, 32, 0.75)', // Glass morphism effect
+    backdropFilter: 'blur(8px)',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
+    borderRadius: 3,
+    boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
+    p: { xs: 2, sm: 3 },
     display: 'flex',
     flexDirection: 'column',
 };
 
 const addModalSx = {
     ...modalSx,
-    width: { xs: '80vw', sm: 360 },
+    width: { xs: '80%', sm: 360 },
 };
 
 const ROLE_OPTIONS = ['owner', 'editor', 'viewer'];
 
-export default function ProjectMembersModal({ open, onClose, projectId }) {
+export default function ProjectMembersModal({ open, onClose, projectId, container }) {
     const { enqueueSnackbar } = useSnackbar();
     const { user } = useAuth0();
 
@@ -72,7 +73,7 @@ export default function ProjectMembersModal({ open, onClose, projectId }) {
     const [showAdd, setShowAdd] = useState(false);
     const [newUsername, setNewUsername] = useState('');
     const [newRole, setNewRole] = useState('viewer');
-    const [removing, setRemoving] = useState(false);
+    const [adding, setAdding] = useState(false);
 
     const currentUsername =
         user?.nickname || user?.preferred_username || user?.name || '';
@@ -81,6 +82,7 @@ export default function ProjectMembersModal({ open, onClose, projectId }) {
         (m) => m.role === 'owner' && (m.username || m.user?.username) === currentUsername
     );
 
+    /* ─── Load members on open ────────────────────────────────────────── */
     useEffect(() => {
         if (!open) return;
         (async () => {
@@ -98,23 +100,27 @@ export default function ProjectMembersModal({ open, onClose, projectId }) {
         })();
     }, [open, projectId]);
 
+    /* ─── Add member ─────────────────────────────────────────────────────────── */
     const addMember = async () => {
-        if (!newUsername.trim()) return;
+        if (!newUsername.trim() || adding) return;
+        setAdding(true);
         try {
-            const payload = { username: newUsername, role: newRole, project_id: projectId };
+            const payload = { username: newUsername.trim(), role: newRole, project_id: projectId };
             const { data } = await API.project.post('/projects/members/', payload);
             setMembers((prev) => [...prev, data]);
-            enqueueSnackbar(`Added ${newUsername}`, { variant: 'success' });
-            setNewUsername('');
+            enqueueSnackbar(`Added ${data.username || newUsername}`, { variant: 'success' });
             setShowAdd(false);
+            setNewUsername('');
+            setNewRole('viewer');
         } catch (err) {
             enqueueSnackbar('Error adding member', { variant: 'error' });
+        } finally {
+            setAdding(false);
         }
     };
 
+    /* ─── Remove member ───────────────────────────────────────────────────────── */
     const removeMember = async (username) => {
-        if (removing) return;
-        setRemoving(true);
         try {
             await API.project.delete(
                 `/projects/members/${projectId}/members/${username}`
@@ -123,20 +129,34 @@ export default function ProjectMembersModal({ open, onClose, projectId }) {
             enqueueSnackbar(`Removed ${username}`, { variant: 'success' });
         } catch {
             enqueueSnackbar('Error removing member', { variant: 'error' });
-        } finally {
-            setRemoving(false);
         }
     };
 
+    /* ─── Get role color ─────────────────────────────────────────────────────── */
+    const getRoleColor = (role) => {
+        switch (role) {
+            case 'owner':
+                return '#6C63FF';
+            case 'editor':
+                return '#4CAF50';
+            case 'viewer':
+                return '#FF9800';
+            default:
+                return '#FF9800';
+        }
+    };
+
+    /* ─── Main modal ─────────────────────────────────────────────────────────── */
     return (
         <>
             <Modal
                 open={open}
                 onClose={onClose}
+                container={container}
                 BackdropProps={{ sx: { backgroundColor: 'transparent' } }}
             >
                 <Box sx={modalSx}>
-                    <Typography variant="h6" sx={{ mb: 2, textAlign: 'center' }}>
+                    <Typography variant="h6" sx={{ mb: 2, textAlign: 'center', fontWeight: 600 }}>
                         Project Members
                     </Typography>
 
@@ -145,54 +165,99 @@ export default function ProjectMembersModal({ open, onClose, projectId }) {
                             fullWidth
                             variant="contained"
                             onClick={() => setShowAdd(true)}
-                            sx={{ mb: 2, textTransform: 'none', backgroundColor: '#6C63FF' }}
+                            sx={{
+                                mb: 2,
+                                textTransform: 'none',
+                                background: 'linear-gradient(135deg, #6C63FF, #887CFF)',
+                                boxShadow: '0 4px 12px rgba(108,99,255,0.3)',
+                                '&:hover': {
+                                    background: 'linear-gradient(135deg, #5a50e0, #7b6ae0)',
+                                }
+                            }}
                         >
                             Add Member
                         </Button>
                     )}
 
-                    <Divider sx={{ borderColor: '#6C63FF', mb: 2 }} />
+                    <Divider sx={{ borderColor: 'rgba(255,255,255,0.1)', mb: 1, mt: 1 }} />
 
                     {loading ? (
-                        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-                            <CircularProgress size={24} sx={{ color: '#ccc' }} />
+                        <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
+                            <CircularProgress size={24} sx={{ color: '#6C63FF' }} />
                         </Box>
                     ) : (
-                        <List sx={{ overflowY: 'auto' }}>
+                        <List sx={{ overflowY: 'auto', p: 0 }}>
                             {members.length ? (
-                                members.map((m, i) => {
-                                    const username = m.username || m.user?.username;
-                                    return (
-                                        <ListItem
-                                            key={i}
-                                            secondaryAction={
-                                                m.role === 'owner' ? (
-                                                    <Chip label="Owner" size="small" sx={{ backgroundColor: '#6C63FF', color: '#fff' }} />
-                                                ) : (
-                                                    isOwner && (
-                                                        <Button
+                                members
+                                    .sort((a, b) => {
+                                        // Sort owners first, then by role
+                                        if (a.role === 'owner') return -1;
+                                        if (b.role === 'owner') return 1;
+                                        return 0;
+                                    })
+                                    .map((m, i) => {
+                                        const username = m.username || m.user?.username;
+                                        const isCurrentOwner = m.role === 'owner';
+
+                                        return (
+                                            <ListItem
+                                                key={i}
+                                                sx={{
+                                                    bgcolor: isCurrentOwner ? 'rgba(108,99,255,0.1)' : 'transparent',
+                                                    borderRadius: 2,
+                                                    mb: 1,
+                                                    '&:hover': {
+                                                        bgcolor: isCurrentOwner ? 'rgba(108,99,255,0.15)' : 'rgba(255,255,255,0.05)'
+                                                    }
+                                                }}
+                                                secondaryAction={
+                                                    isCurrentOwner ? (
+                                                        <Chip
+                                                            label="Owner"
                                                             size="small"
-                                                            onClick={() => removeMember(username)}
-                                                            disabled={removing}
-                                                            sx={{ textTransform: 'none', color: '#FF5555' }}
-                                                        >
-                                                            Remove
-                                                        </Button>
+                                                            sx={{
+                                                                backgroundColor: getRoleColor(m.role),
+                                                                color: '#fff',
+                                                                fontWeight: 500,
+                                                            }}
+                                                        />
+                                                    ) : (
+                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                            <Chip
+                                                                label={m.role}
+                                                                size="small"
+                                                                sx={{
+                                                                    backgroundColor: getRoleColor(m.role),
+                                                                    color: '#fff',
+                                                                    fontWeight: 500,
+                                                                    textTransform: 'capitalize',
+                                                                }}
+                                                            />
+                                                            {isOwner && (
+                                                                <Button
+                                                                    size="small"
+                                                                    onClick={() => removeMember(username)}
+                                                                    sx={{ textTransform: 'none', color: '#FF5555', minWidth: 'auto' }}
+                                                                >
+                                                                    Remove
+                                                                </Button>
+                                                            )}
+                                                        </Box>
                                                     )
-                                                )
-                                            }
-                                        >
-                                            <ListItemText
-                                                primary={username}
-                                                secondary={`Role: ${m.role}`}
-                                                primaryTypographyProps={{ color: '#fff' }}
-                                                secondaryTypographyProps={{ color: '#ccc' }}
-                                            />
-                                        </ListItem>
-                                    );
-                                })
+                                                }
+                                            >
+                                                <ListItemText
+                                                    primary={username}
+                                                    primaryTypographyProps={{
+                                                        color: isCurrentOwner ? '#fff' : '#e0e0e0',
+                                                        fontWeight: isCurrentOwner ? 600 : 400
+                                                    }}
+                                                />
+                                            </ListItem>
+                                        );
+                                    })
                             ) : (
-                                <Typography textAlign="center" sx={{ color: '#aaa' }}>
+                                <Typography textAlign="center" sx={{ color: '#aaa', p: 2 }}>
                                     No members yet.
                                 </Typography>
                             )}
@@ -201,19 +266,22 @@ export default function ProjectMembersModal({ open, onClose, projectId }) {
                 </Box>
             </Modal>
 
+            {/* ─── Add-member pop-up ─────────────────────────────────────────────── */}
             <Modal
                 open={showAdd}
                 onClose={() => setShowAdd(false)}
+                container={container}
                 BackdropProps={{ sx: { backgroundColor: 'transparent' } }}
             >
                 <Box sx={addModalSx}>
-                    <Typography variant="h6" sx={{ mb: 2, textAlign: 'center' }}>
+                    <Typography variant="h6" sx={{ mb: 2, textAlign: 'center', fontWeight: 600 }}>
                         Add Member
                     </Typography>
 
                     <TextField
                         label="Username"
                         fullWidth
+                        variant="outlined"
                         value={newUsername}
                         onChange={(e) => setNewUsername(e.target.value)}
                         sx={{ ...inputSx, mb: 2 }}
@@ -222,10 +290,14 @@ export default function ProjectMembersModal({ open, onClose, projectId }) {
 
                     <FormControl fullWidth sx={{ ...inputSx, mb: 2 }}>
                         <InputLabel sx={{ color: '#bbb' }}>Role</InputLabel>
-                        <Select value={newRole} label="Role" onChange={(e) => setNewRole(e.target.value)}>
-                            {ROLE_OPTIONS.map((r) => (
-                                <MenuItem key={r} value={r}>
-                                    {r.charAt(0).toUpperCase() + r.slice(1)}
+                        <Select
+                            value={newRole}
+                            onChange={(e) => setNewRole(e.target.value)}
+                            label="Role"
+                        >
+                            {ROLE_OPTIONS.filter(role => role !== 'owner').map((role) => (
+                                <MenuItem key={role} value={role} sx={{ textTransform: 'capitalize' }}>
+                                    {role}
                                 </MenuItem>
                             ))}
                         </Select>
@@ -236,15 +308,31 @@ export default function ProjectMembersModal({ open, onClose, projectId }) {
                             fullWidth
                             variant="contained"
                             onClick={addMember}
-                            sx={{ textTransform: 'none', backgroundColor: '#6C63FF' }}
+                            disabled={adding || !newUsername.trim()}
+                            sx={{
+                                textTransform: 'none',
+                                background: 'linear-gradient(135deg, #6C63FF, #887CFF)',
+                                '&:hover': {
+                                    background: 'linear-gradient(135deg, #5a50e0, #7b6ae0)',
+                                }
+                            }}
                         >
-                            Add
+                            {adding ? 'Adding…' : 'Add'}
                         </Button>
                         <Button
                             fullWidth
                             variant="outlined"
                             onClick={() => setShowAdd(false)}
-                            sx={{ textTransform: 'none', borderColor: '#6C63FF', color: '#6C63FF' }}
+                            disabled={adding}
+                            sx={{
+                                textTransform: 'none',
+                                borderColor: 'rgba(255,255,255,0.3)',
+                                color: '#fff',
+                                '&:hover': {
+                                    borderColor: '#6C63FF',
+                                    bgcolor: 'rgba(108,99,255,0.1)'
+                                }
+                            }}
                         >
                             Cancel
                         </Button>

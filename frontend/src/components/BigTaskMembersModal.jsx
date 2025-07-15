@@ -12,11 +12,9 @@ import {
     TextField,
     Divider,
     Chip,
-    IconButton,
 } from '@mui/material';
 import { useSnackbar } from 'notistack';
 import { API } from '../api/axios';
-import { Plus, X, Crown } from 'lucide-react'; // Import icons
 
 /* ─────────────── Shared design tokens (copied from ProjectMembersModal) ─────────────── */
 const inputSx = {
@@ -144,7 +142,6 @@ export default function BigTaskMembersModal({ open, onClose, bigTaskId, containe
                     <Button
                         fullWidth
                         variant="contained"
-                        startIcon={<Plus size={16} />}
                         onClick={() => setShowAdd(true)}
                         sx={{
                             mb: 2,
@@ -179,7 +176,6 @@ export default function BigTaskMembersModal({ open, onClose, bigTaskId, containe
                                         primaryTypographyProps={{ color: '#fff', fontWeight: 600 }}
                                     />
                                     <Chip
-                                        icon={<Crown size={14} />}
                                         label="Owner"
                                         size="small"
                                         sx={{
@@ -204,13 +200,13 @@ export default function BigTaskMembersModal({ open, onClose, bigTaskId, containe
                                             }
                                         }}
                                         secondaryAction={
-                                            <IconButton
-                                                edge="end"
-                                                aria-label="delete"
+                                            <Button
+                                                size="small"
                                                 onClick={() => removeMember(m.username)}
+                                                sx={{ textTransform: 'none', color: '#FF5555', minWidth: 'auto' }}
                                             >
-                                                <X size={16} color="#FF5555" />
-                                            </IconButton>
+                                                Remove
+                                            </Button>
                                         }
                                     >
                                         <ListItemText
