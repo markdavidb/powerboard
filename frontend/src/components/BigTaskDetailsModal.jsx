@@ -694,47 +694,40 @@ export default function BigTaskDetailsModal({
                             background: 'rgba(255,255,255,0.02)',
                             borderTop: '1px solid rgba(255,255,255,0.05)',
                             display: 'flex',
-                            flexDirection: { xs: 'column', sm: 'row' },
                             justifyContent: isEditing ? 'space-between' : 'flex-end',
-                            gap: { xs: 1.5, sm: 2 }
+                            gap: 2
                         }}>
                             {isEditing && (
-                                <Button
-                                    onClick={() => setIsEditing(false)}
-                                    variant="outlined"
-                                    fullWidth={true}
-                                    sx={{
-                                        color: '#ddd',
-                                        borderColor: 'rgba(255,255,255,0.3)',
-                                        px: 3,
-                                        order: { xs: 2, sm: 1 },
-                                        '&:hover': {
-                                            borderColor: '#fff',
-                                            backgroundColor: 'rgba(255,255,255,0.05)'
-                                        }
-                                    }}
-                                >
-                                    Cancel
-                                </Button>
-                            )}
-
-                            <Box sx={{
-                                display: 'flex',
-                                gap: { xs: 1.5, sm: 2 },
-                                order: { xs: 1, sm: 2 },
-                                width: { xs: '100%', sm: 'auto' }
-                            }}>
-                                {isEditing ? (
+                                <>
+                                    <Button
+                                        onClick={() => setIsEditing(false)}
+                                        variant="outlined"
+                                        sx={{
+                                            color: '#ddd',
+                                            borderColor: 'rgba(255,255,255,0.3)',
+                                            px: 3,
+                                            py: 1,
+                                            minWidth: 100,
+                                            textTransform: 'none',
+                                            '&:hover': {
+                                                borderColor: '#fff',
+                                                backgroundColor: 'rgba(255,255,255,0.05)'
+                                            }
+                                        }}
+                                    >
+                                        Cancel
+                                    </Button>
                                     <Button
                                         onClick={handleSave}
                                         variant="contained"
                                         startIcon={!saving && <SaveIcon size={16} />}
                                         disabled={saving}
-                                        fullWidth={true}
                                         sx={{
                                             textTransform: 'none',
                                             fontWeight: 600,
-                                            px: { xs: 3, md: 4 },
+                                            px: 3,
+                                            py: 1,
+                                            minWidth: 100,
                                             background: 'linear-gradient(135deg, #6C63FF, #887CFF)',
                                             boxShadow: '0 4px 12px rgba(108,99,255,0.3)',
                                             '&:hover': {
@@ -748,27 +741,31 @@ export default function BigTaskDetailsModal({
                                             transition: 'all 0.2s ease'
                                         }}
                                     >
-                                        {saving ? <CircularProgress color="inherit" size={20} /> : 'Save Changes'}
+                                        {saving ? <CircularProgress color="inherit" size={20} /> : 'Save'}
                                     </Button>
-                                ) : (
-                                    <Button
-                                        onClick={closeForm}
-                                        variant="outlined"
-                                        fullWidth={true}
-                                        sx={{
-                                            color: '#ddd',
-                                            borderColor: 'rgba(255,255,255,0.3)',
-                                            px: 3,
-                                            '&:hover': {
-                                                borderColor: '#fff',
-                                                backgroundColor: 'rgba(255,255,255,0.05)'
-                                            }
-                                        }}
-                                    >
-                                        Close
-                                    </Button>
-                                )}
-                            </Box>
+                                </>
+                            )}
+
+                            {!isEditing && (
+                                <Button
+                                    onClick={closeForm}
+                                    variant="outlined"
+                                    sx={{
+                                        color: '#ddd',
+                                        borderColor: 'rgba(255,255,255,0.3)',
+                                        px: 3,
+                                        py: 1,
+                                        minWidth: 100,
+                                        textTransform: 'none',
+                                        '&:hover': {
+                                            borderColor: '#fff',
+                                            backgroundColor: 'rgba(255,255,255,0.05)'
+                                        }
+                                    }}
+                                >
+                                    Close
+                                </Button>
+                            )}
                         </Box>
 
                         {/* Status Select Menu */}

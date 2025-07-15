@@ -239,14 +239,21 @@ export default function CreateProjectModal({
                                     disabled={loading}
                                 />
 
-                                <Box>
-                                    <Typography variant="body2" sx={{
-                                        color: '#bbb',
-                                        fontWeight: 500,
-                                        fontSize: '0.75rem',
-                                        mb: 0.5,
-                                        ml: 1
-                                    }}>
+                                <Box sx={{ position: 'relative' }}>
+                                    <Typography
+                                        variant="body2"
+                                        sx={{
+                                            position: 'absolute',
+                                            top: -8,
+                                            left: 14,
+                                            backgroundColor: 'rgba(28, 28, 32, 0.85)',
+                                            px: 0.5,
+                                            color: '#bbb',
+                                            fontSize: '0.75rem',
+                                            fontWeight: 400,
+                                            zIndex: 1,
+                                        }}
+                                    >
                                         Status
                                     </Typography>
                                     <Button
@@ -260,10 +267,16 @@ export default function CreateProjectModal({
                                             backgroundColor: 'rgba(255,255,255,0.05)',
                                             borderColor: 'rgba(108,99,255,0.3)',
                                             color: '#fff',
-                                            py: 1.5,
+                                            py: 1.85,
+                                            borderRadius: 2,
+                                            height: '56px', // Match TextField height
                                             '&:hover': {
                                                 backgroundColor: 'rgba(255,255,255,0.08)',
                                                 borderColor: 'rgba(108,99,255,0.5)',
+                                            },
+                                            '&:focus': {
+                                                borderColor: '#6C63FF',
+                                                borderWidth: '2px',
                                             }
                                         }}
                                     >
@@ -291,10 +304,11 @@ export default function CreateProjectModal({
                             disabled={loading}
                             fullWidth={{ xs: true, sm: false }}
                             sx={{
-                                color: '#ddd',
+                                color: '#fff',
                                 borderColor: 'rgba(255,255,255,0.3)',
                                 px: 3,
                                 order: { xs: 2, sm: 1 },
+                                textTransform: 'none',
                                 '&:hover': {
                                     borderColor: '#fff',
                                     backgroundColor: 'rgba(255,255,255,0.05)'
@@ -313,6 +327,7 @@ export default function CreateProjectModal({
                                 textTransform: 'none',
                                 fontWeight: 600,
                                 px: { xs: 3, md: 4 },
+                                color: '#fff',
                                 background: 'linear-gradient(135deg, #6C63FF, #887CFF)',
                                 boxShadow: '0 4px 12px rgba(108,99,255,0.3)',
                                 order: { xs: 1, sm: 2 },
@@ -322,7 +337,8 @@ export default function CreateProjectModal({
                                     boxShadow: '0 6px 16px rgba(108,99,255,0.4)',
                                 },
                                 '&:disabled': {
-                                    background: 'rgba(108,99,255,0.3)'
+                                    background: 'rgba(108,99,255,0.3)',
+                                    color: 'rgba(255,255,255,0.5)'
                                 },
                                 transition: 'all 0.2s ease'
                             }}

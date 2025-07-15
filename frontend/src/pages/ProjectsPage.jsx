@@ -65,23 +65,31 @@ export default function ProjectsPage() {
         if (!projects.length) return;
         const controller = new AbortController();
 
-        Promise.all(
-            projects.map((p) =>
-                API.project.get("/projects/big_tasks/big_tasks/", {
-                    params: {project_id: p.id, mine_only: false},
-                    signal: controller.signal,
-                })
-            )
-        )
-            .then((responses) => {
+        // Single API call to get ALL big tasks for all accessible projects
+        API.project.get("/projects/big_tasks/big_tasks/", {
+            params: { mine_only: false },
+            signal: controller.signal,
+        })
+            .then((response) => {
+                const allBigTasks = response.data;
                 const stats = {};
-                responses.forEach((r, idx) => {
-                    const list = r.data;
-                    stats[projects[idx].id] = {
-                        total: list.length,
-                        done: list.filter((bt) => bt.status === "Done").length,
-                    };
+
+                // Initialize stats for all projects
+                projects.forEach(project => {
+                    stats[project.id] = { total: 0, done: 0 };
                 });
+
+                // Calculate stats from the bulk data
+                allBigTasks.forEach((bigTask) => {
+                    const projectId = bigTask.project_id;
+                    if (stats[projectId]) {
+                        stats[projectId].total++;
+                        if (bigTask.status === "Done") {
+                            stats[projectId].done++;
+                        }
+                    }
+                });
+
                 setBtStats(stats);
             })
             .catch((err) => {
