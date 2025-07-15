@@ -146,6 +146,12 @@ export default function BigTaskDetailsModal({
             enqueueSnackbar('Add a description to get suggestions', { variant: 'info' });
             return;
         }
+
+        if (description.trim().length < 5) {
+            enqueueSnackbar('Description must be at least 5 characters long for AI suggestions', { variant: 'warning' });
+            return;
+        }
+
         setAiLoading(true);
         setAiSuggestions([]);
         try {
@@ -154,8 +160,23 @@ export default function BigTaskDetailsModal({
                 n: 5,
             });
             setAiSuggestions(data.suggestions || []);
-        } catch {
-            enqueueSnackbar('AI Assist failed', { variant: 'error' });
+        } catch (error) {
+            // Handle specific validation errors
+            if (error.response?.status === 422) {
+                const validationErrors = error.response.data?.detail;
+                if (validationErrors && Array.isArray(validationErrors)) {
+                    const descriptionError = validationErrors.find(err =>
+                        err.loc?.includes('description') && err.type === 'string_too_short'
+                    );
+                    if (descriptionError) {
+                        enqueueSnackbar('Description must be at least 5 characters long for AI suggestions', { variant: 'warning' });
+                        return;
+                    }
+                }
+                enqueueSnackbar('Please check your input and try again', { variant: 'warning' });
+            } else {
+                enqueueSnackbar('AI Assist failed. Please try again later.', { variant: 'error' });
+            }
         } finally {
             setAiLoading(false);
         }
