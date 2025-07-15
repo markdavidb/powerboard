@@ -196,7 +196,7 @@ export default function BigTaskDetailsModal({
                 big_task_id: bigTask.id,
             });
             setAdded(prev => ({ ...prev, [idx]: true }));
-            enqueueSnackbar('Task added to board', { variant: 'success' });
+            enqueueSnackbar('Task added to board.', { variant: 'success' });
         } catch {
             enqueueSnackbar('Failed to create task', { variant: 'error' });
         } finally {
